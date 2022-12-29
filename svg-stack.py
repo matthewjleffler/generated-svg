@@ -23,8 +23,8 @@ def loop():
   # Border
   # lib.rect_safe(0, 0, lib.svg_safe_width, lib.svg_safe_height, "red")
 
-  count = 30
-  stack_count = 15
+  count = 40
+  stack_count = 9
   # count = random.randrange(20, 100)
   # print("Rectangles: {}".format(count))
 

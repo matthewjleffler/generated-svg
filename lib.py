@@ -68,7 +68,7 @@ def write_file(name, number):
   else:
     svg_name = "{}.svg".format(name)
 
-  f = open("./{}".format(svg_name), "w")
+  f = open("./{}/{}".format(name, svg_name), "w")
   f.write(text_content)
   f.close()
   print("Wrote file: {}".format(svg_name))
@@ -99,6 +99,11 @@ def main(name: str, test: bool, seed:int, size:SvgSize, loop:callable):
   close_text_indent("</svg>")
   # print(text_content)
 
+  # Make directory if necessary
+  if not os.path.exists(name):
+    os.makedirs(name)
+
+  # Write content
   if test:
     # Only overwrite test content
     write_file(name, 0)
@@ -106,7 +111,7 @@ def main(name: str, test: bool, seed:int, size:SvgSize, loop:callable):
     # Write numbered content
     # Consume existing file names
     max_number = 0
-    existing = os.listdir(".")
+    existing = os.listdir("./{}".format(name))
 
     file_name_search = re.compile(r"""^{}\D*(\d*).*svg$""".format(name))
 
