@@ -7,6 +7,8 @@ import re
 # Setup Variables
 
 file_name = "template"
+test = True # Whether or not to rewrite the test file only
+seed = 0 # Whether or not to use a set seed
 
 # Widths:
 # A3(?) 1550 x 950
@@ -14,6 +16,13 @@ file_name = "template"
 
 svg_width = 1150
 svg_height = 870
+
+svg_border = 50
+svg_left = svg_top = svg_border
+svg_right = svg_width - svg_border
+svg_bottom = svg_height - svg_border
+svg_safe_width = svg_right - svg_left
+svg_safe_height = svg_bottom - svg_top
 
 file_name_search = re.compile(r"""^{}\D*(\d*).*svg$""".format(file_name))
 text_indent = 0
@@ -44,27 +53,41 @@ def close_text_indent(line):
   add_text_line(line)
 
 
+def write_file(number):
+  if number > 0:
+    svg_name = "{}_{}.svg".format(file_name, number)
+  else:
+    svg_name = "{}.svg".format(file_name)
+
+  f = open("./{}".format(svg_name), "w")
+  f.write(text_content)
+  f.close()
+  print("Wrote file: {}".format(svg_name))
+
+
 def rect(x, y, w, h, color = "black"):
   add_text_line("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" stroke=\"{}\" fill-opacity=\"0\"/>".format(x, y, w, h, color))
 
+def rect_safe(x, y, w, h, color = "black"):
+  rect(x + svg_border, y + svg_border, w, h, color)
 
 # Image Specific Content
 
 def loop():
-  global svg_width, svg_height
 
   # Border
-  rect(50, 50, svg_width-100, svg_height-100, "red")
+  rect_safe(0, 0, svg_safe_width, svg_safe_height, "red")
 
 
 # Main
 
 def main():
-  global text_content, svg_width, svg_height
+  global seed
 
-  seed = random.randrange(sys.maxsize)
-  # seed = 1551311739248735356
+  if seed == 0:
+    seed = random.randrange(sys.maxsize)
   random.seed(seed)
+  print("Seed: {}".format(seed))
 
   open_text_indent("<svg version=\"1.1\" width=\"{}\" height=\"{}\" xmlns=\"http://www.w3.org/2000/svg\">".format(svg_width, svg_height))
 
@@ -74,30 +97,30 @@ def main():
   close_text_indent("</svg>")
   # print(text_content)
 
-  # Consume existing file names
-  max_number = 0
-  existing = os.listdir(".")
-  for file in existing:
-    search = file_name_search.match(file)
-    if search == None:
-      continue
-    group = search.group(1)
-    if not group:
-      continue
-    number = int(group)
-    if not number:
-      continue
-    max_number = max(max_number, number)
+  if test:
+    # Only overwrite test content
+    write_file(0)
+  else:
+    # Write numbered content
+    # Consume existing file names
+    max_number = 0
+    existing = os.listdir(".")
+    for file in existing:
+      search = file_name_search.match(file)
+      if search == None:
+        continue
+      group = search.group(1)
+      if not group:
+        continue
+      number = int(group)
+      if not number:
+        continue
+      max_number = max(max_number, number)
 
-  # Pick the next number in sequence, including missing numbers
-  min_available_number = max_number + 1
+    # Pick the next number in sequence, including missing numbers
+    min_available_number = max_number + 1
 
-  # Create file name and write file
-  svg_name = "{}_{}.svg".format(file_name, min_available_number)
-  f = open("./{}".format(svg_name), "w")
-  f.write(text_content)
-  f.close()
-  print("Wrote file: {}".format(svg_name))
+    write_file(min_available_number)
 
 
 if __name__ == "__main__":
