@@ -19,6 +19,12 @@ class Rect:
   def right(self):
     return self.x + self.w
 
+  def center_x(self):
+    return self.x + self.w / 2
+
+  def center_y(self):
+    return self.y + self.h / 2
+
   def contains(self, x, y) -> bool:
     return x >= self.x and y >= self.y and x <= self.right() and y <= self.bottom()
 
@@ -47,20 +53,21 @@ svg_safe = Rect(0, 0, 0, 0)
 svg_border = 50
 text_indent = 0
 text_content = ""
+font_styles = dict()
 
 
 # Sizes
 
 class SvgSize(Enum):
-  SizeA3 = 1,
+  Size11x17 = 1,
   Size9x12 = 2,
 
 
 def setup_size(size:SvgSize):
   global svg_full, svg_safe
 
-  if size is SvgSize.SizeA3:
-    svg_full = Rect(0, 0, 1550, 950)
+  if size is SvgSize.Size11x17:
+    svg_full = Rect(0, 0, 1630, 1060)
   elif size is SvgSize.Size9x12:
     svg_full = Rect(0, 0, 1150, 870)
 
@@ -107,8 +114,33 @@ def write_file(name, number):
 def rect(x, y, w, h, color = "black"):
   add_text_line("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" stroke=\"{}\" fill-opacity=\"0\"/>".format(x, y, w, h, color))
 
+
 def circ(x, y, r, color = "black"):
   add_text_line("<circle cx=\"{}\" cy=\"{}\" r=\"{}\" stroke=\"{}\" fill-opacity=\"0\"/>".format(x, y, r, color))
+
+
+def add_font_style(name, settings):
+  font_styles[name] = settings
+
+
+def commit_font_styles():
+  if len(font_styles) < 1:
+    return
+
+  # Write style block
+  open_text_indent("<style>")
+
+  for key in font_styles:
+    open_text_indent(".{} {{".format(key))
+    add_text_line("font: {};".format(font_styles[key]))
+    close_text_indent("}")
+
+  close_text_indent("</style>")
+
+
+def svg_text(x, y, name, value):
+  add_text_line("<text x=\"{}\" y=\"{}\" class=\"{}\">{}</text>".format(x, y, name, value))
+
 
 # Main
 
@@ -123,7 +155,6 @@ def main(name: str, test: bool, seed:int, size:SvgSize, loop:callable):
   open_text_indent("<svg version=\"1.1\" width=\"{}\" height=\"{}\" xmlns=\"http://www.w3.org/2000/svg\">".format(svg_full.w, svg_full.h))
 
   add_text_line("<!-- Seed: {} -->".format(seed))
-
   loop()
   close_text_indent("</svg>")
   # print(text_content)

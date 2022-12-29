@@ -1,49 +1,54 @@
 import lib
 import random
+import math
 
 
 def loop():
   # Border
   # lib.rect(lib.svg_safe.x, lib.svg_safe.y, lib.svg_safe.w, lib.svg_safe.h, "red")
 
-  count = 50
-  stack_count = 30
-  # count = random.randrange(20, 100)
-  # print("Circles: {}".format(count))
-
+  count = 1
+  clamp_start = 50
   circles = []
 
   for _ in range(count):
-    x = random.randrange(0, lib.svg_full.w)
-    y = random.randrange(0, lib.svg_full.h)
+    x = random.randrange(lib.svg_safe.x, lib.svg_safe.w)
+    y = random.randrange(lib.svg_safe.y, lib.svg_safe.h)
 
-    x = round(x / 10, 0) * 10
-    y = round(y / 10, 0) * 10
+    x = round(x / clamp_start, 0) * clamp_start
+    y = round(y / clamp_start, 0) * clamp_start
 
-    for i in range(0, stack_count + 1):
-      lib.add_nondup_point(x + i * 10, y + i * 10, circles)
+    lib.add_nondup_point(x, y, circles)
+
+    # Debug show origins
+    # lib.rect(x, y, 10, 10, "red")
 
   circles.sort()
 
   for point in circles:
-    # size = random.randrange(40, 60)
-    size = 100
-    size = round(size / 10, 0) * 10
-    half = size / 2
+    stack_count = random.randint(35, 35)
+    max_size = random.randint(50, 150)
 
-    x = point.x
-    y = point.y
-    if not lib.svg_safe.contains(x - half, y - half) or not lib.svg_safe.contains(x + half, y + half):
-      continue
+    for i in range(0, stack_count + 1):
+      percent = i / stack_count
+      pi_percent = percent * math.pi
 
-    lib.circ(x, y, half)
+      size = 10 + math.sin(pi_percent) * max_size
+      half = size / 2
+
+      x = point.x + 10 * i
+      y = point.y + 10 * i
+      if not lib.svg_safe.contains(x - half, y - half) or not lib.svg_safe.contains(x + half, y + half):
+        continue
+
+      lib.circ(x, y, half)
 
 if __name__ == "__main__":
   lib.main(
     "circle-stack",
-    False,
-    6541782735430617851,
-    lib.SvgSize.Size9x12,
+    True,
+    0,
+    lib.SvgSize.Size11x17,
     loop
   )
 

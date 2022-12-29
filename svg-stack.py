@@ -6,7 +6,7 @@ def loop():
   # Border
   # lib.rect(lib.svg_safe.x, lib.svg_safe.y, lib.svg_safe.w, lib.svg_safe.h, "red")
 
-  count = 50
+  count = 20
   stack_count = 15
   # count = random.randrange(20, 100)
   # print("Rectangles: {}".format(count))
