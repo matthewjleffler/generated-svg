@@ -2,7 +2,7 @@ import lib
 
 def loop():
   # Border
-  lib.rect_safe(0, 0, lib.svg_safe_width, lib.svg_safe_height, "red")
+  lib.rect(lib.svg_safe.x, lib.svg_safe.y, lib.svg_safe.w, lib.svg_safe.h, "red")
 
 
 if __name__ == "__main__":

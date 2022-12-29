@@ -4,16 +4,52 @@ import os
 import re
 from enum import Enum
 
+# Helper classes
+
+class Rect:
+  def __init__(self, x, y, w, h):
+    self.x = x
+    self.y = y
+    self.w = w
+    self.h = h
+
+  def bottom(self):
+    return self.y + self.h
+
+  def right(self):
+    return self.x + self.w
+
+  def contains(self, x, y) -> bool:
+    return x >= self.x and y >= self.y and x <= self.right() and y <= self.bottom()
+
+
+class Point:
+  def __init__(self, x, y):
+    self.x = x
+    self.y = y
+
+  def __lt__(self, other):
+    if self.x == other.x:
+      return self.y < other.y
+    return self.x < other.x
+
+
+def add_nondup_point(x, y, points):
+  for point in points:
+    if point.x == x and point.y == y:
+      return
+  points.append(Point(x, y))
+
 # Setup Variables
 
-svg_width = svg_height = svg_safe_width = svg_safe_height = 0
-svg_left = svg_top = svg_right = svg_bottom = 0
+svg_full = Rect(0, 0, 0, 0)
+svg_safe = Rect(0, 0, 0, 0)
 svg_border = 50
 text_indent = 0
 text_content = ""
 
 
-# Widths
+# Sizes
 
 class SvgSize(Enum):
   SizeA3 = 1,
@@ -21,21 +57,14 @@ class SvgSize(Enum):
 
 
 def setup_size(size:SvgSize):
-  global svg_width, svg_height, svg_safe_width, svg_safe_height
-  global svg_left, svg_top, svg_right, svg_bottom
+  global svg_full, svg_safe
 
   if size is SvgSize.SizeA3:
-    svg_width = 1550
-    svg_height = 950
+    svg_full = Rect(0, 0, 1550, 950)
   elif size is SvgSize.Size9x12:
-    svg_width = 1150
-    svg_height = 870
+    svg_full = Rect(0, 0, 1150, 870)
 
-  svg_left = svg_top = svg_border
-  svg_right = svg_width - svg_border
-  svg_bottom = svg_height - svg_border
-  svg_safe_width = svg_right - svg_left
-  svg_safe_height = svg_bottom - svg_top
+  svg_safe = Rect(svg_border, svg_border, svg_full.w - svg_border * 2, svg_full.h - svg_border * 2)
 
 
 # Text Writing
@@ -78,8 +107,8 @@ def write_file(name, number):
 def rect(x, y, w, h, color = "black"):
   add_text_line("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" stroke=\"{}\" fill-opacity=\"0\"/>".format(x, y, w, h, color))
 
-def rect_safe(x, y, w, h, color = "black"):
-  rect(x + svg_border, y + svg_border, w, h, color)
+def circ(x, y, r, color = "black"):
+  add_text_line("<circle cx=\"{}\" cy=\"{}\" r=\"{}\" stroke=\"{}\" fill-opacity=\"0\"/>".format(x, y, r, color))
 
 # Main
 
@@ -91,7 +120,7 @@ def main(name: str, test: bool, seed:int, size:SvgSize, loop:callable):
   random.seed(seed)
   print("Seed: {}".format(seed))
 
-  open_text_indent("<svg version=\"1.1\" width=\"{}\" height=\"{}\" xmlns=\"http://www.w3.org/2000/svg\">".format(svg_width, svg_height))
+  open_text_indent("<svg version=\"1.1\" width=\"{}\" height=\"{}\" xmlns=\"http://www.w3.org/2000/svg\">".format(svg_full.w, svg_full.h))
 
   add_text_line("<!-- Seed: {} -->".format(seed))
 
