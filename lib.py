@@ -46,6 +46,15 @@ def add_nondup_point(x, y, points):
       return
   points.append(Point(x, y))
 
+
+class Group:
+  def __init__(self, parent, settings):
+    self.parent = parent
+    self.settings = settings
+    self.groups = []
+    self.children = []
+
+
 # Setup Variables
 
 svg_full = Rect(0, 0, 0, 0)
@@ -54,6 +63,8 @@ svg_border = 50
 text_indent = 0
 text_content = ""
 font_styles = dict()
+root_group = Group(None, "stroke=\"black\" fill=\"none\"")
+current_group = root_group
 
 
 # Sizes
@@ -109,14 +120,26 @@ def write_file(name, number):
   f.close()
   print("Wrote file: {}".format(svg_name))
 
-# Shapes
 
-def rect(x, y, w, h, color = "black"):
-  add_text_line("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" stroke=\"{}\" fill-opacity=\"0\"/>".format(x, y, w, h, color))
+# SVG Management
+
+def commit(seed):
+  open_text_indent("<svg version=\"1.1\" width=\"{}\" height=\"{}\" xmlns=\"http://www.w3.org/2000/svg\">".format(svg_full.w, svg_full.h))
+  add_text_line("<!-- Seed: {} -->".format(seed))
+  commit_font_styles()
+  commit_group(root_group)
+  close_text_indent("</svg>")
 
 
-def circ(x, y, r, color = "black"):
-  add_text_line("<circle cx=\"{}\" cy=\"{}\" r=\"{}\" stroke=\"{}\" fill-opacity=\"0\"/>".format(x, y, r, color))
+def commit_group(group:Group):
+  open_text_indent("<g {}>".format(group.settings))
+
+  for child in group.children:
+    add_text_line(child)
+  for group in group.groups:
+    commit_group(group)
+
+  close_text_indent("</g>")
 
 
 def add_font_style(name, settings):
@@ -138,8 +161,41 @@ def commit_font_styles():
   close_text_indent("</style>")
 
 
+def open_group(settings):
+  global current_group
+
+  new_group = Group(current_group, settings)
+  current_group.groups.append(new_group)
+  current_group = new_group
+
+
+def close_group():
+  global current_group
+
+  if current_group.parent == None:
+    return
+
+  current_group = current_group.parent
+
+
+# Drawing
+
+def rect(x, y, w, h):
+  current_group.children.append("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"/>".format(x, y, w, h))
+
+
+def circ(x, y, r):
+  current_group.children.append("<circle cx=\"{}\" cy=\"{}\" r=\"{}\"/>".format(x, y, r))
+
+
 def svg_text(x, y, name, value):
-  add_text_line("<text x=\"{}\" y=\"{}\" class=\"{}\">{}</text>".format(x, y, name, value))
+  current_group.children.append("<text x=\"{}\" y=\"{}\" class=\"{}\">{}</text>".format(x, y, name, value))
+
+
+def border():
+  open_group("stroke=\"red\"")
+  rect(svg_safe.x, svg_safe.y, svg_safe.w, svg_safe.h)
+  close_group()
 
 
 # Main
@@ -152,11 +208,8 @@ def main(name: str, test: bool, seed:int, size:SvgSize, loop:callable):
   random.seed(seed)
   print("Seed: {}".format(seed))
 
-  open_text_indent("<svg version=\"1.1\" width=\"{}\" height=\"{}\" xmlns=\"http://www.w3.org/2000/svg\">".format(svg_full.w, svg_full.h))
-
-  add_text_line("<!-- Seed: {} -->".format(seed))
   loop()
-  close_text_indent("</svg>")
+  commit(seed)
   # print(text_content)
 
   # Make directory if necessary

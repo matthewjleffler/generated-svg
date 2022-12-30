@@ -4,8 +4,7 @@ import math
 
 
 def loop():
-  # Border
-  lib.rect(lib.svg_safe.x, lib.svg_safe.y, lib.svg_safe.w, lib.svg_safe.h, "red")
+  # lib.border()
 
   spread_border = 20
   border_x = 10

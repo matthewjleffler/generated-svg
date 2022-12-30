@@ -1,4 +1,8 @@
 <svg version="1.1" width="1150" height="870" xmlns="http://www.w3.org/2000/svg">
   <!-- Seed: 1 -->
-  <rect x="50" y="50" width="1050" height="770" stroke="red" fill-opacity="0"/>
+  <g stroke="black" fill="none">
+    <g stroke="red">
+      <rect x="50" y="50" width="1050" height="770" />
+    </g>
+  </g>
 </svg>
