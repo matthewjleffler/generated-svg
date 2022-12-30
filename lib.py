@@ -67,6 +67,19 @@ root_group = Group(None, "stroke=\"black\" fill=\"none\"")
 current_group = root_group
 
 
+def init():
+  global svg_full, svg_safe, svg_border, text_indent, text_content, font_styles, root_group, current_group
+
+  svg_full = Rect(0, 0, 0, 0)
+  svg_safe = Rect(0, 0, 0, 0)
+  svg_border = 50
+  text_indent = 0
+  text_content = ""
+  font_styles = dict()
+  root_group = Group(None, "stroke=\"black\" fill=\"none\"")
+  current_group = root_group
+
+
 # Sizes
 
 class SvgSize(Enum):
@@ -201,6 +214,7 @@ def border():
 # Main
 
 def main(name: str, test: bool, seed:int, size:SvgSize, loop:callable):
+  init()
   setup_size(size)
 
   if seed == 0:

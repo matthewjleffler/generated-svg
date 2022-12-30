@@ -3,44 +3,60 @@ import random
 import math
 
 
-def loop():
-  # lib.border()
+max_row = 5
+max_col = 10
+padding = 100
+stack_count = 10
+spread_x = spread_y = 0
+min_size_range = 10
+max_size_range = 50
 
-  spread_border = 20
-  border_x = 10
-  border_y = 0
-  spread_x = 200
-  spread_y = 115
-  row_2_offset = 190
 
-  for row in range(0, 6):
-    origin_y = spread_border + spread_y * row
+def draw_worm(fixed_size):
+  for row in range(0, max_row):
+    origin_y = spread_y * row * 2
 
-    for col in range(0, 5):
-      stack_count = 20
-      max_size = random.randrange(20, 75)
-
-      origin_x = spread_border + spread_x * col
-
-      if row % 2 == 1:
-        origin_x += row_2_offset
+    for col in range(0, max_col):
+      max_size = random.randrange(min_size_range, max_size_range)
+      origin_x = spread_x * col
 
       for i in range(0, stack_count + 1):
         percent = i / stack_count
         pi_percent = percent * math.pi
-        pi_half_percent = percent * math.pi * .25
+        pi_half_percent = percent * math.pi * .2
 
-        size = 10 + math.sin(pi_percent) * max_size
+        size = math.sin(pi_percent) * max_size
+        if fixed_size != 0:
+          size = min(fixed_size, size)
+
         half = size / 2
 
-        if row % 2 == 0:
-          x = lib.svg_safe.x + border_x + origin_x + math.sin(pi_half_percent) * 10 * i
-          y = lib.svg_safe.y + border_y + origin_y + math.cos(pi_half_percent) * 10 * i
-        else:
-          x = lib.svg_safe.x + border_x + origin_x - math.sin(pi_half_percent) * 10 * i
-          y = lib.svg_safe.x + border_y + origin_y + math.cos(pi_half_percent) * 10 * i
+        x = lib.svg_safe.x + origin_x + math.sin(pi_half_percent) * 10 * i
+        y = lib.svg_safe.y + origin_y + math.cos(pi_half_percent) * 10 * i
 
         lib.circ(x, y, half)
+
+
+def loop(fixed_size):
+  global spread_x, spread_y
+
+  lib.border()
+
+  spread_x = (lib.svg_safe.w - padding) / max_col
+  spread_y = (lib.svg_safe.h - padding) / (max_row * 2.1)
+
+  lib.open_group("transform=\"translate({},{})\"".format(padding / 2, padding / 2))
+  draw_worm(fixed_size)
+  lib.open_group("transform=\"translate({},{}) scale(-1,1)\"".format(lib.svg_safe.w, spread_y))
+  draw_worm(fixed_size)
+
+
+def loop_worm():
+  loop(0)
+
+
+def loop_innards():
+  loop(5)
 
 
 if __name__ == "__main__":
@@ -49,6 +65,14 @@ if __name__ == "__main__":
     True,
     0,
     lib.SvgSize.Size9x12,
-    loop
+    loop_worm
+  )
+
+  lib.main(
+    "worm-innards",
+    True,
+    1,
+    lib.SvgSize.Size9x12,
+    loop_innards
   )
 
