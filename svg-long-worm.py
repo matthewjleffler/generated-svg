@@ -43,7 +43,7 @@ def loop():
   size_min = 1
   size_max = 50
 
-  step_dist = 2
+  step_dist = 5
 
   circle = True
 
@@ -137,8 +137,8 @@ def loop():
       lib.rect(pos.x, pos.y, pos.size, pos.size)
 
 
-seed = 1147169191380059654
-test = False
+seed = 0
+test = True
 image_size = lib.SvgSize.Size9x12
 
 if __name__ == "__main__":
