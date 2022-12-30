@@ -1,66 +1,63 @@
 import lib
 import random
-import math
 
-padding = 50
-stack_count = 50
-min_size_range = 5
-max_size_range = 100
-stack_spread = 3
-# worm_size = max_col = max_row = 0
+clamp_point = 0
+def clamp_line(value):
+  if clamp_point == 0:
+    return value
+  return round(value / clamp_point, 0) * clamp_point
 
 
-# def draw_worm(fixed_size):
-#   for row in range(0, max_row):
-#     origin_y = worm_size * row * 1.5
+clamp_size = 0
+def clamp(value):
+  if clamp_size == 0:
+    return value
+  return round(value / clamp_size, 0) * clamp_size
 
-#     for col in range(0, max_col):
-#       max_size = random.randrange(min_size_range, max_size_range)
-#       origin_x = worm_size * col
 
-#       # Debug bounds
-#       # lib.rect(lib.svg_safe.x + origin_x, lib.svg_safe.y + origin_y, worm_size, worm_size)
+class Position:
+  def __init__(self, x, y, size) -> None:
+    self.x = x
+    self.y = y
+    self.size = size
 
-#       for i in range(0, stack_count + 1):
-#         percent = i / stack_count
-#         pi_percent = percent * math.pi
-#         pi_half_percent = percent * math.pi * .25
 
-#         size = math.sin(pi_percent) * max_size
-#         if fixed_size != 0:
-#           size = min(fixed_size, size)
-
-#         half = size / 2
-
-#         x = lib.svg_safe.x + origin_x + math.sin(pi_half_percent) * stack_spread * i
-#         y = lib.svg_safe.y + origin_y + math.cos(pi_half_percent) * stack_spread * i
-
-#         lib.circ(x, y, half)
+def add_nondup_position(x, y, size, array):
+  for item in array:
+    if item.x == x and item.y == y:
+      return
+  array.append(Position(x, y, size))
 
 
 def loop():
-  # global max_col, max_row, worm_size
-
-  lib.border()
-
+  # lib.border()
 
   points = []
   down = True
-  padding = 50
-  jump_x_min = 2
-  jump_x_max = 20
-  jump_y_min = 30
-  jump_y_max = 50
+  padding = 100
+  jump_x_min = 10
+  jump_x_max = 30
+  jump_y_min = 100
+  jump_y_max = 150
+
+  size_min = 10
+  size_max = 60
+
+  step_dist = 3
+
+  circle = True
 
   top = lib.svg_safe.y + padding
   bottom = lib.svg_safe.bottom() - padding
 
-  last_x = lib.svg_safe.x + padding
-  last_y = random.randrange(top, bottom)
+  last_x = clamp_line(lib.svg_safe.x + padding)
+  safe_third = round(lib.svg_safe.h / 3, 0)
+  last_y = clamp_line(random.randrange(lib.svg_safe.y + safe_third, lib.svg_safe.bottom() - safe_third))
   points.append(lib.Point(last_x, last_y))
 
   while last_x < lib.svg_safe.right() - padding:
     last_x += random.randrange(jump_x_min, jump_x_max)
+    last_x = clamp_line(last_x)
     if down:
       new_y = last_y + random.randrange(jump_y_min, jump_y_max)
       if new_y > bottom:
@@ -72,8 +69,8 @@ def loop():
         down = True
         new_y = last_y
 
-    last_y = new_y
-    points.append(lib.Point(last_x, last_y))
+    last_y = clamp_line(new_y)
+    lib.add_nondup_point(last_x, last_y, points)
 
   path = ""
   for i in range(len(points)):
@@ -83,32 +80,65 @@ def loop():
     else:
       path += " L{} {}".format(point.x, point.y)
 
-  # Draw worm path
-  lib.path(path)
+  # Path line
+  # lib.path(path)
 
-  # worm_size = stack_count * stack_spread * .75
-  # worm_row_size = worm_size * 1.55
+  positions = []
 
-  # pad_x = lib.svg_safe.w - padding
-  # pad_y = lib.svg_safe.h - padding
+  # Draw start circle
+  if circle:
+    add_nondup_position(clamp(points[0].x), clamp(points[0].y), size_min, positions)
+  else:
+    x = points[0].x - size_min
+    y = points[0].y - size_min
+    add_nondup_position(clamp(x), clamp(y), size_min * 2, positions)
+  size = size_min
+  next_size = 0
 
-  # max_col = math.floor(pad_x / worm_size)
-  # max_row = math.floor(pad_y / worm_row_size)
+  # Add positions
+  for i in range(1, len(points)):
+    next_size = random.randrange(size_min, size_max)
+    if i == len(points) - 1:
+      next_size = size_min
 
-  # offset_x = (lib.svg_safe.w - (max_col * worm_size)) / 2
-  # offset_y = (lib.svg_safe.h - (max_row * worm_row_size)) / 2
+    p0 = points[i - 1]
+    p1 = points[i]
+    vector = p1.subtract(p0)
+    length = vector.length()
+    vector.normalize()
 
-  # lib.open_group("transform=\"translate({},{})\"".format(offset_x, offset_y))
-  # draw_worm(fixed_size)
-  # lib.close_group()
-  # lib.open_group("transform=\"translate({},{}) scale(-1,1)\"".format(lib.svg_full.w - offset_x + worm_size * .1, offset_y + worm_size * .75))
-  # draw_worm(fixed_size)
-  # lib.close_group()
+    copy = vector.multiply_copy(step_dist)
+    copy_len = copy.length()
+    while copy_len < length:
+      step_size = lib.lerp(size, next_size, copy_len / length)
+      if circle:
+        add_nondup_position(clamp(p0.x + copy.x), clamp(p0.y + copy.y), step_size, positions)
+      else:
+        x = p0.x + copy.x - step_size
+        y = p0.y + copy.y - step_size
+        add_nondup_position(clamp(x), clamp(y), step_size * 2, positions)
+      copy = vector.multiply_copy(copy_len + step_dist)
+      copy_len = copy.length()
+
+    if circle:
+      add_nondup_position(clamp(p1.x), clamp(p1.y), next_size, positions)
+    else:
+      x = p1.x - next_size
+      y = p1.y - next_size
+      add_nondup_position(clamp(x), clamp(y), next_size * 2, positions)
+    size = next_size
+
+  # Draw actual items
+  for pos in positions:
+    if circle:
+      lib.circ(pos.x, pos.y, pos.size)
+    else:
+      lib.rect(pos.x, pos.y, pos.size, pos.size)
 
 
 seed = 0
 test = True
-image_size = lib.SvgSize.Size11x17
+image_size = lib.SvgSize.Size9x12
 
 if __name__ == "__main__":
   lib.main(

@@ -3,6 +3,7 @@ import sys
 import os
 import re
 from enum import Enum
+import math
 
 # Helper classes
 
@@ -39,6 +40,26 @@ class Point:
       return self.y < other.y
     return self.x < other.x
 
+  def length(self):
+    return math.sqrt(self.x * self.x + self.y * self.y)
+
+  def normalize(self):
+    self_len = self.length()
+    self.x /= self_len
+    self.y /= self_len
+
+  def multiply(self, scale):
+    self.x *= scale
+    self.y *= scale
+
+  def multiply_copy(self, scale):
+    result = Point(self.x, self.y)
+    result.multiply(scale)
+    return result
+
+  def subtract(self, other):
+    return Point(self.x - other.x, self.y - other.y)
+
 
 def add_nondup_point(x, y, points):
   for point in points:
@@ -53,6 +74,10 @@ class Group:
     self.settings = settings
     self.groups = []
     self.children = []
+
+
+def lerp(a, b, t):
+  return (1 - t) * a + t * b
 
 
 # Setup Variables
