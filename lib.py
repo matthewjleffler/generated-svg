@@ -205,6 +205,10 @@ def svg_text(x, y, name, value):
   current_group.children.append("<text x=\"{}\" y=\"{}\" class=\"{}\">{}</text>".format(x, y, name, value))
 
 
+def path(value):
+  current_group.children.append("<path d=\"{}\"/>".format(value))
+
+
 def border():
   open_group("stroke=\"red\"")
   rect(svg_safe.x, svg_safe.y, svg_safe.w, svg_safe.h)
