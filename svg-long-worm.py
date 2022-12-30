@@ -35,15 +35,15 @@ def loop():
   points = []
   down = True
   padding = 100
-  jump_x_min = 10
-  jump_x_max = 30
+  jump_x_min = 5
+  jump_x_max = 10
   jump_y_min = 100
   jump_y_max = 150
 
-  size_min = 10
-  size_max = 60
+  size_min = 1
+  size_max = 50
 
-  step_dist = 3
+  step_dist = 2
 
   circle = True
 
@@ -110,7 +110,8 @@ def loop():
     copy = vector.multiply_copy(step_dist)
     copy_len = copy.length()
     while copy_len < length:
-      step_size = lib.lerp(size, next_size, copy_len / length)
+      step_size = lib.ease_in_out_quad(copy_len, size, next_size - size, length)
+      # step_size = lib.lerp(size, next_size, copy_len / length)
       if circle:
         add_nondup_position(clamp(p0.x + copy.x), clamp(p0.y + copy.y), step_size, positions)
       else:
@@ -136,8 +137,8 @@ def loop():
       lib.rect(pos.x, pos.y, pos.size, pos.size)
 
 
-seed = 0
-test = True
+seed = 1147169191380059654
+test = False
 image_size = lib.SvgSize.Size9x12
 
 if __name__ == "__main__":

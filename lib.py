@@ -76,9 +76,13 @@ class Group:
     self.children = []
 
 
+# Math
+
 def lerp(a, b, t):
   return (1 - t) * a + t * b
 
+def ease_in_out_quad(t, b, c, d):
+  return -c / 2 * (math.cos(math.pi * t / d) - 1) + b
 
 # Setup Variables
 
