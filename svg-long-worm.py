@@ -226,7 +226,7 @@ def draw_worm_highlights(draw):
 
 
 def loop(draw_worm, draw_highlight):
-  lib.border()
+  # lib.border()
 
   init()
 
