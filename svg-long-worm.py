@@ -231,8 +231,8 @@ def loop(draw_worm, draw_highlight):
   init()
 
   # Variables
-  min_peaks = 1
-  max_peaks = 20
+  min_peaks = 3
+  max_peaks = 15
   peaks = random.randint(min_peaks, max_peaks)
   shuffle_large_max_x = 80
   shuffle_large_max_y = 100
@@ -360,7 +360,7 @@ def loop_highlight():
 
 seed = 0
 test = True
-image_size = lib.SvgSize.Size9x12
+image_size = lib.SvgSize.Size11x17
 
 if __name__ == "__main__":
   mainseed = lib.main(
