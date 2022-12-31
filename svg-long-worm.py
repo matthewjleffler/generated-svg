@@ -231,7 +231,9 @@ def loop(draw_worm, draw_highlight):
   init()
 
   # Variables
-  peaks = 5
+  min_peaks = 1
+  max_peaks = 20
+  peaks = random.randint(min_peaks, max_peaks)
   shuffle_large_max_x = 80
   shuffle_large_max_y = 100
   shuffle_small_max_x = 30
