@@ -60,6 +60,20 @@ class Point:
   def subtract(self, other):
     return Point(self.x - other.x, self.y - other.y)
 
+  def perpendicular(self):
+    length = self.length()
+    angle = self.angle()
+    return Point( length * math.cos(angle + math.pi / 2),
+                  length * math.sin(angle + math.pi / 2))
+
+    # coord.length()*math.cos(coord.angle()+math.pi/2),
+    #     coord.length()*math.sin(coord.angle()+math.pi/2)
+
+    # return Point(-self.y, self.x)
+
+  def angle(self):
+    return math.atan2(self.y, self.x)
+
 
 def add_nondup_point(x, y, points):
   for point in points:
@@ -291,4 +305,6 @@ def main(name: str, test: bool, seed:int, size:SvgSize, loop:callable):
     min_available_number = max_number + 1
 
     write_file(name, min_available_number)
+
+  return seed
 
