@@ -25,10 +25,10 @@ positions = [] # Final render positions
 
 def init():
   global points, centers, positions
-
   points = []
   centers = []
   positions = []
+
 
 # Clamp line points (pre-curve)
 def clamp_line(value):
@@ -105,7 +105,6 @@ def add_points_along_curve(p0, p1, control, size, next_size):
     if circle:
       add_nondup_position(clamp(point.x), clamp(point.y), step_size, positions)
     else:
-      # TODO not working
       x = point.x - step_size
       y = point.y - step_size
       add_nondup_position(clamp(x), clamp(y), step_size * 2, positions)
@@ -119,7 +118,7 @@ def add_points_along_curve(p0, p1, control, size, next_size):
     add_nondup_position(clamp(x), clamp(y), next_size * 2, positions)
 
 
-def draw_worm_path():
+def draw_worm_path(draw):
   point = centers[0]
   path = "M{} {} L{} {}".format(points[0].x, points[0].y, point.x, point.y)
 
@@ -172,14 +171,15 @@ def draw_worm_path():
     size = next_size
 
   # Draw actual items created in last loop
-  for pos in positions:
-    if circle:
-      lib.circ(pos.x, pos.y, pos.size)
-    else:
-      lib.rect(pos.x, pos.y, pos.size, pos.size)
+  if draw:
+    for pos in positions:
+      if circle:
+        lib.circ(pos.x, pos.y, pos.size)
+      else:
+        lib.rect(pos.x, pos.y, pos.size, pos.size)
 
 
-def draw_worm_highlights():
+def draw_worm_highlights(draw):
   start = points[0]
   end = points[-1]
 
@@ -189,11 +189,17 @@ def draw_worm_highlights():
 
     x = start.x + math.cos(rad) * highlight_end_radius
     y = start.y + math.sin(rad) * highlight_end_radius
-    lib.circ(x, y, highlight_end_point_radius)
+    if draw:
+      lib.circ(x, y, highlight_end_point_radius)
+
+  for i in range(0, highlight_end_points):
+    t = i / highlight_end_points
+    rad = t * math.pi * 2
 
     x = end.x + math.cos(rad) * highlight_end_radius
     y = end.y + math.sin(rad) * highlight_end_radius
-    lib.circ(x, y, highlight_end_point_radius)
+    if draw:
+      lib.circ(x, y, highlight_end_point_radius)
 
   available_highlights = []
   for i in range(1, len(points) - 1):
@@ -209,7 +215,8 @@ def draw_worm_highlights():
     index = random.randint(0, len(available_highlights) - 1)
     index = available_highlights.pop(index)
 
-    lib.circ(points[index].x, points[index].y, highlight_size)
+    if draw:
+      lib.circ(points[index].x, points[index].y, highlight_size)
 
 
 def loop(draw_worm, draw_highlight):
@@ -274,11 +281,8 @@ def loop(draw_worm, draw_highlight):
   # Draw straight line
   # lib.path(path)
 
-  if draw_worm:
-    draw_worm_path()
-
-  if draw_highlight:
-    draw_worm_highlights()
+  draw_worm_path(draw_worm)
+  draw_worm_highlights(draw_highlight)
 
 
 def loop_combined():
