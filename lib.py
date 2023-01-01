@@ -66,11 +66,6 @@ class Point:
     return Point( length * math.cos(angle + math.pi / 2),
                   length * math.sin(angle + math.pi / 2))
 
-    # coord.length()*math.cos(coord.angle()+math.pi/2),
-    #     coord.length()*math.sin(coord.angle()+math.pi/2)
-
-    # return Point(-self.y, self.x)
-
   def angle(self):
     return math.atan2(self.y, self.x)
 
@@ -257,6 +252,31 @@ def border():
   rect(svg_safe.x, svg_safe.y, svg_safe.w, svg_safe.h)
   close_group()
 
+
+def sunburst(bursts, c_x, c_y, start_rad, ray_len):
+  sunburst_points = bursts
+  for i in range(0, sunburst_points):
+    t = i / sunburst_points
+    rad = t * math.pi * 2
+
+    x = c_x + math.sin(rad) * (start_rad)
+    y = c_y + math.cos(rad) * (start_rad)
+
+    vec = Point(x, y)
+    vec = vec.subtract(Point(c_x, c_y))
+    vec.normalize()
+    vec.multiply(ray_len)
+    path("M {} {} L{} {}".format(x, y, x + vec.x, y + vec.y))
+
+
+def ring_of_circles(number, c_x, c_y, center_rad, circle_rad):
+  for i in range(0, number):
+    t = i / number
+    rad = t * math.pi * 2
+
+    x = c_x + math.cos(rad) * center_rad
+    y = c_y + math.sin(rad) * center_rad
+    circ(x, y, circle_rad)
 
 # Main
 

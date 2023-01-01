@@ -2,12 +2,24 @@ import lib
 import random
 import math
 from enum import IntEnum
+from typing import List
+
+# TODO highlight stroke types?
+# TODO text paths?
+
+class Position:
+  # TODO merge with point?
+  def __init__(self, x, y, size) -> None:
+    self.x = x
+    self.y = y
+    self.size = size
 
 # Setup variables
 step_dist = 5 # How far (roughly) between steps
 circle = True # Render circles or squares
 clamp_point = 0 # Clamping the line point positions
 clamp_size = 0 # Clamping the rendering positions
+size_digits = 2 # How many digits to round the radius size to
 
 # Layout generation
 min_peaks = 3
@@ -22,21 +34,23 @@ rough_subdivisions_max = 10
 # Worm circle sizes
 size_end = 1
 size_min = 5
-size_max = 40
+size_max = 60
 
 # Highlights
-highlight_end_radius = 30
+highlight_end_circle_radius = 30
 highlight_end_points = 10
 highlight_end_point_radius = 5
 
-min_highlights = 2
-max_highlights = 4
+min_highlights = 3
+max_highlights = 5
+
+highlight_padding = 20
+consumed_check_radius = 50
 
 # Init variables
-rough_points = [] # Initial guide points
-points = [] # Line points
-centers = [] # Line centers for bezier curves
-positions = [] # Final render positions
+points:List[lib.Point] = [] # Line points
+centers:List[lib.Point] = [] # Line centers for bezier curves
+positions:List[Position] = [] # Final render positions
 
 
 class HighlightType(IntEnum):
@@ -48,8 +62,7 @@ class HighlightType(IntEnum):
 
 
 def init():
-  global rough_points, points, centers, positions
-  rough_points = []
+  global points, centers, positions
   points = []
   centers = []
   positions = []
@@ -58,14 +71,14 @@ def init():
 # Round line points (pre-curve)
 def round_line(value):
   if clamp_point == 0:
-    return value
+    return round(value, 0)
   return round(value / clamp_point, 0) * clamp_point
 
 
 # Round render positions
 def round_position(value):
   if clamp_size == 0:
-    return value
+    return round(value, 0)
   return round(value / clamp_size, 0) * clamp_size
 
 
@@ -73,16 +86,9 @@ def clamp(val, minv, maxv):
   return max(min(val, maxv), minv)
 
 
-class Position:
-  def __init__(self, x, y, size) -> None:
-    self.x = x
-    self.y = y
-    self.size = size
-
-
 def add_nondup_position(x, y, size, array):
   for item in array:
-    if item.x == x and item.y == y:
+    if item.x == x and item.y == y and item.size == size:
       return
   array.append(Position(x, y, size))
 
@@ -101,8 +107,8 @@ def add_points_along_line(p0, p1, size, next_size):
   copy = vector.multiply_copy(step_dist)
   copy_len = copy.length()
   while copy_len < length:
-    # step_size = lib.ease_in_out_quad(copy_len, size, next_size - size, length)
-    step_size = lib.lerp(size, next_size, copy_len / length)
+    step_size = lib.ease_in_out_quad(copy_len, size, next_size - size, length)
+    # step_size = round(lib.lerp(size, next_size, copy_len / length), size_digits)
     if circle:
       add_nondup_position(round_position(p0.x + copy.x), round_position(p0.y + copy.y), step_size, positions)
     else:
@@ -129,7 +135,7 @@ def add_points_along_curve(p0, p1, control, size, next_size):
     t = i / steps
     point = step_along_quadratic(p0, p1, control, t)
 
-    step_size = lib.ease_in_out_quad(t, size, next_size - size, 1)
+    step_size = round(lib.ease_in_out_quad(t, size, next_size - size, 1), size_digits)
     # step_size = lib.lerp(size, next_size, t)
 
     if circle:
@@ -209,47 +215,74 @@ def draw_worm_path(draw):
         lib.rect(pos.x, pos.y, pos.size, pos.size)
 
 
+def check_point_consumed(position, consumed_highlights):
+  point = lib.Point(position.x, position.y)
+  for consumed in consumed_highlights:
+    vec = lib.Point(consumed.x, consumed.y)
+    vec = vec.subtract(point)
+
+    len = vec.length()
+    size = position.size + consumed.size + consumed_check_radius + highlight_padding * 2
+    if len < size:
+      return True
+  return False
+
+
+def pick_valid_highlight(available_highlights, consumed_highlights):
+  while True:
+    index = random.randint(0, len(available_highlights) - 1)
+    index = available_highlights.pop(index)
+    position = positions[index]
+
+    consumed = check_point_consumed(position, consumed_highlights)
+    if not consumed:
+      # We're good, consume the point
+      consumed_highlights.append(position)
+      return position
+
+    # Are we out of points?
+    if len(available_highlights) < 1:
+      return None
+
+
 def draw_worm_highlights(draw):
+  lib.open_group("stroke=\"blue\"")
+
   start = points[0]
   end = points[-1]
 
-  for i in range(0, highlight_end_points):
-    t = i / highlight_end_points
-    rad = t * math.pi * 2
+  # Draw rings
+  if draw:
+    lib.ring_of_circles(highlight_end_points, start.x, start.y, highlight_end_circle_radius, highlight_end_point_radius)
+    lib.sunburst(highlight_end_points, end.x, end.y, highlight_end_circle_radius, 10)
+    # lib.ring_of_circles(highlight_end_points, end.x, end.y, highlight_end_circle_radius, highlight_end_point_radius)
 
-    x = start.x + math.cos(rad) * highlight_end_radius
-    y = start.y + math.sin(rad) * highlight_end_radius
-    if draw:
-      lib.circ(x, y, highlight_end_point_radius)
-
-  for i in range(0, highlight_end_points):
-    t = i / highlight_end_points
-    rad = t * math.pi * 2
-
-    x = end.x + math.cos(rad) * highlight_end_radius
-    y = end.y + math.sin(rad) * highlight_end_radius
-    if draw:
-      lib.circ(x, y, highlight_end_point_radius)
+  consumed_highlights = []
+  consumed_highlights.append(Position(start.x, start.y, highlight_end_circle_radius))
+  consumed_highlights.append(Position(end.x, end.y, highlight_end_circle_radius))
 
   available_highlights = []
-  for i in range(1, len(points) - 1):
+  for i in range(0, len(positions)):
     available_highlights.append(i)
 
-  highlight_size = size_max + 10
-  highlights = random.randint(min_highlights, max_highlights)
+  # highlight_size = size_max + 10
+  highlight_count = random.randint(min_highlights, max_highlights)
 
   connect_next = False
   last = lib.Point(0,0)
 
-  while highlights > 0 and len(available_highlights) > 0:
+  while highlight_count > 0:
+    # Pick valid highlight
+    point = pick_valid_highlight(available_highlights, consumed_highlights)
+    if point is None:
+      return # Ran out of points
+
     # Pick random highlight type
     highlight_index = random.randint(0, int(HighlightType.End - 1))
     highlight_type = HighlightType(highlight_index)
 
-    highlights = highlights - 1
-    index = random.randint(0, len(available_highlights) - 1)
-    index = available_highlights.pop(index)
-    point = points[index]
+    highlight_count -= 1
+    highlight_size = point.size + highlight_padding
 
     if draw:
       if connect_next:
@@ -262,23 +295,12 @@ def draw_worm_highlights(draw):
         lib.circ(point.x, point.y, highlight_size + 10)
       elif highlight_type == HighlightType.SunRing:
         lib.circ(point.x, point.y, highlight_size)
-
-        sunburst_points = 20
-        for i in range(0, sunburst_points):
-          t = i / sunburst_points
-          rad = t * math.pi * 2
-
-          x = point.x + math.sin(rad) * (highlight_size + 10)
-          y = point.y + math.cos(rad) * (highlight_size + 10)
-
-          vec = lib.Point(x, y)
-          vec = vec.subtract(point)
-          vec.normalize()
-          vec.multiply(10)
-          lib.path("M {} {} L{} {}".format(x, y, x + vec.x, y + vec.y))
+        lib.sunburst(20, point.x, point.y, highlight_size + 10, 10)
 
     last = point
     connect_next = random.randint(0, 3) == 0
+
+  lib.close_group()
 
 
 def loop(draw_worm, draw_highlight):
@@ -311,6 +333,7 @@ def loop(draw_worm, draw_highlight):
     second = top
 
   # Pick rough points
+  rough_points = []
   rough_points.append(lib.Point(left, center_y))
   for i in range(0, peaks):
     rough_points.append(lib.Point(left + space * (i + 1), first))
@@ -342,19 +365,20 @@ def loop(draw_worm, draw_highlight):
     length = vector.length()
 
     subdivisions = random.randint(rough_subdivisions_min, rough_subdivisions_max)
+    if i == 1 or i == len(rough_points) - 1:
+      subdivisions = 1
+
     sub_length = length / subdivisions
     vector.normalize()
     vector.multiply(sub_length)
 
     x = last.x
     y = last.y
-    points.append(lib.Point(x, y))
+    lib.add_nondup_point(round(x, 0), round(y, 0), points)
     for _ in range(0, subdivisions):
       x += vector.x
       y += vector.y
-      points.append(lib.Point(x, y))
-      # lib.circ(x, y, 5)
-
+      lib.add_nondup_point(round(x, 0), round(y, 0), points)
     last = point
 
   # Shuffle subdivided path
