@@ -374,6 +374,10 @@ def loop():
   draw_string(0, 0, 10, "test small text")
   lib.close_group()
 
+  lib.open_group("transform=\"translate(100, 500) rotate(15)\"")
+  draw_string(0, 0, 10, "test rotated text 2045")
+  lib.close_group()
+
 
 if __name__ == "__main__":
   lib.main(
