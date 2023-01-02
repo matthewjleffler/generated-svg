@@ -183,7 +183,10 @@ def commit(seed):
 
 
 def commit_group(group:Group):
-  open_text_indent("<g {}>".format(group.settings))
+  if group.settings is not None:
+    open_text_indent("<g {}>".format(group.settings))
+  else:
+    open_text_indent("<g>")
 
   for child in group.children:
     add_text_line(child)

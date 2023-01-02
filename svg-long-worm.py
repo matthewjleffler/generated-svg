@@ -8,11 +8,14 @@ from typing import List
 # TODO text paths?
 
 class Position:
-  # TODO merge with point?
   def __init__(self, x, y, size) -> None:
     self.x = x
     self.y = y
     self.size = size
+
+  def point(self) -> lib.Point:
+    return lib.Point(self.x, self.y)
+
 
 # Setup variables
 step_dist = 5 # How far (roughly) between steps
@@ -215,10 +218,10 @@ def draw_worm_path(draw):
         lib.rect(pos.x, pos.y, pos.size, pos.size)
 
 
-def check_point_consumed(position, consumed_highlights):
-  point = lib.Point(position.x, position.y)
+def check_point_consumed(position:Position, consumed_highlights:List[Position]):
+  point = position.point()
   for consumed in consumed_highlights:
-    vec = lib.Point(consumed.x, consumed.y)
+    vec = consumed.point()
     vec = vec.subtract(point)
 
     len = vec.length()
