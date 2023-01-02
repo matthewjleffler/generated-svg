@@ -4,9 +4,6 @@ import math
 from enum import IntEnum
 from typing import List
 
-# TODO highlight stroke types?
-# TODO text paths?
-
 class Position:
   def __init__(self, x, y, size) -> None:
     self.x = x
@@ -26,7 +23,7 @@ size_digits = 2 # How many digits to round the radius size to
 
 # Layout generation
 min_peaks = 3
-max_peaks = 3
+max_peaks = 7
 shuffle_large_max_x = 80
 shuffle_large_max_y = 100
 shuffle_small_max_x = 30
@@ -280,6 +277,10 @@ def draw_worm_highlights(draw):
     if point is None:
       return # Ran out of points
 
+    num = 0
+    if random.randint(0, 3) == 0:
+      num = random.randint(200, 50000)
+
     # Pick random highlight type
     highlight_index = random.randint(0, int(HighlightType.End - 1))
     highlight_type = HighlightType(highlight_index)
@@ -299,6 +300,12 @@ def draw_worm_highlights(draw):
       elif highlight_type == HighlightType.SunRing:
         lib.circ(point.x, point.y, highlight_size)
         lib.sunburst(20, point.x, point.y, highlight_size + 10, 10)
+
+      if num > 0:
+        lib.open_group("transform=\"translate({},{}) scale(0.5,0.5)\""
+          .format(point.x + highlight_size * 1.5, point.y))
+        lib.draw_string(0, 0, 10, str(num))
+        lib.close_group()
 
     last = point
     connect_next = random.randint(0, 3) == 0
@@ -434,7 +441,7 @@ def loop_highlight():
 
 seed = 0
 test = True
-image_size = lib.SvgSize.Size11x17
+image_size = lib.SvgSize.Size9x12
 
 if __name__ == "__main__":
   mainseed = lib.main(

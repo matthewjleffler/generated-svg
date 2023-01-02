@@ -558,7 +558,7 @@ def number_9(x, y) -> float:
             -let_h_quart, 0, -let_h_quart, let_h_quart,
             0, let_h_quart, let_h_quart, let_h_quart,
             let_h_quart))
-  return let_h_quart
+  return let_h_half
 
 def draw_letter(x, y, kern, letter:callable) -> float:
   return letter(x, y) + kern
