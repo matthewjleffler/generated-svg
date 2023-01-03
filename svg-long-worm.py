@@ -169,7 +169,7 @@ def loop(draw_worm:bool, draw_highlight:bool):
     second = top
 
   # Pick rough points
-  rough_points = []
+  rough_points: List[lib.Point] = []
   rough_points.append(lib.Point(left, center_y))
   for i in range(0, peaks):
     rough_points.append(lib.Point(left + space * (i + 1), first))

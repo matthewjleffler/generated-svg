@@ -46,6 +46,16 @@ def subdivide_point_path(rough:List[lib.Point], sub_min:int, sub_max:int) -> Lis
   return points
 
 
+def clean_duplicates(points:List[lib.Point]):
+  i = len(points)
+  while i > 1:
+    i -= 1
+    last = points[i]
+    next = points[i - 1]
+    if last.x == next.x and last.y == next.y:
+      points.pop(i)
+
+
 def shuffle_points(range_x:float, range_y:float, points:List[lib.Point]):
   for point in points:
     change_x = random.randrange(-range_x, range_x)
@@ -101,6 +111,11 @@ def add_points_along_curve(p0:lib.Point, p1:lib.Point, control:lib.Point, size:f
 
   # Finish with final point
   add_nondup_position(round(p1.x, round_digits), round(p1.y, round_digits), next_size, positions)
+
+
+def draw_point_circles(points:List[lib.Point]):
+  for point in points:
+    lib.circ(point.x, point.y, 5)
 
 
 def draw_point_path(points:List[lib.Point]):
