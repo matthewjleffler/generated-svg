@@ -2,8 +2,9 @@ import random
 import sys
 import os
 import re
-from enum import Enum
 import math
+from enum import Enum
+from typing import List
 
 # Helper classes
 
@@ -105,6 +106,21 @@ def ease_in_out_quad(t, b, c, d):
 def rand_float(min:float, max:float) -> float:
   delta = max - min
   return min + random.random() * delta
+
+def weighted_random(array:List[tuple[any, float]]) -> any:
+  if len(array) < 1:
+    return None
+  sum = 0
+  for item in array:
+    sum += item[1]
+  rand = random.random() * sum
+  for item in array:
+    rand -= item[1]
+    if rand <= 0:
+      return item[0]
+  print("Error in weighted randomness")
+  return None
+
 
 # Setup Variables
 

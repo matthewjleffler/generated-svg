@@ -12,8 +12,6 @@ class BorderType(IntEnum):
   Circles = 1
   Starburst = 2
 
-  End = 3
-
 rotate_range = math.pi / 10
 ring_pad = 5
 
@@ -71,17 +69,24 @@ def draw_circle(x:float, y:float, rays:int, min_dist:float, max_dist:float, poin
 
   # points.append(subdivided)
 
+ring_weights: List[tuple[int, float]] = [
+  (0, 5), (1, 2), (2, 1), (3, 0.5)
+]
+
+border_weights: List[tuple[BorderType, float]] = [
+  (BorderType.Empty, 5), (BorderType.Circles, 1), (BorderType.Starburst, 2)
+]
 
 def add_border(x, y, size_h, draw):
-  ring_count = random.randint(0, 3)
+  ring_count = lib.weighted_random(ring_weights)
+
   if draw:
     for i in range(0, ring_count):
       lib.circ(x, y, size_h + ring_pad + ring_pad * i)
 
   ring_buffer = ring_pad + ring_pad * (ring_count + 1)
 
-  border_index = random.randint(0, int(BorderType.End) - 1)
-  border = BorderType(border_index)
+  border = lib.weighted_random(border_weights)
   if border == BorderType.Empty or not draw:
     return
   elif border == BorderType.Circles:
@@ -107,8 +112,8 @@ def loop(draw_circles, draw_border):
   # Generate points and control points
   points: List[List[lib.Point]] = []
 
-  size_h = random.randint(40, 280)
-  size = size_h + 35
+  size_h = random.randint(20, 350)
+  size = size_h + 20
   size_d = size * 2
 
   col_max = math.floor(width / size_d)
@@ -160,7 +165,7 @@ test = True
 size = lib.SvgSize.Size9x12
 
 if __name__ == "__main__":
-  lib.main("spiral-combined", test, seed, size, loop_combined)
-  lib.main("spiral-circles", test, seed, size, loop_circles)
-  lib.main("spiral-highlights", test, seed, size, loop_highlights)
+  real_seed = lib.main("spiral-combined", test, seed, size, loop_combined)
+  lib.main("spiral-circles", test, real_seed, size, loop_circles)
+  lib.main("spiral-highlights", test, real_seed, size, loop_highlights)
 
