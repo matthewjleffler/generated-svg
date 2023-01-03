@@ -1,6 +1,7 @@
 import lib
 import math
 import random
+from typing import List
 
 round_digits = 0 # How many digits to round positions to
 size_digits = 2 # How many digits to round the radius size to
@@ -15,20 +16,58 @@ class Position:
     return lib.Point(self.x, self.y)
 
 
-def add_nondup_position(x, y, size, array):
+def subdivide_point_path(rough:List[lib.Point], sub_min:int, sub_max:int) -> List[lib.Point]:
+  last = rough[0]
+  points: List[lib.Point] = []
+  points.append(rough[0])
+
+  for i in range(1, len(rough)):
+    point = rough[i]
+    vector = point.subtract(last)
+    length = vector.length()
+
+    subdivisions = random.randint(sub_min, sub_max)
+    if i == 1 or i == len(rough) - 1:
+      subdivisions = 1
+
+    sub_length = length / subdivisions
+    vector.normalize()
+    vector.multiply(sub_length)
+
+    x = last.x
+    y = last.y
+    lib.add_nondup_point(round(x, 0), round(y, 0), points)
+    for _ in range(0, subdivisions):
+      x += vector.x
+      y += vector.y
+      lib.add_nondup_point(round(x, 0), round(y, 0), points)
+    last = point
+
+  return points
+
+
+def shuffle_points(range_x:float, range_y:float, points:List[lib.Point]):
+  for point in points:
+    change_x = random.randrange(-range_x, range_x)
+    change_y = random.randrange(-range_y, range_y)
+    point.x += change_x
+    point.y += change_y
+
+
+def add_nondup_position(x:float, y:float, size:float, array:List[Position]):
   for item in array:
     if item.x == x and item.y == y and item.size == size:
       return
   array.append(Position(x, y, size))
 
 
-def step_along_quadratic(start, end, control, t):
+def step_along_quadratic(start:float, end:float, control:lib.Point, t:float) -> lib.Point:
   x = (1 - t) * (1 - t) * start.x + 2 * (1 - t) * t * control.x + t * t * end.x
   y = (1 - t) * (1 - t) * start.y + 2 * (1 - t) * t * control.y + t * t * end.y
   return lib.Point(x, y)
 
 
-def add_points_along_line(p0, p1, size, next_size, step_dist, positions):
+def add_points_along_line(p0:lib.Point, p1:lib.Point, size:float, next_size:float, step_dist:float, positions:List[Position]):
   vector = p1.subtract(p0)
   length = vector.length()
   vector.normalize()
@@ -46,7 +85,7 @@ def add_points_along_line(p0, p1, size, next_size, step_dist, positions):
   add_nondup_position(round(p1.x, round_digits), round(p1.y, round_digits), next_size, positions)
 
 
-def add_points_along_curve(p0, p1, control, size, next_size, step_dist, positions):
+def add_points_along_curve(p0:lib.Point, p1:lib.Point, control:lib.Point, size:float, next_size:float, step_dist:float, positions:List[Position]):
   vector = p1.subtract(p0)
   length = vector.length() * 1.1
   steps = math.floor(length / step_dist)
@@ -64,7 +103,16 @@ def add_points_along_curve(p0, p1, control, size, next_size, step_dist, position
   add_nondup_position(round(p1.x, round_digits), round(p1.y, round_digits), next_size, positions)
 
 
-def draw_curved_path(points, centers):
+def draw_point_path(points:List[lib.Point]):
+  last = points[0]
+  path = "M{} {}".format(last.x, last.y)
+  for i in range(1, len(points)):
+    point = points[i]
+    path += " L{} {}".format(point.x, point.y)
+  lib.path(path)
+
+
+def draw_curved_path(points:List[lib.Point], centers:List[lib.Point]):
   point = centers[0]
   path = "M{} {} L{} {}".format(points[0].x, points[0].y, point.x, point.y)
 
@@ -81,7 +129,9 @@ def draw_curved_path(points, centers):
   lib.path(path)
 
 
-def generate_centerpoints(points, centers):
+def generate_centerpoints(points:List[lib.Point]) -> List[lib.Point]:
+  centers = []
+
   # Generate centerpoints
   last = points[0]
   for i in range(1, len(points)):
@@ -101,8 +151,12 @@ def generate_centerpoints(points, centers):
 
     last = point
 
+  return centers
 
-def generate_final_positions(points, centers, positions, size_end, size_min, size_max, step_dist):
+
+def generate_final_positions(points: List[lib.Point], centers: List[lib.Point], size_end:float, size_min:float, size_max:float, step_dist:float) -> List[Position]:
+  positions: List[Position] = []
+
   # Start point
   add_nondup_position(round(points[0].x, round_digits), round(points[0].y, 0), size_end, positions)
   size = size_end
@@ -132,3 +186,6 @@ def generate_final_positions(points, centers, positions, size_end, size_min, siz
       add_points_along_curve(p0, p1, control, size, next_size, step_dist, positions)
 
     size = next_size
+
+  return positions
+
