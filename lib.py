@@ -8,30 +8,30 @@ import math
 # Helper classes
 
 class Rect:
-  def __init__(self, x, y, w, h):
+  def __init__(self, x:float, y:float, w:float, h:float):
     self.x = x
     self.y = y
     self.w = w
     self.h = h
 
-  def bottom(self):
+  def bottom(self) -> float:
     return self.y + self.h
 
-  def right(self):
+  def right(self) -> float:
     return self.x + self.w
 
-  def center_x(self):
+  def center_x(self) -> float:
     return self.x + self.w / 2
 
-  def center_y(self):
+  def center_y(self) -> float:
     return self.y + self.h / 2
 
-  def contains(self, x, y) -> bool:
+  def contains(self, x:float, y:float) -> bool:
     return x >= self.x and y >= self.y and x <= self.right() and y <= self.bottom()
 
 
 class Point:
-  def __init__(self, x, y):
+  def __init__(self, x:float, y:float):
     self.x = x
     self.y = y
 
@@ -40,7 +40,7 @@ class Point:
       return self.y < other.y
     return self.x < other.x
 
-  def length(self):
+  def length(self) -> float:
     return math.sqrt(self.x * self.x + self.y * self.y)
 
   def normalize(self):
@@ -48,16 +48,19 @@ class Point:
     self.x /= self_len
     self.y /= self_len
 
-  def multiply(self, scale):
+  def multiply(self, scale:float):
     self.x *= scale
     self.y *= scale
 
-  def multiply_copy(self, scale):
+  def multiply_copy(self, scale:float):
     result = Point(self.x, self.y)
     result.multiply(scale)
     return result
 
-  def subtract(self, other):
+  def subtract_floats(self, x:float,  y:float):
+    return Point(self.x - x, self.y - y)
+
+  def subtract(self, other:float):
     return Point(self.x - other.x, self.y - other.y)
 
   def perpendicular(self):
@@ -92,6 +95,10 @@ def lerp(a, b, t):
 
 def ease_in_out_quad(t, b, c, d):
   return -c / 2 * (math.cos(math.pi * t / d) - 1) + b
+
+def rand_float(min:float, max:float) -> float:
+  delta = max - min
+  return min + random.random() * delta
 
 # Setup Variables
 
