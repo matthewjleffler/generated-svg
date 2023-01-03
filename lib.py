@@ -107,7 +107,7 @@ def rand_float(min:float, max:float) -> float:
   delta = max - min
   return min + random.random() * delta
 
-def weighted_random(array:List[tuple[any, float]]) -> any:
+def weighted_random(array) -> any:
   if len(array) < 1:
     return None
   sum = 0

@@ -18,11 +18,11 @@ class BorderType(Enum):
 
 ring_distance = 10
 
-weight_rings: List[tuple[int, float]] = [
+weight_rings = [
   (0, 1), (1, 1), (2, 0.5), (3, 0.1), (4, 0.05)
 ]
 
-weight_border: List[tuple[BorderType, float]] = [
+weight_border = [
   (BorderType.Empty, 1), (BorderType.Sunburst, 0.5), (BorderType.Circles, 0.5)
 ]
 
@@ -73,7 +73,7 @@ def highlight_2(width, height, x, y, draw_highlight, positions):
 
 
 def loop(draw_worm, draw_highlight, draw_highlight_2):
-  lib.border()
+  # lib.border()
 
   # Build outline
   padding = 100
@@ -165,7 +165,7 @@ def loop_highlight():
 def loop_highlight_2():
   loop(False, False, True)
 
-seed = 0
+seed = 7308483006666344611
 test = True
 image_size = lib.SvgSize.Size11x17
 
@@ -173,4 +173,4 @@ if __name__ == "__main__":
   mainseed = lib.main("spiral-worm-combined", test, seed, image_size, loop_combined)
   lib.main("spiral-worm-worm", test, mainseed, image_size, loop_worm)
   lib.main("spiral-worm-highlight", test, mainseed, image_size, loop_highlight)
-  lib.main("spiral-worm-highlight-2", test, mainseed, image_size, loop_highlight_2)
+  lib.main("spiral-worm-highlight-layer", test, mainseed, image_size, loop_highlight_2)

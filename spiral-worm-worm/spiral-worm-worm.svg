@@ -1998,9 +1998,6 @@
     <circle cx="1118.0" cy="786.0" r="1.01"/>
     <circle cx="1116.0" cy="788.0" r="1.0"/>
     <circle cx="1115.0" cy="789.0" r="1"/>
-    <g stroke="red">
-      <rect x="50" y="50" width="1530" height="960"/>
-    </g>
     <g stroke="blue">
     </g>
     <g stroke="red">
