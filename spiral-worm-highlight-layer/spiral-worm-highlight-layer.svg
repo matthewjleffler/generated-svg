@@ -1,16 +1,19 @@
 <svg version="1.1" width="1630" height="1060" xmlns="http://www.w3.org/2000/svg">
-  <!-- Seed: 7308483006666344611 -->
+  <!-- Seed: 6024313497809500442 -->
   <g stroke="black" fill="none">
     <g stroke="blue">
     </g>
     <g stroke="red">
-      <circle cx="245.0" cy="530.0" r="53"/>
-      <circle cx="245.0" cy="530.0" r="63"/>
-      <circle cx="245.0" cy="530.0" r="73"/>
-      <circle cx="1385.0" cy="530.0" r="53"/>
-      <circle cx="1385.0" cy="530.0" r="63"/>
-      <path d="M245.0 530.0L1092.0 424.0L1385.0 530.0"/>
-      <circle cx="1092.0" cy="424.0" r="24"/>
+      <circle cx="245.0" cy="530.0" r="25"/>
+      <circle cx="245.0" cy="530.0" r="35"/>
+      <circle cx="245.0" cy="530.0" r="45"/>
+      <circle cx="245.0" cy="530.0" r="55"/>
+      <circle cx="1385.0" cy="530.0" r="25"/>
+      <circle cx="1385.0" cy="530.0" r="35"/>
+      <circle cx="1385.0" cy="530.0" r="45"/>
+      <circle cx="1385.0" cy="530.0" r="55"/>
+      <path d="M245.0 530.0L479.0 408.0L1385.0 530.0"/>
+      <circle cx="479.0" cy="408.0" r="32.4"/>
     </g>
   </g>
 </svg>

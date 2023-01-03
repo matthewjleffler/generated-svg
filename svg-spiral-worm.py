@@ -165,7 +165,7 @@ def loop_highlight():
 def loop_highlight_2():
   loop(False, False, True)
 
-seed = 7308483006666344611
+seed = 0
 test = True
 image_size = lib.SvgSize.Size11x17
 
