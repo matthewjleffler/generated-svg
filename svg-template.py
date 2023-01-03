@@ -12,5 +12,5 @@ test = True
 size = lib.SvgSize.Size9x12
 
 if __name__ == "__main__":
-  lib.main("template", test, seed, size, loop)
+  mainseed = lib.main("template", test, seed, size, loop)
 
