@@ -72,6 +72,12 @@ class Point:
   def angle(self):
     return math.atan2(self.y, self.x)
 
+  def rotate(self, rads:float):
+    ca = math.cos(rads)
+    sa = math.sin(rads)
+    return Point(ca * self.x - sa * self.y,
+                 sa * self.x + ca * self.y)
+
 
 def add_nondup_point(x, y, points):
   for point in points:

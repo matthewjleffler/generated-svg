@@ -16,7 +16,7 @@ class Position:
     return lib.Point(self.x, self.y)
 
 
-def subdivide_point_path(rough:List[lib.Point], sub_min:int, sub_max:int) -> List[lib.Point]:
+def subdivide_point_path(rough:List[lib.Point], sub_min:int, sub_max:int, ignore_ends:bool = True) -> List[lib.Point]:
   last = rough[0]
   points: List[lib.Point] = []
   points.append(rough[0])
@@ -27,8 +27,9 @@ def subdivide_point_path(rough:List[lib.Point], sub_min:int, sub_max:int) -> Lis
     length = vector.length()
 
     subdivisions = random.randint(sub_min, sub_max)
-    if i == 1 or i == len(rough) - 1:
-      subdivisions = 1
+    if ignore_ends:
+      if i == 1 or i == len(rough) - 1:
+        subdivisions = 1
 
     sub_length = length / subdivisions
     vector.normalize()
@@ -36,7 +37,7 @@ def subdivide_point_path(rough:List[lib.Point], sub_min:int, sub_max:int) -> Lis
 
     x = last.x
     y = last.y
-    lib.add_nondup_point(round(x, 0), round(y, 0), points)
+    # lib.add_nondup_point(round(x, 0), round(y, 0), points)
     for _ in range(0, subdivisions):
       x += vector.x
       y += vector.y

@@ -4,13 +4,15 @@ import random
 import path
 from typing import List
 
-def point(center_x:float, center_y:float, rads:float, dist:float, rand_range:float) -> lib.Point:
-  final_rads = rads
-  if rand_range != 0:
-    rad_change = lib.rand_float(-rand_range, rand_range)
-    final_rads += rad_change
-  return lib.Point(round(cos(center_x, final_rads, dist), 2),
-                   round(sin(center_y, final_rads, dist), 2))
+# TODO different borders
+# TODO wiggle the origins
+
+rotate_range = math.pi / 30
+subdivisions = 20
+
+def point(center_x:float, center_y:float, rad:float, dist:float) -> lib.Point:
+  return lib.Point(round(cos(center_x, rad, dist), 2),
+                   round(sin(center_y, rad, dist), 2))
 
 def cos(center:float, rads:float, dist:float) -> float:
   return center + math.cos(rads) * dist
@@ -18,11 +20,41 @@ def cos(center:float, rads:float, dist:float) -> float:
 def sin(center:float, rads:float, dist:float) -> float:
   return center + math.sin(rads) * dist
 
+def draw_circle(x, y, rays, min_dist, max_dist, points):
+  for i in range(0, rays):
+    rough_points: List[lib.Point] = []
+    t = i / rays
+    rad = t * math.pi * 2
+    rough_points.append(point(x, y, rad, min_dist))
+    rough_points.append(point(x, y, rad, max_dist))
+
+    # Draw rough line
+    # path.draw_point_circles(rough_points)
+    # path.draw_point_path(rough_points)
+
+    # Subdivide
+    fine_points = path.subdivide_point_path(rough_points, subdivisions, subdivisions, False)
+
+    # Adjust control points
+    for j in range(1, len(fine_points), 2):
+      fine = fine_points[j].subtract_floats(x, y)
+      rotation = lib.rand_float(-rotate_range, rotate_range)
+      fine = fine.rotate(rotation)
+      fine_points[j] = lib.Point(x + fine.x, y + fine.y)
+
+    # Add final content to render list
+    points.append(fine_points)
+
+    # Draw fine line
+    # path.draw_point_circles(fine_points)
+    # path.draw_point_path(fine_points)
+
+
 def loop():
   # lib.border()
 
   # Rough path
-  padding = 100
+  padding = 0
   top = lib.svg_safe.y + padding
   bottom = lib.svg_safe.bottom() - padding
   height = bottom - top
@@ -32,33 +64,29 @@ def loop():
   width = right - left
   c_x = lib.svg_full.w / 2
 
-  # Spiral settings
-  ray_count = 100
-  min_dist = 50
-  stack_spread = 5
-  max_steps = 1 + math.floor(height / stack_spread / 3.5) * 2
-
-  # Center point
-  # lib.circ(c_x, c_y, 5)
-
-  random_middle_range = math.pi / 60
-  random_outer_range = 0
-
   # Generate points and control points
   points: List[List[lib.Point]] = []
-  for i in range(0, ray_count):
-    line_points: List[lib.Point] = []
-    points.append(line_points)
 
-    in_row = i / ray_count
-    rads = in_row * math.pi * 2
+  size_h = random.randint(80, 120)
+  size = size_h + 5
+  size_d = size * 2
 
-    for j in range(0, max_steps):
-      rand = random_middle_range
-      if j % 2 == 0:
-        rand = random_outer_range
-      line_points.append(point(c_x, c_y, rads, min_dist + stack_spread * j, rand))
+  col_max = math.floor(width / size_d)
+  row_max = math.floor(height / size_d)
 
+  offset_x = (lib.svg_safe.w - (col_max * size_d)) / 2
+  offset_y = (lib.svg_safe.h - size / 2 - (row_max * size_d * .85)) / 2
+
+  for row in range(0, row_max):
+    y = offset_y + top + size + (size_d * .85) * row
+    for col in range(0, col_max):
+      x = offset_x + left + size + size_d * col
+      if row % 2 == 1:
+        if col == col_max - 1:
+          continue
+        x += size
+      draw_circle(x, y, size_h, 10, size_h, points)
+      lib.circ(x, y, size_h)
 
   # Draw points
   for point_array in points:
@@ -71,7 +99,6 @@ def loop():
       control = point_array[i]
       end = point_array[i + 1]
       path += "Q{} {} {} {}".format(control.x, control.y, end.x, end.y)
-
     lib.path(path)
 
 
