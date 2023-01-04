@@ -1,0 +1,44 @@
+<svg version="1.1" width="1150" height="870" xmlns="http://www.w3.org/2000/svg">
+  <!-- Seed: 6422267677999515970 -->
+  <g stroke="black" fill="none">
+    <path d="M50 50l135 770"/>
+    <path d="M100 50l135 770"/>
+    <path d="M150 50l135 770"/>
+    <path d="M200 50l135 770"/>
+    <path d="M250 50l135 770"/>
+    <path d="M300 50l135 770"/>
+    <path d="M350 50l135 770"/>
+    <path d="M400 50l135 770"/>
+    <path d="M450 50l135 770"/>
+    <path d="M500 50l135 770"/>
+    <path d="M550 50l135 770"/>
+    <path d="M600 50l135 770"/>
+    <path d="M650 50l135 770"/>
+    <path d="M700 50l135 770"/>
+    <path d="M750 50l135 770"/>
+    <path d="M800 50l135 770"/>
+    <path d="M850 50l135 770"/>
+    <path d="M900 50l135 770"/>
+    <path d="M950 50l135 770"/>
+    <path d="M1000 50l135 770"/>
+    <path d="M1050 50l135 770"/>
+    <path d="M50 100l1050 20"/>
+    <path d="M50 150l1050 20"/>
+    <path d="M50 200l1050 20"/>
+    <path d="M50 250l1050 20"/>
+    <path d="M50 300l1050 20"/>
+    <path d="M50 350l1050 20"/>
+    <path d="M50 400l1050 20"/>
+    <path d="M50 450l1050 20"/>
+    <path d="M50 500l1050 20"/>
+    <path d="M50 550l1050 20"/>
+    <path d="M50 600l1050 20"/>
+    <path d="M50 650l1050 20"/>
+    <path d="M50 700l1050 20"/>
+    <path d="M50 750l1050 20"/>
+    <path d="M50 800l1050 20"/>
+    <g stroke="red">
+      <rect x="50" y="50" width="1050" height="770"/>
+    </g>
+  </g>
+</svg>

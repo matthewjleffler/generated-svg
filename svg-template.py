@@ -1,5 +1,8 @@
 import lib
+import path
 import text
+import random
+import math
 
 def loop():
   lib.border()
@@ -7,7 +10,7 @@ def loop():
   text.draw_string(200, 200, 5, "test text")
 
 
-seed = 1
+seed = 0
 test = True
 size = lib.SvgSize.Size9x12
 
