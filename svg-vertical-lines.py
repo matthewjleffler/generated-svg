@@ -132,7 +132,7 @@ def create_lines(draw:bool):
     line: List[lib.Point] = []
     lines.append(line)
     for fine_point in fine:
-      point = lib.Point(fine_point.x + space * i, fine_point.y)
+      point = lib.Point(round(fine_point.x + space * i, 2), round(fine_point.y, 2))
       line.append(point)
 
   # Draw curves

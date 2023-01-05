@@ -291,14 +291,14 @@ def sunburst(bursts, c_x, c_y, start_rad, ray_len):
     t = i / sunburst_points
     rad = t * math.pi * 2
 
-    x = c_x + math.sin(rad) * (start_rad)
-    y = c_y + math.cos(rad) * (start_rad)
+    x = round(c_x + math.sin(rad) * (start_rad), 2)
+    y = round(c_y + math.cos(rad) * (start_rad), 2)
 
     vec = Point(x, y)
     vec = vec.subtract(Point(c_x, c_y))
     vec.normalize()
     vec.multiply(ray_len)
-    path("M {} {} L{} {}".format(x, y, x + vec.x, y + vec.y))
+    path("M{} {} L{} {}".format(x, y, round(x + vec.x, 2), round(y + vec.y, 2)))
 
 
 def ring_of_circles(number, c_x, c_y, center_rad, circle_rad):
