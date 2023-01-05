@@ -136,14 +136,24 @@ def create_lines(draw:bool):
       line.append(point)
 
   # Draw curves
-  for line in lines:
-    point = line[0]
-    path_val = f"M{point.x} {point.y}"
-    for i in range(1, len(line) - 1, 2):
-      control = line[i]
-      point = line[i + 1]
-      path_val += f"Q{control.x} {control.y} {point.x} {point.y}"
-      # lib.circ(x, lib.svg_safe.y, 5)
+  for j in range(0, len(lines)):
+    line = lines[j]
+
+    if j % 2 == 0:
+      point = line[0]
+      path_val = f"M{point.x} {point.y}"
+      for i in range(1, len(line) - 1, 2):
+        control = line[i]
+        point = line[i + 1]
+        path_val += f"Q{control.x} {control.y} {point.x} {point.y}"
+        # lib.circ(x, lib.svg_safe.y, 5)
+    else:
+      point = line[-1]
+      path_val = f"M{point.x} {point.y}"
+      for i in range(len(line) - 2, 0, -2):
+        control = line[i]
+        point = line[i - 1]
+        path_val += f"Q{control.x} {control.y} {point.x} {point.y}"
 
     if draw:
       lib.path(path_val)
