@@ -8,6 +8,8 @@ let_h_fifth = let_h / 5
 let_h_eight = let_h / 8
 let_h_sixt = let_h / 16
 
+line_height = let_h + let_h_quart + let_h_eight
+
 def letter_cap_a(x, y):
   lib.path("M{} {}l{} {}l{} {}M{} {}h{}"
     .format(x, y, let_h_quart, -let_h, let_h_quart, let_h, x + let_h_eight, y-let_h_half, let_h_quart))
@@ -594,6 +596,22 @@ def punc_double_quote(x, y):
   lib.path("M{} {}v{}m{} {}v{}"
     .format(x + let_h_quart - let_h_sixt, y - let_h + let_h_eight, let_h_eight, let_h_eight, 0, -let_h_eight))
 
+def letter_low_e_accent(x, y):
+  lib.path("M{} {}h{}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}M{} {}l{} {}"
+    .format(x, y - let_h_quart, let_h_half,
+            0, -let_h_quart, -let_h_quart, -let_h_quart,
+            -let_h_quart, 0, -let_h_quart, let_h_quart,
+            0, let_h_quart, let_h_quart, let_h_quart,
+            let_h_quart - let_h_eight, x + let_h_eight, y - let_h_half - let_h_eight,
+            let_h_quart, -let_h_quart))
+
+def letter_cap_e_accent(x, y):
+  lib.path("M{} {}h{}v{}h{}m{} {}h{}M{} {}l{} {}"
+    .format(x + let_h_half, y, -let_h_half, -let_h,
+            let_h_half, -let_h_half, let_h_half, let_h_quart,
+            x + let_h_eight, y - let_h - let_h_eight,
+            let_h_quart, -let_h_quart))
+
 def draw_string(x, y, kern, value:str):
   for char in value:
     # lib.rect(x, y - let_h, let_h_half, let_h)
@@ -693,5 +711,7 @@ def draw_string(x, y, kern, value:str):
     elif char == ":": punc_colon(x, y)
     elif char == "'": punc_single_quote(x, y)
     elif char == "\"": punc_double_quote(x, y)
+    elif char == "é": letter_low_e_accent(x, y)
+    elif char == "É": letter_cap_e_accent(x, y)
     else: print("Unhandled character: {}".format(char))
     x += let_h_half + kern
