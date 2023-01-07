@@ -596,6 +596,18 @@ def punc_double_quote(x, y):
   lib.path("M{} {}v{}m{} {}v{}"
     .format(x + let_h_quart - let_h_sixt, y - let_h + let_h_eight, let_h_eight, let_h_eight, 0, -let_h_eight))
 
+def punc_back_tick(x, y):
+  lib.path("M{} {}l{} {}"
+    .format(x + let_h_eight, y-let_h, let_h_quart, let_h_quart))
+
+def punc_tilde(x, y):
+  lib.path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
+    .format(x, y - let_h_half,
+            0, -let_h_eight, let_h_eight, -let_h_eight,
+            let_h_eight, 0, let_h_eight, let_h_eight,
+            0, let_h_eight, let_h_eight, let_h_eight,
+            let_h_eight, 0, let_h_eight, -let_h_eight))
+
 def letter_low_e_accent(x, y):
   lib.path("M{} {}h{}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}M{} {}l{} {}"
     .format(x, y - let_h_quart, let_h_half,
@@ -691,7 +703,7 @@ def draw_string(x, y, kern, value:str):
     elif char == "*": punc_star(x, y)
     elif char == "(": punc_left_paren(x, y)
     elif char == ")": punc_right_paren(x, y)
-    elif char == "-": punc_dash(x, y)
+    elif char == "-" or char == "—": punc_dash(x, y)
     elif char == "_": punc_underscore(x, y)
     elif char == "+": punc_plus(x, y)
     elif char == "=": punc_equals(x, y)
@@ -709,8 +721,12 @@ def draw_string(x, y, kern, value:str):
     elif char == "?": punc_question(x, y)
     elif char == ";": punc_semicolon(x, y)
     elif char == ":": punc_colon(x, y)
-    elif char == "'": punc_single_quote(x, y)
-    elif char == "\"": punc_double_quote(x, y)
+    elif char == "'" or char == "’" or char == "‘":
+      punc_single_quote(x, y)
+    elif char == "\"" or char == "“" or char == "”":
+      punc_double_quote(x, y)
+    elif char == "`": punc_back_tick(x, y)
+    elif char == "~": punc_tilde(x, y)
     elif char == "é": letter_low_e_accent(x, y)
     elif char == "É": letter_cap_e_accent(x, y)
     else: print("Unhandled character: {}".format(char))

@@ -7,7 +7,7 @@ def loop():
 
   text.draw_string(100, 200, 10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
   text.draw_string(100, 300, 10, "abcdefghijklmnopqrstuvwxyz")
-  text.draw_string(100, 400, 10, "0123456789 ;:'\"éÉ")
+  text.draw_string(100, 400, 10, "0123456789 ;:'\"éÉ`~")
   text.draw_string(100, 500, 10, "!@#$%^&*()-_+={}[]\|,./<>?")
 
   lib.open_group("transform=\"translate(100,600) scale(0.5,0.5)\"")
