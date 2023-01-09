@@ -167,12 +167,15 @@ def letter_cap_z(x, y):
     .format(x + let_h_half, y, -let_h_half, let_h_half, -let_h, -let_h_half))
 
 def letter_low_a(x, y):
-  lib.path("M{} {}v{}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
-    .format(x + let_h_half, y, -let_h_quart,
+  lib.path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}m{} {}v{}q{} {} {} {}h{}"
+    .format(x + let_h_half, y - let_h_quart,
+            0, let_h_quart, -let_h_quart, let_h_quart,
+            -let_h_quart, 0, -let_h_quart, -let_h_quart,
+            0, -let_h_quart, let_h_quart, -let_h_quart,
+            let_h_quart, 0, let_h_quart, let_h_quart,
+            0, let_h_quart, -let_h_half,
             0, -let_h_quart, -let_h_quart, -let_h_quart,
-            -let_h_quart, 0, -let_h_quart, let_h_quart,
-            0, let_h_quart, let_h_quart, let_h_quart,
-            let_h_quart, 0, let_h_quart, -let_h_quart))
+            -let_h_eight))
 
 def letter_low_b(x, y):
   lib.path("M{} {}v{}M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
@@ -232,11 +235,11 @@ def letter_low_h(x, y):
 
 def letter_low_i(x, y):
   lib.path("M{} {}v{}m{} {}v{}"
-    .format(x + let_h_quart, y, -let_h_half, 0, -let_h_eight, -let_h_eight))
+    .format(x + let_h_quart, y, -let_h_half, 0, -let_h_quart, -let_h_eight))
 
 def letter_low_j(x, y):
   lib.path("M{} {}v{}m{} {}v{}q{} {} {} {}h{}"
-    .format(x + let_h_quart, y - let_h_half - let_h_quart, let_h_eight, 0, let_h_eight, let_h_half,
+    .format(x + let_h_quart, y - let_h_half - let_h_quart - let_h_eight, let_h_eight, 0, let_h_quart, let_h_half,
             0, let_h_quart, -let_h_quart, let_h_quart,
             -let_h_eight))
 
@@ -583,7 +586,7 @@ def punc_semicolon(x, y):
   lib.path("M{} {}q{} {} {} {}v{}m{} {}v{}"
     .format(x + let_h_quart - let_h_eight, y,
             let_h_eight, 0, let_h_eight, -let_h_eight, -let_h_eight,
-            0, -let_h_eight, -let_h_eight))
+            0, -let_h_quart, -let_h_eight))
 
 def punc_colon(x, y):
   lib.path("M{} {}v{}m{} {}v{}"
