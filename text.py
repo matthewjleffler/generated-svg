@@ -1,736 +1,749 @@
-import lib
+from lib import draw_path, draw_circ, draw_rect
 
 # Letter sizes
-let_h = 50
-let_h_half = let_h / 2
-let_h_quart = let_h / 4
-let_h_fifth = let_h / 5
-let_h_eight = let_h / 8
-let_h_sixt = let_h / 16
-
-line_height = let_h + let_h_quart + let_h_eight
-
-def letter_cap_a(x, y):
-  lib.path("M{} {}l{} {}l{} {}M{} {}h{}"
-    .format(x, y, let_h_quart, -let_h, let_h_quart, let_h, x + let_h_eight, y-let_h_half, let_h_quart))
-
-def letter_cap_b(x, y):
-  lib.path("M{} {}v{}h{}q{} {} {} {}q{} {} {} {}h{}m{} {}q{} {} {} {}q{} {} {} {}h{}"
-    .format(x, y, -let_h, let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_quart, let_h_quart, 0,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_quart))
-
-def letter_cap_c(x, y):
-  lib.path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}h{}"
-    .format(x + let_h_half, y, -let_h_quart,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart,
-            -let_h_half,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart))
-
-def letter_cap_d(x, y):
-  lib.path("M{} {}v{}h{}q{} {} {} {}v{}q{} {} {} {}h{}"
-    .format(x, y, -let_h, let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            let_h_half,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_quart))
-
-def letter_cap_e(x, y):
-  lib.path("M{} {}h{}v{}h{}m{} {}h{}"
-    .format(x + let_h_half, y, -let_h_half, -let_h, let_h_half, -let_h_half, let_h_half, let_h_quart))
-
-def letter_cap_f(x, y):
-  lib.path("M{} {}v{}h{}m{} {}h{}"
-    .format(x, y, -let_h, let_h_half, -let_h_half, let_h_half, let_h_quart))
-
-def letter_cap_g(x, y):
-  lib.path("M{} {}h{}v{} q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}"
-    .format(x + let_h_quart, y - let_h_half, let_h_quart, let_h_quart,
-            0, let_h_quart,  -let_h_quart, let_h_quart,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart,
-            -let_h_half,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart))
-
-def letter_cap_h(x, y):
-  lib.path("M{} {}v{}m{} {}v{}m{} {}h{}"
-    .format(x, y, -let_h, let_h_half, 0, let_h, 0, -let_h_half, -let_h_half))
-
-def letter_cap_i(x, y):
-  lib.path("M{} {}h{}m{} {}v{}m{} {}h{}"
-    .format(x, y, let_h_half, -let_h_quart, 0, -let_h, -let_h_quart, 0, let_h_half))
-
-def letter_cap_j(x, y):
-  lib.path("M{} {}v{}q{} {} {} {}q{} {} {} {}"
-    .format(x + let_h_half, y - let_h, let_h_half + let_h_quart,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart))
-
-def letter_cap_k(x, y):
-  lib.path("M{} {}v{}m{} {}l{} {}l{} {}"
-    .format(x, y, -let_h, let_h_half, 0, -let_h_half, let_h_half, let_h_half, let_h_half))
-
-def letter_cap_l(x, y):
-  lib.path("M{} {}v{}h{}"
-    .format(x, y - let_h, let_h, let_h_half))
-
-def letter_cap_m(x, y):
-  lib.path("M{} {}v{}l{} {}l{} {}v{}"
-    .format(x, y, -let_h, let_h_quart, let_h, let_h_quart, -let_h, let_h))
-
-def letter_cap_n(x, y):
-  lib.path("M{} {}v{}l{} {}v{}"
-    .format(x, y, -let_h, let_h_half, let_h, -let_h))
-
-def letter_cap_o(x, y):
-  lib.path("M{} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}"
-    .format(x + let_h_quart, y,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart,
-            -let_h_half,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            let_h_half,
-            0, let_h_quart, -let_h_quart, let_h_quart))
-
-def letter_cap_p(x, y):
-  lib.path("M{} {}v{}h{}q{} {} {} {}q{} {} {} {}h{}"
-    .format(x, y, -let_h, let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_quart))
-
-def letter_cap_q(x, y):
-  lib.path("M{} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}m{} {}l{} {}"
-    .format(x + let_h_quart, y,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart,
-            -let_h_half,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            let_h_half,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            0, -let_h_quart, let_h_quart, let_h_quart))
-
-def letter_cap_r(x, y):
-  lib.path("M{} {}v{}h{}q{} {} {} {}q{} {} {} {}h{}l{} {}"
-    .format(x, y, -let_h, let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_quart, let_h_half, let_h_half))
-
-def letter_cap_s(x, y):
-  lib.path("M{} {}h{}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}"
-    .format(x, y, let_h_quart,
-            let_h_quart, 0, let_h_quart, -let_h_quart,
-            0, -let_h_quart, -let_h_quart, -let_h_quart,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart,
-            0, -let_h_quart, let_h_quart, -let_h_quart, let_h_quart))
-
-def letter_cap_t(x, y):
-  lib.path("M{} {}v{}m{} {}h{}"
-    .format(x + let_h_quart, y, -let_h, -let_h_quart, 0, let_h_half))
-
-def letter_cap_u(x, y):
-  lib.path("M{} {}v{}q{} {} {} {}q{} {} {} {}v{}"
-    .format(x, y - let_h, let_h_half + let_h_quart,
-            0, let_h_quart, let_h_quart, let_h_quart,
-            let_h_quart, 0, let_h_quart, -let_h_quart,
-            -let_h_half - let_h_quart))
-
-def letter_cap_v(x, y):
-  lib.path("M{} {}l{} {}l{} {}"
-    .format(x, y - let_h, let_h_quart, let_h, let_h_quart, -let_h))
-
-def letter_cap_w(x, y):
-  lib.path("M{} {}l{} {}l{} {}l{} {}l{} {}"
-    .format(x, y - let_h,
-            let_h_eight, let_h,
-            let_h_eight, -let_h_half,
-            let_h_eight, let_h_half,
-            let_h_eight, -let_h))
-
-def letter_cap_x(x, y):
-  lib.path("M{} {}l{} {}m{} {}l{} {}"
-    .format(x, y - let_h, let_h_half, let_h, 0, -let_h, -let_h_half, let_h))
-
-def letter_cap_y(x, y):
-  lib.path("M{} {}l{} {}l{} {}m{} {}v{}"
-    .format(x, y - let_h, let_h_quart, let_h_half, let_h_quart, -let_h_half,
-            -let_h_quart, let_h_half, let_h_half))
-
-def letter_cap_z(x, y):
-  lib.path("M{} {}h{}l{} {}h{}"
-    .format(x + let_h_half, y, -let_h_half, let_h_half, -let_h, -let_h_half))
-
-def letter_low_a(x, y):
-  lib.path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}m{} {}v{}q{} {} {} {}h{}"
-    .format(x + let_h_half, y - let_h_quart,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            0, let_h_quart, -let_h_half,
-            0, -let_h_quart, -let_h_quart, -let_h_quart,
-            -let_h_eight))
-
-def letter_low_b(x, y):
-  lib.path("M{} {}v{}M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
-    .format(x, y, -let_h, x, y - let_h_quart,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart))
-
-def letter_low_c(x, y):
-  lib.path("M{} {}h{}q{} {} {} {}q{} {} {} {}h{}"
-    .format(x + let_h_half, y, -let_h_quart,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart))
-
-def letter_low_d(x, y):
-  lib.path("M{} {}v{}M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
-    .format(x + let_h_half, y, -let_h, x + let_h_half, y - let_h_quart,
-            0, -let_h_quart, -let_h_quart, -let_h_quart,
-            -let_h_quart, 0, -let_h_quart, let_h_quart,
-            0, let_h_quart, let_h_quart, let_h_quart,
-            let_h_quart, 0, let_h_quart, -let_h_quart))
-
-def letter_low_e(x, y):
-  lib.path("M{} {}h{}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}"
-    .format(x, y - let_h_quart, let_h_half,
-            0, -let_h_quart, -let_h_quart, -let_h_quart,
-            -let_h_quart, 0, -let_h_quart, let_h_quart,
-            0, let_h_quart, let_h_quart, let_h_quart,
-            let_h_quart))
-
-def letter_low_f(x, y):
-  lib.path("M{} {}v{}q{} {} {} {}m{} {}h{}"
-    .format(x + let_h_quart, y, -let_h_half - let_h_quart,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            -let_h_half, let_h_half, let_h_half))
-
-def letter_low_g(x, y):
-  lib.path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}m{} {}v{}q{} {} {} {}h{}"
-    .format(x + let_h_half, y - let_h_quart,
-            0, -let_h_quart, -let_h_quart, -let_h_quart,
-            -let_h_quart, 0, -let_h_quart, let_h_quart,
-            0, let_h_quart, let_h_quart, let_h_quart,
-            let_h_quart, 0, let_h_quart, -let_h_quart,
-            0, -let_h_quart,
-            let_h_half,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_quart))
-
-def letter_low_h(x, y):
-  lib.path("M{} {}v{}m{} {}q{} {} {} {}q{} {} {} {}v{}"
-    .format(x, y - let_h, let_h, 0, -let_h_quart,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            let_h_quart))
-
-def letter_low_i(x, y):
-  lib.path("M{} {}v{}m{} {}v{}"
-    .format(x + let_h_quart, y, -let_h_half, 0, -let_h_quart, -let_h_eight))
-
-def letter_low_j(x, y):
-  lib.path("M{} {}v{}m{} {}v{}q{} {} {} {}h{}"
-    .format(x + let_h_quart, y - let_h_half - let_h_quart - let_h_eight, let_h_eight, 0, let_h_quart, let_h_half,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_eight))
-
-def letter_low_k(x, y):
-  lib.path("M{} {}v{}m{} {}l{} {}l{} {}"
-    .format(x, y - let_h, let_h, let_h_half, -let_h_half,
-            -let_h_half, let_h_quart, let_h_half, let_h_quart))
-
-def letter_low_l(x, y):
-  lib.path("M{} {}v{}".format(x + let_h_quart, y, -let_h))
-
-def letter_low_m(x, y):
-  lib.path("M{} {}v{}m{} {}q{} {} {} {}q{} {} {} {}v{}m{} {}q{} {} {} {}q{} {} {} {}v{}"
-    .format(x, y, -let_h_half, 0, let_h_eight,
-            0, -let_h_eight, let_h_eight, -let_h_eight,
-            let_h_eight, 0, let_h_eight, let_h_eight,
-            let_h_eight, 0, -let_h_eight,
-            0, -let_h_eight, let_h_eight, -let_h_eight,
-            let_h_eight, 0, let_h_eight, let_h_eight,
-            let_h_quart + let_h_eight))
-
-def letter_low_n(x, y):
-  lib.path("M{} {}v{}m{} {}q{} {} {} {}q{} {} {} {}v{}"
-    .format(x, y, -let_h_half, 0, let_h_quart,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            let_h_quart))
-
-def letter_low_o(x, y):
-  lib.path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
-    .format(x + let_h_quart, y,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            0, let_h_quart, -let_h_quart, let_h_quart))
-
-def letter_low_p(x, y):
-  lib.path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}m{} {}v{}"
-    .format(x, y - let_h_quart,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart,
-            0, -let_h_quart, let_h_half + let_h_quart))
-
-def letter_low_q(x, y):
-  lib.path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}m{} {}v{}"
-    .format(x + let_h_half, y - let_h_quart,
-            0, -let_h_quart, -let_h_quart, -let_h_quart,
-            -let_h_quart, 0, -let_h_quart, let_h_quart,
-            0, let_h_quart, let_h_quart, let_h_quart,
-            let_h_quart, 0, let_h_quart, -let_h_quart,
-            0, -let_h_quart, let_h_half + let_h_quart))
-
-def letter_low_r(x, y):
-  lib.path("M{} {}v{}m{} {}q{} {} {} {}q{} {} {} {}"
-    .format(x, y, -let_h_half, 0, let_h_quart,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart))
-
-def letter_low_s(x, y):
-  lib.path("M{} {}h{}q{} {} {} {}q{} {} {} {}h{}q{} {} {} {}q{} {} {} {}h{}"
-    .format(x, y, let_h_quart + let_h_eight,
-            let_h_eight, 0, let_h_eight, -let_h_eight,
-            0, -let_h_eight, -let_h_eight, -let_h_eight,
-            -let_h_quart,
-            -let_h_eight, 0, -let_h_eight, -let_h_eight,
-            0, -let_h_eight, let_h_eight, -let_h_eight,
-            let_h_quart + let_h_eight))
-
-def letter_low_t(x, y):
-  lib.path("M{} {}v{}m{} {}h{}"
-    .format(x + let_h_quart, y, -let_h_half - let_h_quart,
-            -let_h_quart, let_h_quart, let_h_half))
-
-def letter_low_u(x, y):
-  lib.path("M{} {}v{}q{} {} {} {}q{} {} {} {}m{} {}v{}"
-    .format(x, y - let_h_half, let_h_quart,
-            0, let_h_quart, let_h_quart, let_h_quart,
-            let_h_quart, 0, let_h_quart, -let_h_quart,
-            0, let_h_quart, -let_h_half))
-
-def letter_low_v(x, y):
-  lib.path("M{} {}l{} {}l{} {}"
-    .format(x, y - let_h_half, let_h_quart, let_h_half, let_h_quart, -let_h_half))
-
-def letter_low_w(x, y):
-  lib.path("M{} {}v{}q{} {} {} {}q{} {} {} {}v{}m{} {}q{} {} {} {}q{} {} {} {}m{} {}v{}"
-    .format(x, y - let_h_half, let_h_quart + let_h_eight,
-            0, let_h_eight, let_h_eight, let_h_eight,
-            let_h_eight, 0, let_h_eight, -let_h_eight,
-            -let_h_eight, 0, let_h_eight,
-            0, let_h_eight, let_h_eight, let_h_eight,
-            let_h_eight, 0, let_h_eight, -let_h_eight,
-            0, -let_h_quart - let_h_eight, let_h_half))
-
-def letter_low_x(x, y):
-  lib.path("M{} {}l{} {}m{} {}l{} {}"
-    .format(x, y-let_h_half, let_h_half, let_h_half, 0, -let_h_half, -let_h_half, let_h_half))
-
-def letter_low_y(x, y):
-  lib.path("M{} {}l{} {}m{} {}l{} {}"
-    .format(x, y - let_h_half, let_h_quart, let_h_half, let_h_quart, -let_h_half, -let_h_half + let_h_eight, let_h_half + let_h_quart))
-
-def letter_low_z(x, y):
-  lib.path("M{} {}h{}l{} {}h{}"
-    .format(x + let_h_half, y, -let_h_half, let_h_half, -let_h_half, -let_h_half))
-
-def number_0(x, y):
-  lib.path("M{} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}m{} {}l{} {}"
-    .format(x + let_h_quart, y,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart,
-            -let_h_half,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            let_h_half,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_quart, -let_h_quart, let_h_half, -let_h_half))
-
-def number_1(x, y):
-  lib.path("M{} {}h{}m{} {}v{}l{} {}"
-    .format(x, y, let_h_half, -let_h_quart, 0, -let_h, -let_h_quart, let_h_quart))
-
-def number_2(x, y):
-  lib.path("M{} {}h{}v{}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
-    .format(x + let_h_half, y, -let_h_half, -let_h_quart,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart, 0, let_h_quart, -let_h_quart,
-            0, -let_h_quart, -let_h_quart, -let_h_quart,
-            -let_h_quart, 0, -let_h_quart, let_h_quart))
-
-def number_3(x, y):
-  lib.path("M{} {}h{}q{} {} {} {}q{} {} {} {}h{}m{} {}q{} {} {} {}q{} {} {} {}h{}"
-    .format(x, y, let_h_quart,
-            let_h_quart, 0, let_h_quart, -let_h_quart,
-            0, -let_h_quart, -let_h_quart, -let_h_quart,
-            -let_h_eight, let_h_eight, 0,
-            let_h_quart, 0, let_h_quart, -let_h_quart,
-            0, -let_h_quart, -let_h_quart, -let_h_quart,
-            -let_h_quart))
-
-def number_4(x, y):
-  lib.path("M{} {}v{}h{}m{} {}v{}"
-    .format(x, y - let_h, let_h_half, let_h_half, 0, let_h_half, -let_h))
-
-def number_5(x, y):
-  lib.path("M{} {}h{}v{}h{}q{} {} {} {}q{} {} {} {}h{}"
-    .format(x + let_h_half, y - let_h, -let_h_half, let_h_half, let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_quart))
-
-def number_6(x, y):
-  lib.path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}"
-    .format(x + let_h_half, y - let_h, -let_h_quart,
-            -let_h_quart, 0, -let_h_quart, let_h_quart,
-            let_h_half,
-            0, let_h_quart, let_h_quart, let_h_quart,
-            let_h_quart, 0, let_h_quart, -let_h_quart,
-            0, -let_h_quart, -let_h_quart, -let_h_quart,
-            -let_h_quart))
-
-def number_7(x, y):
-  lib.path("M{} {}h{}l{} {}"
-    .format(x, y - let_h, let_h_half, -let_h_half, let_h))
-
-def number_8(x, y):
-  lib.path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
-    .format(x + let_h_quart, y - let_h,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_quart, 0, -let_h_quart, let_h_quart,
-            0, let_h_quart, let_h_quart, let_h_quart,
-            let_h_quart, 0, let_h_quart, -let_h_quart,
-            0, -let_h_quart, -let_h_quart, -let_h_quart,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart,
-            0, -let_h_quart, let_h_quart, -let_h_quart))
-
-def number_9(x, y):
-  lib.path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}"
-    .format(x, y, let_h_quart,
-            let_h_quart, 0, let_h_quart, -let_h_quart,
-            -let_h_half,
-            0, -let_h_quart, -let_h_quart, -let_h_quart,
-            -let_h_quart, 0, -let_h_quart, let_h_quart,
-            0, let_h_quart, let_h_quart, let_h_quart,
-            let_h_quart))
-
-def punc_exclamation(x, y):
-  lib.path("M{} {}v{}m{} {}v{}"
-    .format(x + let_h_quart, y - let_h, let_h_half + let_h_eight, 0, let_h_quart, let_h_eight))
-
-def punc_at(x, y):
-  lib.path("M{} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}"
-    .format(x + let_h_quart, y,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart,
-            -let_h_half,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_quart, 0, let_h_quart, let_h_quart,
-            let_h_half,
-            -let_h_sixt, let_h_eight, -let_h_eight, 0,
-            -let_h_quart - let_h_eight,
-            0, -let_h_eight, -let_h_eight, -let_h_eight,
-            -let_h_eight, 0, -let_h_eight, let_h_eight,
-            let_h_quart,
-            0, let_h_eight, let_h_eight, let_h_eight,
-            let_h_eight, 0, let_h_eight, -let_h_eight))
-
-def punc_pound(x, y):
-  lib.path("M{} {}v{}m{} {}v{}M{} {}h{}m{} {}h{}"
-    .format(x + let_h_eight, y, -let_h, let_h_quart, 0, let_h,
-            x, y - let_h_quart, let_h_half, 0, -let_h_half, -let_h_half))
-
-def punc_dollar(x, y):
-  lib.path("M{} {}h{}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}M{} {}v{}"
-    .format(x, y - (let_h_fifth / 2), let_h_quart,
-            let_h_quart, 0, let_h_quart, -let_h_fifth,
-            0, -let_h_fifth, -let_h_quart, -let_h_fifth,
-            -let_h_quart, 0, -let_h_quart, -let_h_fifth,
-            0, -let_h_fifth, let_h_quart, -let_h_fifth,
-            let_h_quart, x + let_h_quart, y, -let_h))
-
-def punc_percent(x, y):
-  lib.path("M{} {}l{} {}"
-    .format(x, y, let_h_half, -let_h))
-  lib.circ(x + let_h_eight, y - let_h + let_h_eight, let_h_eight)
-  lib.circ(x + let_h_eight + let_h_quart, y - let_h_eight, let_h_eight)
-
-def punc_carrot(x, y):
-  lib.path("M{} {}l{} {}l{} {}"
-    .format(x, y - let_h + let_h_quart, let_h_quart, -let_h_quart, let_h_quart, let_h_quart))
-
-def punc_and(x, y):
-  lib.path("M{} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}L{} {}"
-    .format(x + let_h_half, y - let_h_half, let_h_quart,
-            0, let_h_quart, -let_h_quart, let_h_quart,
-            -let_h_quart, 0, -let_h_quart, -let_h_quart,
-            -let_h_eight,
-            0, -let_h_quart, let_h_quart, -let_h_quart,
-            let_h_eight, 0, let_h_eight, -let_h_eight,
-            -let_h_eight,
-            0, -let_h_eight, -let_h_eight, -let_h_eight,
-            -let_h_eight, 0, -let_h_eight, let_h_eight,
-            let_h_eight,
-            x + let_h_half, y))
-
-def punc_star(x, y):
-  lib.path("M{} {}v{}m{} {}l{} {}m{} {}l{} {}"
-    .format(x + let_h_quart, y - let_h_quart + let_h_eight, -let_h_half -let_h_quart, -let_h_quart, let_h_eight, let_h_half, let_h_half, 0, -let_h_half, -let_h_half, let_h_half))
-
-def punc_left_paren(x, y):
-  lib.path("M{} {}q{} {} {} {}"
-    .format(x + let_h_half - let_h_eight, y, -let_h_half, -let_h_half, 0, -let_h))
-
-def punc_right_paren(x, y):
-  lib.path("M{} {}q{} {} {} {}"
-    .format(x + let_h_eight, y, let_h_half, -let_h_half, 0, -let_h))
-
-def punc_dash(x, y):
-  lib.path("M{} {}h{}".format(x, y - let_h_half, let_h_half))
-
-def punc_underscore(x, y):
-  lib.path("M{} {}h{}".format(x, y, let_h_half))
-
-def punc_plus(x, y):
-  lib.path("M{} {}h{}m{} {}v{}"
-    .format(x, y - let_h_half, let_h_half, -let_h_quart, -let_h_quart, let_h_half))
-
-def punc_equals(x, y):
-  lib.path("M{} {}h{}m{} {}h{}"
-    .format(x, y - let_h_half + let_h_eight, let_h_half, 0, -let_h_quart, -let_h_half))
-
-def punc_left_brace(x, y):
-  lib.path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}h{}"
-    .format(x + let_h_quart + let_h_eight, y, -let_h_eight,
-            -let_h_eight, 0, -let_h_eight, -let_h_eight,
-            -let_h_quart,
-            0, -let_h_eight, -let_h_eight, -let_h_eight,
-            let_h_eight, 0, let_h_eight, -let_h_eight,
-            -let_h_quart,
-            0, -let_h_eight, let_h_eight, -let_h_eight,
-            let_h_eight))
-
-def punc_right_brace(x, y):
-  lib.path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}h{}"
-    .format(x + let_h_quart - let_h_eight, y, let_h_eight,
-            let_h_eight, 0, let_h_eight, -let_h_eight,
-            -let_h_quart,
-            0, -let_h_eight, let_h_eight, -let_h_eight,
-            -let_h_eight, 0, -let_h_eight, -let_h_eight,
-            -let_h_quart,
-            0, -let_h_eight, -let_h_eight, -let_h_eight,
-            -let_h_eight))
-
-def punc_left_bracket(x, y):
-  lib.path("M{} {}h{}v{}h{}"
-    .format(x + let_h_quart + let_h_eight, y, -let_h_quart, -let_h, let_h_quart))
-
-def punc_right_bracket(x, y):
-  lib.path("M{} {}h{}v{}h{}"
-    .format(x + let_h_quart - let_h_eight, y, +let_h_quart, -let_h, -let_h_quart))
-
-def punc_backslash(x, y):
-  lib.path("M{} {}l{} {}"
-    .format(x, y - let_h, let_h_half, let_h))
-
-def punc_line(x, y):
-  lib.path("M{} {}v{}"
-    .format(x + let_h_quart, y, -let_h))
-
-def punc_comma(x, y):
-  lib.path("M{} {}q{} {} {} {}v{}"
-    .format(x + let_h_quart - let_h_eight, y,
-            let_h_eight, 0, let_h_eight, -let_h_eight, -let_h_eight))
-
-def punc_period(x, y):
-  lib.path("M{} {}v{}".format(x + let_h_quart, y, -let_h_eight))
-
-def punc_slash(x, y):
-  lib.path("M{} {}l{} {}".format(x, y, let_h_half, -let_h))
-
-def punc_left_arrow(x, y):
-  lib.path("M{} {}l{} {}l{} {}"
-    .format(x + let_h_quart + let_h_eight, y - let_h_half + let_h_quart,
-            -let_h_quart, -let_h_quart, let_h_quart, -let_h_quart))
-
-def punc_right_arrow(x, y):
-  lib.path("M{} {}l{} {}l{} {}"
-    .format(x + let_h_quart - let_h_eight, y - let_h_half + let_h_quart,
-            let_h_quart, -let_h_quart, -let_h_quart, -let_h_quart))
-
-def punc_question(x, y):
-  lib.path("M{} {}v{}m{} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}h{}q{} {} {} {}v{}"
-    .format(x + let_h_quart, y, -let_h_eight, 0, -let_h_quart, -let_h_eight,
-            0, -let_h_eight, let_h_eight, -let_h_eight,
-            let_h_eight, 0, let_h_eight, -let_h_eight,
-            -let_h_eight,
-            0, -let_h_eight, -let_h_eight, -let_h_eight,
-            -let_h_quart,
-            -let_h_eight, 0, -let_h_eight, let_h_eight,
-            let_h_eight))
-
-def punc_semicolon(x, y):
-  lib.path("M{} {}q{} {} {} {}v{}m{} {}v{}"
-    .format(x + let_h_quart - let_h_eight, y,
-            let_h_eight, 0, let_h_eight, -let_h_eight, -let_h_eight,
-            0, -let_h_quart, -let_h_eight))
-
-def punc_colon(x, y):
-  lib.path("M{} {}v{}m{} {}v{}"
-    .format(x + let_h_quart, y - let_h_quart, -let_h_eight, 0, -let_h_quart, -let_h_eight))
-
-def punc_single_quote(x, y):
-  lib.path("M{} {}v{}".format(x + let_h_quart, y - let_h + let_h_eight, let_h_eight))
-
-def punc_double_quote(x, y):
-  lib.path("M{} {}v{}m{} {}v{}"
-    .format(x + let_h_quart - let_h_sixt, y - let_h + let_h_eight, let_h_eight, let_h_eight, 0, -let_h_eight))
-
-def punc_back_tick(x, y):
-  lib.path("M{} {}l{} {}"
-    .format(x + let_h_eight, y-let_h, let_h_quart, let_h_quart))
-
-def punc_tilde(x, y):
-  lib.path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
-    .format(x, y - let_h_half,
-            0, -let_h_eight, let_h_eight, -let_h_eight,
-            let_h_eight, 0, let_h_eight, let_h_eight,
-            0, let_h_eight, let_h_eight, let_h_eight,
-            let_h_eight, 0, let_h_eight, -let_h_eight))
-
-def letter_low_e_accent(x, y):
-  lib.path("M{} {}h{}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}M{} {}l{} {}"
-    .format(x, y - let_h_quart, let_h_half,
-            0, -let_h_quart, -let_h_quart, -let_h_quart,
-            -let_h_quart, 0, -let_h_quart, let_h_quart,
-            0, let_h_quart, let_h_quart, let_h_quart,
-            let_h_quart - let_h_eight, x + let_h_eight, y - let_h_half - let_h_eight,
-            let_h_quart, -let_h_quart))
-
-def letter_cap_e_accent(x, y):
-  lib.path("M{} {}h{}v{}h{}m{} {}h{}M{} {}l{} {}"
-    .format(x + let_h_half, y, -let_h_half, -let_h,
-            let_h_half, -let_h_half, let_h_half, let_h_quart,
-            x + let_h_eight, y - let_h - let_h_eight,
-            let_h_quart, -let_h_quart))
-
-def draw_string(x, y, kern, value:str):
+_let_h = 50
+_let_h_half = _let_h / 2
+_let_h_quart = _let_h / 4
+_let_h_fifth = _let_h / 5
+_let_h_eight = _let_h / 8
+_let_h_sixt = _let_h / 16
+
+_line_height = _let_h + _let_h_quart + _let_h_eight
+
+
+def text_letter_height() -> float:
+  return _let_h
+
+def text_letter_width() -> float:
+  return _let_h_half
+
+def text_line_height() -> float:
+  return _line_height
+
+
+def _letter_cap_a(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}l{} {}M{} {}h{}"
+    .format(x, y, _let_h_quart, -_let_h, _let_h_quart, _let_h, x + _let_h_eight, y-_let_h_half, _let_h_quart), group)
+
+def _letter_cap_b(x:float, y:float, group = None):
+  draw_path("M{} {}v{}h{}q{} {} {} {}q{} {} {} {}h{}m{} {}q{} {} {} {}q{} {} {} {}h{}"
+    .format(x, y, -_let_h, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_quart, _let_h_quart, 0,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_quart), group)
+
+def _letter_cap_c(x:float, y:float, group = None):
+  draw_path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}h{}"
+    .format(x + _let_h_half, y, -_let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
+            -_let_h_half,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart), group)
+
+def _letter_cap_d(x:float, y:float, group = None):
+  draw_path("M{} {}v{}h{}q{} {} {} {}v{}q{} {} {} {}h{}"
+    .format(x, y, -_let_h, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            _let_h_half,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_quart), group)
+
+def _letter_cap_e(x:float, y:float, group = None):
+  draw_path("M{} {}h{}v{}h{}m{} {}h{}"
+    .format(x + _let_h_half, y, -_let_h_half, -_let_h, _let_h_half, -_let_h_half, _let_h_half, _let_h_quart), group)
+
+def _letter_cap_f(x:float, y:float, group = None):
+  draw_path("M{} {}v{}h{}m{} {}h{}"
+    .format(x, y, -_let_h, _let_h_half, -_let_h_half, _let_h_half, _let_h_quart), group)
+
+def _letter_cap_g(x:float, y:float, group = None):
+  draw_path("M{} {}h{}v{} q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}"
+    .format(x + _let_h_quart, y - _let_h_half, _let_h_quart, _let_h_quart,
+            0, _let_h_quart,  -_let_h_quart, _let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
+            -_let_h_half,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart), group)
+
+def _letter_cap_h(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}v{}m{} {}h{}"
+    .format(x, y, -_let_h, _let_h_half, 0, _let_h, 0, -_let_h_half, -_let_h_half), group)
+
+def _letter_cap_i(x:float, y:float, group = None):
+  draw_path("M{} {}h{}m{} {}v{}m{} {}h{}"
+    .format(x, y, _let_h_half, -_let_h_quart, 0, -_let_h, -_let_h_quart, 0, _let_h_half), group)
+
+def _letter_cap_j(x:float, y:float, group = None):
+  draw_path("M{} {}v{}q{} {} {} {}q{} {} {} {}"
+    .format(x + _let_h_half, y - _let_h, _let_h_half + _let_h_quart,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart), group)
+
+def _letter_cap_k(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}l{} {}l{} {}"
+    .format(x, y, -_let_h, _let_h_half, 0, -_let_h_half, _let_h_half, _let_h_half, _let_h_half), group)
+
+def _letter_cap_l(x:float, y:float, group = None):
+  draw_path("M{} {}v{}h{}"
+    .format(x, y - _let_h, _let_h, _let_h_half), group)
+
+def _letter_cap_m(x:float, y:float, group = None):
+  draw_path("M{} {}v{}l{} {}l{} {}v{}"
+    .format(x, y, -_let_h, _let_h_quart, _let_h, _let_h_quart, -_let_h, _let_h), group)
+
+def _letter_cap_n(x:float, y:float, group = None):
+  draw_path("M{} {}v{}l{} {}v{}"
+    .format(x, y, -_let_h, _let_h_half, _let_h, -_let_h), group)
+
+def _letter_cap_o(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}"
+    .format(x + _let_h_quart, y,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
+            -_let_h_half,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            _let_h_half,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart), group)
+
+def _letter_cap_p(x:float, y:float, group = None):
+  draw_path("M{} {}v{}h{}q{} {} {} {}q{} {} {} {}h{}"
+    .format(x, y, -_let_h, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_quart), group)
+
+def _letter_cap_q(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}m{} {}l{} {}"
+    .format(x + _let_h_quart, y,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
+            -_let_h_half,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            _let_h_half,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            0, -_let_h_quart, _let_h_quart, _let_h_quart), group)
+
+def _letter_cap_r(x:float, y:float, group = None):
+  draw_path("M{} {}v{}h{}q{} {} {} {}q{} {} {} {}h{}l{} {}"
+    .format(x, y, -_let_h, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_quart, _let_h_half, _let_h_half), group)
+
+def _letter_cap_s(x:float, y:float, group = None):
+  draw_path("M{} {}h{}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}"
+    .format(x, y, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, -_let_h_quart,
+            0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart, _let_h_quart), group)
+
+def _letter_cap_t(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}h{}"
+    .format(x + _let_h_quart, y, -_let_h, -_let_h_quart, 0, _let_h_half), group)
+
+def _letter_cap_u(x:float, y:float, group = None):
+  draw_path("M{} {}v{}q{} {} {} {}q{} {} {} {}v{}"
+    .format(x, y - _let_h, _let_h_half + _let_h_quart,
+            0, _let_h_quart, _let_h_quart, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, -_let_h_quart,
+            -_let_h_half - _let_h_quart), group)
+
+def _letter_cap_v(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}l{} {}"
+    .format(x, y - _let_h, _let_h_quart, _let_h, _let_h_quart, -_let_h), group)
+
+def _letter_cap_w(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}l{} {}l{} {}l{} {}"
+    .format(x, y - _let_h,
+            _let_h_eight, _let_h,
+            _let_h_eight, -_let_h_half,
+            _let_h_eight, _let_h_half,
+            _let_h_eight, -_let_h), group)
+
+def _letter_cap_x(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}m{} {}l{} {}"
+    .format(x, y - _let_h, _let_h_half, _let_h, 0, -_let_h, -_let_h_half, _let_h), group)
+
+def _letter_cap_y(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}l{} {}m{} {}v{}"
+    .format(x, y - _let_h, _let_h_quart, _let_h_half, _let_h_quart, -_let_h_half,
+            -_let_h_quart, _let_h_half, _let_h_half), group)
+
+def _letter_cap_z(x:float, y:float, group = None):
+  draw_path("M{} {}h{}l{} {}h{}"
+    .format(x + _let_h_half, y, -_let_h_half, _let_h_half, -_let_h, -_let_h_half), group)
+
+def _letter_low_a(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}m{} {}v{}q{} {} {} {}h{}"
+    .format(x + _let_h_half, y - _let_h_quart,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            0, _let_h_quart, -_let_h_half,
+            0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
+            -_let_h_eight), group)
+
+def _letter_low_b(x:float, y:float, group = None):
+  draw_path("M{} {}v{}M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
+    .format(x, y, -_let_h, x, y - _let_h_quart,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart), group)
+
+def _letter_low_c(x:float, y:float, group = None):
+  draw_path("M{} {}h{}q{} {} {} {}q{} {} {} {}h{}"
+    .format(x + _let_h_half, y, -_let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart), group)
+
+def _letter_low_d(x:float, y:float, group = None):
+  draw_path("M{} {}v{}M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
+    .format(x + _let_h_half, y, -_let_h, x + _let_h_half, y - _let_h_quart,
+            0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, _let_h_quart,
+            0, _let_h_quart, _let_h_quart, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, -_let_h_quart), group)
+
+def _letter_low_e(x:float, y:float, group = None):
+  draw_path("M{} {}h{}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}"
+    .format(x, y - _let_h_quart, _let_h_half,
+            0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, _let_h_quart,
+            0, _let_h_quart, _let_h_quart, _let_h_quart,
+            _let_h_quart), group)
+
+def _letter_low_f(x:float, y:float, group = None):
+  draw_path("M{} {}v{}q{} {} {} {}m{} {}h{}"
+    .format(x + _let_h_quart, y, -_let_h_half - _let_h_quart,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            -_let_h_half, _let_h_half, _let_h_half), group)
+
+def _letter_low_g(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}m{} {}v{}q{} {} {} {}h{}"
+    .format(x + _let_h_half, y - _let_h_quart,
+            0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, _let_h_quart,
+            0, _let_h_quart, _let_h_quart, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, -_let_h_quart,
+            0, -_let_h_quart,
+            _let_h_half,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_quart), group)
+
+def _letter_low_h(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}q{} {} {} {}q{} {} {} {}v{}"
+    .format(x, y - _let_h, _let_h, 0, -_let_h_quart,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            _let_h_quart), group)
+
+def _letter_low_i(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}v{}"
+    .format(x + _let_h_quart, y, -_let_h_half, 0, -_let_h_quart, -_let_h_eight), group)
+
+def _letter_low_j(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}v{}q{} {} {} {}h{}"
+    .format(x + _let_h_quart, y - _let_h_half - _let_h_quart - _let_h_eight, _let_h_eight, 0, _let_h_quart, _let_h_half,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_eight), group)
+
+def _letter_low_k(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}l{} {}l{} {}"
+    .format(x, y - _let_h, _let_h, _let_h_half, -_let_h_half,
+            -_let_h_half, _let_h_quart, _let_h_half, _let_h_quart), group)
+
+def _letter_low_l(x:float, y:float, group = None):
+  draw_path("M{} {}v{}".format(x + _let_h_quart, y, -_let_h), group)
+
+def _letter_low_m(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}q{} {} {} {}q{} {} {} {}v{}m{} {}q{} {} {} {}q{} {} {} {}v{}"
+    .format(x, y, -_let_h_half, 0, _let_h_eight,
+            0, -_let_h_eight, _let_h_eight, -_let_h_eight,
+            _let_h_eight, 0, _let_h_eight, _let_h_eight,
+            _let_h_eight, 0, -_let_h_eight,
+            0, -_let_h_eight, _let_h_eight, -_let_h_eight,
+            _let_h_eight, 0, _let_h_eight, _let_h_eight,
+            _let_h_quart + _let_h_eight), group)
+
+def _letter_low_n(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}q{} {} {} {}q{} {} {} {}v{}"
+    .format(x, y, -_let_h_half, 0, _let_h_quart,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            _let_h_quart), group)
+
+def _letter_low_o(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
+    .format(x + _let_h_quart, y,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart), group)
+
+def _letter_low_p(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}m{} {}v{}"
+    .format(x, y - _let_h_quart,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
+            0, -_let_h_quart, _let_h_half + _let_h_quart), group)
+
+def _letter_low_q(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}m{} {}v{}"
+    .format(x + _let_h_half, y - _let_h_quart,
+            0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, _let_h_quart,
+            0, _let_h_quart, _let_h_quart, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, -_let_h_quart,
+            0, -_let_h_quart, _let_h_half + _let_h_quart), group)
+
+def _letter_low_r(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}q{} {} {} {}q{} {} {} {}"
+    .format(x, y, -_let_h_half, 0, _let_h_quart,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart), group)
+
+def _letter_low_s(x:float, y:float, group = None):
+  draw_path("M{} {}h{}q{} {} {} {}q{} {} {} {}h{}q{} {} {} {}q{} {} {} {}h{}"
+    .format(x, y, _let_h_quart + _let_h_eight,
+            _let_h_eight, 0, _let_h_eight, -_let_h_eight,
+            0, -_let_h_eight, -_let_h_eight, -_let_h_eight,
+            -_let_h_quart,
+            -_let_h_eight, 0, -_let_h_eight, -_let_h_eight,
+            0, -_let_h_eight, _let_h_eight, -_let_h_eight,
+            _let_h_quart + _let_h_eight), group)
+
+def _letter_low_t(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}h{}"
+    .format(x + _let_h_quart, y, -_let_h_half - _let_h_quart,
+            -_let_h_quart, _let_h_quart, _let_h_half), group)
+
+def _letter_low_u(x:float, y:float, group = None):
+  draw_path("M{} {}v{}q{} {} {} {}q{} {} {} {}m{} {}v{}"
+    .format(x, y - _let_h_half, _let_h_quart,
+            0, _let_h_quart, _let_h_quart, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, -_let_h_quart,
+            0, _let_h_quart, -_let_h_half), group)
+
+def _letter_low_v(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}l{} {}"
+    .format(x, y - _let_h_half, _let_h_quart, _let_h_half, _let_h_quart, -_let_h_half), group)
+
+def _letter_low_w(x:float, y:float, group = None):
+  draw_path("M{} {}v{}q{} {} {} {}q{} {} {} {}v{}m{} {}q{} {} {} {}q{} {} {} {}m{} {}v{}"
+    .format(x, y - _let_h_half, _let_h_quart + _let_h_eight,
+            0, _let_h_eight, _let_h_eight, _let_h_eight,
+            _let_h_eight, 0, _let_h_eight, -_let_h_eight,
+            -_let_h_eight, 0, _let_h_eight,
+            0, _let_h_eight, _let_h_eight, _let_h_eight,
+            _let_h_eight, 0, _let_h_eight, -_let_h_eight,
+            0, -_let_h_quart - _let_h_eight, _let_h_half), group)
+
+def _letter_low_x(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}m{} {}l{} {}"
+    .format(x, y-_let_h_half, _let_h_half, _let_h_half, 0, -_let_h_half, -_let_h_half, _let_h_half), group)
+
+def _letter_low_y(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}m{} {}l{} {}"
+    .format(x, y - _let_h_half, _let_h_quart, _let_h_half, _let_h_quart, -_let_h_half, -_let_h_half + _let_h_eight, _let_h_half + _let_h_quart), group)
+
+def _letter_low_z(x:float, y:float, group = None):
+  draw_path("M{} {}h{}l{} {}h{}"
+    .format(x + _let_h_half, y, -_let_h_half, _let_h_half, -_let_h_half, -_let_h_half), group)
+
+def _number_0(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}m{} {}l{} {}"
+    .format(x + _let_h_quart, y,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
+            -_let_h_half,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            _let_h_half,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_quart, -_let_h_quart, _let_h_half, -_let_h_half), group)
+
+def _number_1(x:float, y:float, group = None):
+  draw_path("M{} {}h{}m{} {}v{}l{} {}"
+    .format(x, y, _let_h_half, -_let_h_quart, 0, -_let_h, -_let_h_quart, _let_h_quart), group)
+
+def _number_2(x:float, y:float, group = None):
+  draw_path("M{} {}h{}v{}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
+    .format(x + _let_h_half, y, -_let_h_half, -_let_h_quart,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart, 0, _let_h_quart, -_let_h_quart,
+            0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, _let_h_quart), group)
+
+def _number_3(x:float, y:float, group = None):
+  draw_path("M{} {}h{}q{} {} {} {}q{} {} {} {}h{}m{} {}q{} {} {} {}q{} {} {} {}h{}"
+    .format(x, y, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, -_let_h_quart,
+            0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
+            -_let_h_eight, _let_h_eight, 0,
+            _let_h_quart, 0, _let_h_quart, -_let_h_quart,
+            0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
+            -_let_h_quart), group)
+
+def _number_4(x:float, y:float, group = None):
+  draw_path("M{} {}v{}h{}m{} {}v{}"
+    .format(x, y - _let_h, _let_h_half, _let_h_half, 0, _let_h_half, -_let_h), group)
+
+def _number_5(x:float, y:float, group = None):
+  draw_path("M{} {}h{}v{}h{}q{} {} {} {}q{} {} {} {}h{}"
+    .format(x + _let_h_half, y - _let_h, -_let_h_half, _let_h_half, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_quart), group)
+
+def _number_6(x:float, y:float, group = None):
+  draw_path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}"
+    .format(x + _let_h_half, y - _let_h, -_let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, _let_h_quart,
+            _let_h_half,
+            0, _let_h_quart, _let_h_quart, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, -_let_h_quart,
+            0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
+            -_let_h_quart), group)
+
+def _number_7(x:float, y:float, group = None):
+  draw_path("M{} {}h{}l{} {}"
+    .format(x, y - _let_h, _let_h_half, -_let_h_half, _let_h), group)
+
+def _number_8(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
+    .format(x + _let_h_quart, y - _let_h,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, _let_h_quart,
+            0, _let_h_quart, _let_h_quart, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, -_let_h_quart,
+            0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart), group)
+
+def _number_9(x:float, y:float, group = None):
+  draw_path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}"
+    .format(x, y, _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, -_let_h_quart,
+            -_let_h_half,
+            0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, _let_h_quart,
+            0, _let_h_quart, _let_h_quart, _let_h_quart,
+            _let_h_quart), group)
+
+def _punc_exclamation(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}v{}"
+    .format(x + _let_h_quart, y - _let_h, _let_h_half + _let_h_eight, 0, _let_h_quart, _let_h_eight), group)
+
+def _punc_at(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}"
+    .format(x + _let_h_quart, y,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
+            -_let_h_half,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_quart, 0, _let_h_quart, _let_h_quart,
+            _let_h_half,
+            -_let_h_sixt, _let_h_eight, -_let_h_eight, 0,
+            -_let_h_quart - _let_h_eight,
+            0, -_let_h_eight, -_let_h_eight, -_let_h_eight,
+            -_let_h_eight, 0, -_let_h_eight, _let_h_eight,
+            _let_h_quart,
+            0, _let_h_eight, _let_h_eight, _let_h_eight,
+            _let_h_eight, 0, _let_h_eight, -_let_h_eight), group)
+
+def _punc_pound(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}v{}M{} {}h{}m{} {}h{}"
+    .format(x + _let_h_eight, y, -_let_h, _let_h_quart, 0, _let_h,
+            x, y - _let_h_quart, _let_h_half, 0, -_let_h_half, -_let_h_half), group)
+
+def _punc_dollar(x:float, y:float, group = None):
+  draw_path("M{} {}h{}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}M{} {}v{}"
+    .format(x, y - (_let_h_fifth / 2), _let_h_quart,
+            _let_h_quart, 0, _let_h_quart, -_let_h_fifth,
+            0, -_let_h_fifth, -_let_h_quart, -_let_h_fifth,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_fifth,
+            0, -_let_h_fifth, _let_h_quart, -_let_h_fifth,
+            _let_h_quart, x + _let_h_quart, y, -_let_h), group)
+
+def _punc_percent(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}"
+    .format(x, y, _let_h_half, -_let_h), group)
+  draw_circ(x + _let_h_eight, y - _let_h + _let_h_eight, _let_h_eight, group)
+  draw_circ(x + _let_h_eight + _let_h_quart, y - _let_h_eight, _let_h_eight, group)
+
+def _punc_carrot(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}l{} {}"
+    .format(x, y - _let_h + _let_h_quart, _let_h_quart, -_let_h_quart, _let_h_quart, _let_h_quart), group)
+
+def _punc_and(x:float, y:float, group = None):
+  draw_path("M{} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}L{} {}"
+    .format(x + _let_h_half, y - _let_h_half, _let_h_quart,
+            0, _let_h_quart, -_let_h_quart, _let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
+            -_let_h_eight,
+            0, -_let_h_quart, _let_h_quart, -_let_h_quart,
+            _let_h_eight, 0, _let_h_eight, -_let_h_eight,
+            -_let_h_eight,
+            0, -_let_h_eight, -_let_h_eight, -_let_h_eight,
+            -_let_h_eight, 0, -_let_h_eight, _let_h_eight,
+            _let_h_eight,
+            x + _let_h_half, y), group)
+
+def _punc_star(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}l{} {}m{} {}l{} {}"
+    .format(x + _let_h_quart, y - _let_h_quart + _let_h_eight, -_let_h_half -_let_h_quart,
+            -_let_h_quart, _let_h_eight, _let_h_half, _let_h_half, 0,
+            -_let_h_half, -_let_h_half, _let_h_half), group)
+
+def _punc_left_paren(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}"
+    .format(x + _let_h_half - _let_h_eight, y, -_let_h_half, -_let_h_half, 0, -_let_h), group)
+
+def _punc_right_paren(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}"
+    .format(x + _let_h_eight, y, _let_h_half, -_let_h_half, 0, -_let_h), group)
+
+def _punc_dash(x:float, y:float, group = None):
+  draw_path("M{} {}h{}".format(x, y - _let_h_half, _let_h_half), group)
+
+def _punc_underscore(x:float, y:float, group = None):
+  draw_path("M{} {}h{}".format(x, y, _let_h_half), group)
+
+def _punc_plus(x:float, y:float, group = None):
+  draw_path("M{} {}h{}m{} {}v{}"
+    .format(x, y - _let_h_half, _let_h_half, -_let_h_quart, -_let_h_quart, _let_h_half), group)
+
+def _punc_equals(x:float, y:float, group = None):
+  draw_path("M{} {}h{}m{} {}h{}"
+    .format(x, y - _let_h_half + _let_h_eight, _let_h_half, 0, -_let_h_quart, -_let_h_half), group)
+
+def _punc_left_brace(x:float, y:float, group = None):
+  draw_path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}h{}"
+    .format(x + _let_h_quart + _let_h_eight, y, -_let_h_eight,
+            -_let_h_eight, 0, -_let_h_eight, -_let_h_eight,
+            -_let_h_quart,
+            0, -_let_h_eight, -_let_h_eight, -_let_h_eight,
+            _let_h_eight, 0, _let_h_eight, -_let_h_eight,
+            -_let_h_quart,
+            0, -_let_h_eight, _let_h_eight, -_let_h_eight,
+            _let_h_eight), group)
+
+def _punc_right_brace(x:float, y:float, group = None):
+  draw_path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}h{}"
+    .format(x + _let_h_quart - _let_h_eight, y, _let_h_eight,
+            _let_h_eight, 0, _let_h_eight, -_let_h_eight,
+            -_let_h_quart,
+            0, -_let_h_eight, _let_h_eight, -_let_h_eight,
+            -_let_h_eight, 0, -_let_h_eight, -_let_h_eight,
+            -_let_h_quart,
+            0, -_let_h_eight, -_let_h_eight, -_let_h_eight,
+            -_let_h_eight), group)
+
+def _punc_left_bracket(x:float, y:float, group = None):
+  draw_path("M{} {}h{}v{}h{}"
+    .format(x + _let_h_quart + _let_h_eight, y, -_let_h_quart, -_let_h, _let_h_quart), group)
+
+def _punc_right_bracket(x:float, y:float, group = None):
+  draw_path("M{} {}h{}v{}h{}"
+    .format(x + _let_h_quart - _let_h_eight, y, +_let_h_quart, -_let_h, -_let_h_quart), group)
+
+def _punc_backslash(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}"
+    .format(x, y - _let_h, _let_h_half, _let_h), group)
+
+def _punc_line(x:float, y:float, group = None):
+  draw_path("M{} {}v{}"
+    .format(x + _let_h_quart, y, -_let_h), group)
+
+def _punc_comma(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}v{}"
+    .format(x + _let_h_quart - _let_h_eight, y,
+            _let_h_eight, 0, _let_h_eight, -_let_h_eight, -_let_h_eight), group)
+
+def _punc_period(x:float, y:float, group = None):
+  draw_path("M{} {}v{}".format(x + _let_h_quart, y, -_let_h_eight), group)
+
+def _punc_slash(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}".format(x, y, _let_h_half, -_let_h), group)
+
+def _punc_left_arrow(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}l{} {}"
+    .format(x + _let_h_quart + _let_h_eight, y - _let_h_half + _let_h_quart,
+            -_let_h_quart, -_let_h_quart, _let_h_quart, -_let_h_quart), group)
+
+def _punc_right_arrow(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}l{} {}"
+    .format(x + _let_h_quart - _let_h_eight, y - _let_h_half + _let_h_quart,
+            _let_h_quart, -_let_h_quart, -_let_h_quart, -_let_h_quart), group)
+
+def _punc_question(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}h{}q{} {} {} {}v{}"
+    .format(x + _let_h_quart, y, -_let_h_eight, 0, -_let_h_quart, -_let_h_eight,
+            0, -_let_h_eight, _let_h_eight, -_let_h_eight,
+            _let_h_eight, 0, _let_h_eight, -_let_h_eight,
+            -_let_h_eight,
+            0, -_let_h_eight, -_let_h_eight, -_let_h_eight,
+            -_let_h_quart,
+            -_let_h_eight, 0, -_let_h_eight, _let_h_eight,
+            _let_h_eight), group)
+
+def _punc_semicolon(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}v{}m{} {}v{}"
+    .format(x + _let_h_quart - _let_h_eight, y,
+            _let_h_eight, 0, _let_h_eight, -_let_h_eight, -_let_h_eight,
+            0, -_let_h_quart, -_let_h_eight), group)
+
+def _punc_colon(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}v{}"
+    .format(x + _let_h_quart, y - _let_h_quart, -_let_h_eight, 0, -_let_h_quart, -_let_h_eight), group)
+
+def _punc_single_quote(x:float, y:float, group = None):
+  draw_path("M{} {}v{}".format(x + _let_h_quart, y - _let_h + _let_h_eight, _let_h_eight), group)
+
+def _punc_double_quote(x:float, y:float, group = None):
+  draw_path("M{} {}v{}m{} {}v{}"
+    .format(x + _let_h_quart - _let_h_sixt, y - _let_h + _let_h_eight, _let_h_eight, _let_h_eight, 0, -_let_h_eight), group)
+
+def _punc_back_tick(x:float, y:float, group = None):
+  draw_path("M{} {}l{} {}"
+    .format(x + _let_h_eight, y-_let_h, _let_h_quart, _let_h_quart), group)
+
+def _punc_tilde(x:float, y:float, group = None):
+  draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
+    .format(x, y - _let_h_half,
+            0, -_let_h_eight, _let_h_eight, -_let_h_eight,
+            _let_h_eight, 0, _let_h_eight, _let_h_eight,
+            0, _let_h_eight, _let_h_eight, _let_h_eight,
+            _let_h_eight, 0, _let_h_eight, -_let_h_eight), group)
+
+def _letter_low_e_accent(x:float, y:float, group = None):
+  draw_path("M{} {}h{}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}M{} {}l{} {}"
+    .format(x, y - _let_h_quart, _let_h_half,
+            0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
+            -_let_h_quart, 0, -_let_h_quart, _let_h_quart,
+            0, _let_h_quart, _let_h_quart, _let_h_quart,
+            _let_h_quart - _let_h_eight, x + _let_h_eight, y - _let_h_half - _let_h_eight,
+            _let_h_quart, -_let_h_quart), group)
+
+def _letter_cap_e_accent(x:float, y:float, group = None):
+  draw_path("M{} {}h{}v{}h{}m{} {}h{}M{} {}l{} {}"
+    .format(x + _let_h_half, y, -_let_h_half, -_let_h,
+            _let_h_half, -_let_h_half, _let_h_half, _let_h_quart,
+            x + _let_h_eight, y - _let_h - _let_h_eight,
+            _let_h_quart, -_let_h_quart), group)
+
+def draw_text(x:float, y:float, kern:float, value:str, group = None):
   for char in value:
-    # lib.rect(x, y - let_h, let_h_half, let_h)
-    # lib.path(f"M{x} {y - let_h_half}h{let_h_half}")
-    # lib.path(f"M{x} {y + let_h_quart}h{let_h_half}")
+    # draw_rect(x, y - _let_h, _let_h_half, _let_h, group)
+    # draw_path(f"M{x} {y - _let_h_half}h{_let_h_half}", group)
+    # draw_path(f"M{x} {y + _let_h_quart}h{_let_h_half}", group)
 
     if char == " ":   pass
-    elif char == "A": letter_cap_a(x, y)
-    elif char == "B": letter_cap_b(x, y)
-    elif char == "C": letter_cap_c(x, y)
-    elif char == "D": letter_cap_d(x, y)
-    elif char == "E": letter_cap_e(x, y)
-    elif char == "F": letter_cap_f(x, y)
-    elif char == "G": letter_cap_g(x, y)
-    elif char == "H": letter_cap_h(x, y)
-    elif char == "I": letter_cap_i(x, y)
-    elif char == "J": letter_cap_j(x, y)
-    elif char == "K": letter_cap_k(x, y)
-    elif char == "L": letter_cap_l(x, y)
-    elif char == "M": letter_cap_m(x, y)
-    elif char == "N": letter_cap_n(x, y)
-    elif char == "O": letter_cap_o(x, y)
-    elif char == "P": letter_cap_p(x, y)
-    elif char == "Q": letter_cap_q(x, y)
-    elif char == "R": letter_cap_r(x, y)
-    elif char == "S": letter_cap_s(x, y)
-    elif char == "T": letter_cap_t(x, y)
-    elif char == "U": letter_cap_u(x, y)
-    elif char == "V": letter_cap_v(x, y)
-    elif char == "W": letter_cap_w(x, y)
-    elif char == "X": letter_cap_x(x, y)
-    elif char == "Y": letter_cap_y(x, y)
-    elif char == "Z": letter_cap_z(x, y)
-    elif char == "a": letter_low_a(x, y)
-    elif char == "b": letter_low_b(x, y)
-    elif char == "c": letter_low_c(x, y)
-    elif char == "d": letter_low_d(x, y)
-    elif char == "e": letter_low_e(x, y)
-    elif char == "f": letter_low_f(x, y)
-    elif char == "g": letter_low_g(x, y)
-    elif char == "h": letter_low_h(x, y)
-    elif char == "i": letter_low_i(x, y)
-    elif char == "j": letter_low_j(x, y)
-    elif char == "k": letter_low_k(x, y)
-    elif char == "l": letter_low_l(x, y)
-    elif char == "m": letter_low_m(x, y)
-    elif char == "n": letter_low_n(x, y)
-    elif char == "o": letter_low_o(x, y)
-    elif char == "p": letter_low_p(x, y)
-    elif char == "q": letter_low_q(x, y)
-    elif char == "r": letter_low_r(x, y)
-    elif char == "s": letter_low_s(x, y)
-    elif char == "t": letter_low_t(x, y)
-    elif char == "u": letter_low_u(x, y)
-    elif char == "v": letter_low_v(x, y)
-    elif char == "w": letter_low_w(x, y)
-    elif char == "x": letter_low_x(x, y)
-    elif char == "y": letter_low_y(x, y)
-    elif char == "z": letter_low_z(x, y)
-    elif char == "0": number_0(x, y)
-    elif char == "1": number_1(x, y)
-    elif char == "2": number_2(x, y)
-    elif char == "3": number_3(x, y)
-    elif char == "4": number_4(x, y)
-    elif char == "5": number_5(x, y)
-    elif char == "6": number_6(x, y)
-    elif char == "7": number_7(x, y)
-    elif char == "8": number_8(x, y)
-    elif char == "9": number_9(x, y)
-    elif char == "!": punc_exclamation(x, y)
-    elif char == "@": punc_at(x, y)
-    elif char == "#": punc_pound(x, y)
-    elif char == "$": punc_dollar(x, y)
-    elif char == "%": punc_percent(x, y)
-    elif char == "^": punc_carrot(x, y)
-    elif char == "&": punc_and(x, y)
-    elif char == "*": punc_star(x, y)
-    elif char == "(": punc_left_paren(x, y)
-    elif char == ")": punc_right_paren(x, y)
-    elif char == "-" or char == "—": punc_dash(x, y)
-    elif char == "_": punc_underscore(x, y)
-    elif char == "+": punc_plus(x, y)
-    elif char == "=": punc_equals(x, y)
-    elif char == "{": punc_left_brace(x, y)
-    elif char == "}": punc_right_brace(x, y)
-    elif char == "[": punc_left_bracket(x, y)
-    elif char == "]": punc_right_bracket(x, y)
-    elif char == "\\": punc_backslash(x, y)
-    elif char == "|": punc_line(x, y)
-    elif char == ",": punc_comma(x, y)
-    elif char == ".": punc_period(x, y)
-    elif char == "/": punc_slash(x, y)
-    elif char == "<": punc_left_arrow(x, y)
-    elif char == ">": punc_right_arrow(x, y)
-    elif char == "?": punc_question(x, y)
-    elif char == ";": punc_semicolon(x, y)
-    elif char == ":": punc_colon(x, y)
+    elif char == "A": _letter_cap_a(x, y, group)
+    elif char == "B": _letter_cap_b(x, y, group)
+    elif char == "C": _letter_cap_c(x, y, group)
+    elif char == "D": _letter_cap_d(x, y, group)
+    elif char == "E": _letter_cap_e(x, y, group)
+    elif char == "F": _letter_cap_f(x, y, group)
+    elif char == "G": _letter_cap_g(x, y, group)
+    elif char == "H": _letter_cap_h(x, y, group)
+    elif char == "I": _letter_cap_i(x, y, group)
+    elif char == "J": _letter_cap_j(x, y, group)
+    elif char == "K": _letter_cap_k(x, y, group)
+    elif char == "L": _letter_cap_l(x, y, group)
+    elif char == "M": _letter_cap_m(x, y, group)
+    elif char == "N": _letter_cap_n(x, y, group)
+    elif char == "O": _letter_cap_o(x, y, group)
+    elif char == "P": _letter_cap_p(x, y, group)
+    elif char == "Q": _letter_cap_q(x, y, group)
+    elif char == "R": _letter_cap_r(x, y, group)
+    elif char == "S": _letter_cap_s(x, y, group)
+    elif char == "T": _letter_cap_t(x, y, group)
+    elif char == "U": _letter_cap_u(x, y, group)
+    elif char == "V": _letter_cap_v(x, y, group)
+    elif char == "W": _letter_cap_w(x, y, group)
+    elif char == "X": _letter_cap_x(x, y, group)
+    elif char == "Y": _letter_cap_y(x, y, group)
+    elif char == "Z": _letter_cap_z(x, y, group)
+    elif char == "a": _letter_low_a(x, y, group)
+    elif char == "b": _letter_low_b(x, y, group)
+    elif char == "c": _letter_low_c(x, y, group)
+    elif char == "d": _letter_low_d(x, y, group)
+    elif char == "e": _letter_low_e(x, y, group)
+    elif char == "f": _letter_low_f(x, y, group)
+    elif char == "g": _letter_low_g(x, y, group)
+    elif char == "h": _letter_low_h(x, y, group)
+    elif char == "i": _letter_low_i(x, y, group)
+    elif char == "j": _letter_low_j(x, y, group)
+    elif char == "k": _letter_low_k(x, y, group)
+    elif char == "l": _letter_low_l(x, y, group)
+    elif char == "m": _letter_low_m(x, y, group)
+    elif char == "n": _letter_low_n(x, y, group)
+    elif char == "o": _letter_low_o(x, y, group)
+    elif char == "p": _letter_low_p(x, y, group)
+    elif char == "q": _letter_low_q(x, y, group)
+    elif char == "r": _letter_low_r(x, y, group)
+    elif char == "s": _letter_low_s(x, y, group)
+    elif char == "t": _letter_low_t(x, y, group)
+    elif char == "u": _letter_low_u(x, y, group)
+    elif char == "v": _letter_low_v(x, y, group)
+    elif char == "w": _letter_low_w(x, y, group)
+    elif char == "x": _letter_low_x(x, y, group)
+    elif char == "y": _letter_low_y(x, y, group)
+    elif char == "z": _letter_low_z(x, y, group)
+    elif char == "0": _number_0(x, y, group)
+    elif char == "1": _number_1(x, y, group)
+    elif char == "2": _number_2(x, y, group)
+    elif char == "3": _number_3(x, y, group)
+    elif char == "4": _number_4(x, y, group)
+    elif char == "5": _number_5(x, y, group)
+    elif char == "6": _number_6(x, y, group)
+    elif char == "7": _number_7(x, y, group)
+    elif char == "8": _number_8(x, y, group)
+    elif char == "9": _number_9(x, y, group)
+    elif char == "!": _punc_exclamation(x, y, group)
+    elif char == "@": _punc_at(x, y, group)
+    elif char == "#": _punc_pound(x, y, group)
+    elif char == "$": _punc_dollar(x, y, group)
+    elif char == "%": _punc_percent(x, y, group)
+    elif char == "^": _punc_carrot(x, y, group)
+    elif char == "&": _punc_and(x, y, group)
+    elif char == "*": _punc_star(x, y, group)
+    elif char == "(": _punc_left_paren(x, y, group)
+    elif char == ")": _punc_right_paren(x, y, group)
+    elif char == "-" or char == "—": _punc_dash(x, y, group)
+    elif char == "_": _punc_underscore(x, y, group)
+    elif char == "+": _punc_plus(x, y, group)
+    elif char == "=": _punc_equals(x, y, group)
+    elif char == "{": _punc_left_brace(x, y, group)
+    elif char == "}": _punc_right_brace(x, y, group)
+    elif char == "[": _punc_left_bracket(x, y, group)
+    elif char == "]": _punc_right_bracket(x, y, group)
+    elif char == "\\": _punc_backslash(x, y, group)
+    elif char == "|": _punc_line(x, y, group)
+    elif char == ",": _punc_comma(x, y, group)
+    elif char == ".": _punc_period(x, y, group)
+    elif char == "/": _punc_slash(x, y, group)
+    elif char == "<": _punc_left_arrow(x, y, group)
+    elif char == ">": _punc_right_arrow(x, y, group)
+    elif char == "?": _punc_question(x, y, group)
+    elif char == ";": _punc_semicolon(x, y, group)
+    elif char == ":": _punc_colon(x, y, group)
     elif char == "'" or char == "’" or char == "‘":
-      punc_single_quote(x, y)
+      _punc_single_quote(x, y, group)
     elif char == "\"" or char == "“" or char == "”":
-      punc_double_quote(x, y)
-    elif char == "`": punc_back_tick(x, y)
-    elif char == "~": punc_tilde(x, y)
-    elif char == "é": letter_low_e_accent(x, y)
-    elif char == "É": letter_cap_e_accent(x, y)
+      _punc_double_quote(x, y, group)
+    elif char == "`": _punc_back_tick(x, y, group)
+    elif char == "~": _punc_tilde(x, y, group)
+    elif char == "é": _letter_low_e_accent(x, y, group)
+    elif char == "É": _letter_cap_e_accent(x, y, group)
     else: print("Unhandled character: {}".format(char))
-    x += let_h_half + kern
+    x += _let_h_half + kern

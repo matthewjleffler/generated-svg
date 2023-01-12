@@ -1,27 +1,26 @@
-import lib
-import text
-import os
-import random
+from lib import *
+from text import *
+from os import listdir
 from typing import List
 
 text_file = "" # Specific override text file
 
 def loop():
-  # lib.border()
+  # draw_border()
 
   global text_file
 
   # Find text file if we don't have one assigned
   if text_file == "":
     # List content of text dir
-    files = os.listdir("./text-content")
+    files = listdir("./text-content")
     valid_files: List[str] = []
     for file in files:
       if file.endswith(".txt"):
         valid_files.append(file)
 
     if len(valid_files) > 0:
-      valid_index = random.randint(0, len(valid_files) - 1)
+      valid_index = rand_int(0, len(valid_files) - 1)
       text_file = valid_files[valid_index]
 
   if text_file == "":
@@ -54,14 +53,14 @@ def loop():
   # Setup variables
   min_lines = 5
   max_lines = 15
-  num_lines = random.randint(min_lines, max_lines)
+  num_lines = rand_int(min_lines, max_lines)
   num_lines = min(num_lines, text_len)
 
   # Pick lines
   last_index = max(text_len - 1 - num_lines, 0)
   random_line_index = 0
   if last_index > 0:
-    random_line_index = random.randint(0, text_len - 1)
+    random_line_index = rand_int(0, text_len - 1)
 
   # Collect picked lines
   render_lines: List[str] = []
@@ -76,23 +75,23 @@ def loop():
   render_lines[-1] = f"{render_lines[-1]}..."
 
   # Calculate width and height of the content we found
-  max_w = max_len * text.let_h_half + (max_len - 1) * 10
-  scale = lib.svg_safe.w / max_w
+  max_w = max_len * text_letter_width() + (max_len - 1) * 10
+  scale = svg_safe().w / max_w
   line_num = len(render_lines)
-  height = line_num * text.line_height * scale
+  height = line_num * text_line_height() * scale
 
   # Draw text
-  lib.open_group(f"transform=\"translate({lib.svg_safe.x}, {lib.svg_safe.center_y() - height / 2}) scale({scale}, {scale})\"")
+  open_group(f"transform=\"translate({svg_safe().x}, {svg_safe().center_y() - height / 2}) scale({scale}, {scale})\"")
 
   for i in range(0, line_num):
     line = render_lines[i]
-    text.draw_string(0, text.line_height * (i + 1), 10, line)
+    draw_text(0, text_line_height() * (i + 1), 10, line)
 
-  lib.close_group()
+  close_group()
 
 seed = 0
 test = True
-size = lib.SvgSize.Size9x12
+size = SvgSize.Size9x12
 
 if __name__ == "__main__":
-  mainseed = lib.main("text-strings", test, seed, size, loop)
+  mainseed = main("text-strings", test, seed, size, loop)

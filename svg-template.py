@@ -1,19 +1,18 @@
-import lib
-import path
-import text
-import random
-import math
+from lib import *
+from path import *
+from text import *
+from math import *
 
 def loop():
-  lib.border()
+  draw_border()
 
-  text.draw_string(200, 200, 5, "test text")
+  draw_text(200, 200, 5, "Test Text")
 
 
 seed = 0
 test = True
-size = lib.SvgSize.Size9x12
+size = SvgSize.Size9x12
 
 if __name__ == "__main__":
-  mainseed = lib.main("template", test, seed, size, loop)
+  mainseed = main("template", test, seed, size, loop)
 

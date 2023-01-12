@@ -1,14 +1,16 @@
-import lib
-import path
-import random
-import math
+from lib import *
+from path import *
+from math import *
 from typing import List
 
-def create_highlight(draw:bool, line:List[lib.Point], final:float):
+mutate = True
+
+def create_highlight(draw:bool, line:List[Point], final:float):
+  return
   available: List[int] = []
   claimed: List[int] = []
 
-  lib.open_group("stroke=\"blue\"")
+  open_group("stroke=\"blue\"")
 
   # Variables
   strike_min = 0
@@ -32,7 +34,7 @@ def create_highlight(draw:bool, line:List[lib.Point], final:float):
     claimed.append(index)
     point = line[index]
     if draw:
-      lib.path(f"M{lib.svg_safe.x} {point.y}h{lib.svg_safe.w}")
+      draw_path(f"M{_svg_safe.x} {point.y}h{_svg_safe.w}")
 
   # Collect available indexes
   available = []
@@ -56,7 +58,7 @@ def create_highlight(draw:bool, line:List[lib.Point], final:float):
     claimed.append(index)
     point = line[index]
     if draw:
-      lib.circ(origin.x - 20, point.y, 10)
+      draw_circ(origin.x - 20, point.y, 10)
 
   # Create starbursts
   available = []
@@ -79,19 +81,22 @@ def create_highlight(draw:bool, line:List[lib.Point], final:float):
     claimed.append(index)
     point = line[index]
     if draw:
-      lib.sunburst(10, final + 20, point.y, 10, 5)
+      draw_sunburst(10, final + 20, point.y, 10, 5)
 
-  lib.close_group()
+  close_group()
 
 
 def create_lines(draw:bool):
   pad_x = 100
-  left = lib.svg_safe.x + pad_x
-  right = lib.svg_safe.right() - pad_x
+  pad_y = 50
+  top = svg_safe().y + pad_y
+  bottom = svg_safe().bottom() - pad_y
+  left = svg_safe().x + pad_x
+  right = svg_safe().right() - pad_x
   width = right - left
   # skew_min = -50
   # skew_max = 50
-  # skew = lib.rand_float(skew_min, skew_max)
+  # skew = rand_float(skew_min, skew_max)
 
   # Pick subdivisions, make sure it's an even number
   subdivide_min = 50
@@ -100,68 +105,101 @@ def create_lines(draw:bool):
   if subdivide % 2 == 1:
     subdivide += 1
 
-  shuffle_range_max = 50
+  shuffle_range_max = 40
+  shuffle_range_max_y = 5
 
-  space = 5
-  line_count = math.floor(width / space)
+  space = 2
+  rate = space / 5
+  # print(rate)
+  line_count = floor(width / space)
 
   # Create first line
-  rough: List[lib.Point] = []
-  rough.append(lib.Point(left, lib.svg_safe.y))
-  rough.append(lib.Point(left, lib.svg_safe.bottom()))
+  rough: List[Point] = []
+  rough.append(Point(0, top))
+  rough.append(Point(0, bottom))
 
   # Draw rough line
-  # path.draw_point_circles(rough)
-  # path.draw_point_path(rough)
+  # draw_point_circles(rough)
+  # draw_point_path(rough)
 
   # Subdivide
-  fine = path.subdivide_point_path(rough, subdivide, subdivide, False)
+  fine = subdivide_point_path(rough, subdivide, subdivide, False)
 
   # Shuffle odd points
   for i in range(1, len(fine), 2):
-    fine[i].x += lib.rand_float(-shuffle_range_max, shuffle_range_max)
+    fine_point = fine[i]
+    fine_point.x += rand_float(-shuffle_range_max, shuffle_range_max)
+    fine_point.y += rand_float(-shuffle_range_max_y, shuffle_range_max_y)
 
   # Draw fine line
-  # path.draw_point_circles(fine)
-  # path.draw_point_path(fine)
+  # draw_point_circles(fine)
+  # draw_point_path(fine)
 
   # Duplicate line
+  mutate_range_x = 3 * rate
+  mutate_range_y = 3 * rate
+  max_range = 30
+
   space = width / line_count
-  lines: List[List[lib.Point]] = []
+  lines: List[List[Point]] = []
   for i in range(0, line_count):
-    line: List[lib.Point] = []
+    line: List[Point] = []
     lines.append(line)
-    for fine_point in fine:
-      point = lib.Point(round(fine_point.x + space * i, 2), round(fine_point.y, 2))
+    for j in range(0, len(fine)):
+      fine_point = fine[j]
+      point = Point(round(left + fine_point.x + space * i, 2), round(fine_point.y, 2))
       line.append(point)
 
+      if mutate:
+        if j % 2 == 1:
+          mutate_amt_x = rand_float(-mutate_range_x, mutate_range_x)
+          fine_point.x = clamp(fine_point.x + mutate_amt_x, -max_range, max_range)
+
+        mutate_amt_y = rand_float(-mutate_range_y, mutate_range_y)
+        fine_point.y = clamp(fine_point.y + mutate_amt_y, top, bottom)
+
   # Draw curves
+  curve = True
+
   for j in range(0, len(lines)):
     line = lines[j]
 
     if j % 2 == 0:
       point = line[0]
       path_val = f"M{point.x} {point.y}"
-      for i in range(1, len(line) - 1, 2):
-        control = line[i]
-        point = line[i + 1]
-        path_val += f"Q{control.x} {control.y} {point.x} {point.y}"
-        # lib.circ(x, lib.svg_safe.y, 5)
+
+      if curve:
+        for i in range(1, len(line) - 1, 2):
+          control = line[i]
+          point = line[i + 1]
+          path_val += f"Q{control.x} {control.y} {point.x} {point.y}"
+      else:
+        for i in range(1, len(line)):
+          point = line[i]
+          path_val += f"L{point.x} {point.y}"
+
     else:
       point = line[-1]
       path_val = f"M{point.x} {point.y}"
-      for i in range(len(line) - 2, 0, -2):
-        control = line[i]
-        point = line[i - 1]
-        path_val += f"Q{control.x} {control.y} {point.x} {point.y}"
+
+      if curve:
+        for i in range(len(line) - 2, 0, -2):
+          control = line[i]
+          point = line[i - 1]
+          path_val += f"Q{control.x} {control.y} {point.x} {point.y}"
+      else:
+        for i in range(len(line) - 1, 0):
+          point = line[i]
+          path_val += f"L{point.x} {point.y}"
 
     if draw:
-      lib.path(path_val)
+      # pass
+      draw_path(path_val)
 
   return (fine, lines[-1][0].x)
 
 def loop(draw_lines, draw_highlight):
-  # lib.border()
+  # draw_border()
 
   result = create_lines(draw_lines)
   create_highlight(draw_highlight, result[0], result[1])
@@ -179,10 +217,10 @@ def loop_highlight():
 
 seed = 0
 test = True
-size = lib.SvgSize.Size9x12
+size = SvgSize.Size11x17
 
 if __name__ == "__main__":
-  mainseed = lib.main("vertical-lines-combined", test, seed, size, loop_combined)
-  lib.main("vertical-lines-lines", test, mainseed, size, loop_lines)
-  lib.main("vertical-lines-highlight", test, mainseed, size, loop_highlight)
+  mainseed = main("vertical-lines-combined", test, seed, size, loop_combined)
+  main("vertical-lines-lines", test, mainseed, size, loop_lines)
+  main("vertical-lines-highlight", test, mainseed, size, loop_highlight)
 

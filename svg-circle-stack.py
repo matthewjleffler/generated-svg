@@ -1,26 +1,25 @@
-import lib
-import random
-import math
+from lib import *
+from math import *
 
 
 def loop():
-  # lib.border()
+  # draw_border()
 
-  count = 1
+  count = 20
   clamp_start = 50
   circles = []
 
   for _ in range(count):
-    x = random.randrange(lib.svg_safe.x, lib.svg_safe.w)
-    y = random.randrange(lib.svg_safe.y, lib.svg_safe.h)
+    x = random.randrange(svg_safe().x, svg_safe().w)
+    y = random.randrange(svg_safe().y, svg_safe().h)
 
     x = round(x / clamp_start, 0) * clamp_start
     y = round(y / clamp_start, 0) * clamp_start
 
-    lib.add_nondup_point(x, y, circles)
+    add_nondup_point(x, y, circles)
 
     # Debug show origins
-    # lib.rect(x, y, 10, 10, "red")
+    draw_rect(x, y, 10, 10)
 
   circles.sort()
 
@@ -30,24 +29,22 @@ def loop():
 
     for i in range(0, stack_count + 1):
       percent = i / stack_count
-      pi_percent = percent * math.pi
+      pi_percent = percent * pi
 
-      size = 10 + math.sin(pi_percent) * max_size
+      size = 10 + sin(pi_percent) * max_size
       half = size / 2
 
       x = point.x + 10 * i
       y = point.y + 10 * i
-      if not lib.svg_safe.contains(x - half, y - half) or not lib.svg_safe.contains(x + half, y + half):
+      if not svg_safe().contains(x - half, y - half) or not svg_safe().contains(x + half, y + half):
         continue
 
-      lib.circ(x, y, half)
+      draw_circ(x, y, half)
+
+test = True
+seed = 0
+size = SvgSize.Size9x12
 
 if __name__ == "__main__":
-  lib.main(
-    "circle-stack",
-    True,
-    0,
-    lib.SvgSize.Size11x17,
-    loop
-  )
+  mainseed = main("circle-stack", test, seed, size, loop)
 

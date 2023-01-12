@@ -1,6 +1,5 @@
-import lib
-import random
-import math
+from lib import *
+from math import *
 
 padding = 50
 stack_count = 50
@@ -19,48 +18,48 @@ def draw_worm(fixed_size):
       origin_x = worm_size * col
 
       # Debug bounds
-      # lib.rect(lib.svg_safe.x + origin_x, lib.svg_safe.y + origin_y, worm_size, worm_size)
+      # draw_rect(svg_safe().x + origin_x, svg_safe().y + origin_y, worm_size, worm_size)
 
       for i in range(0, stack_count + 1):
         percent = i / stack_count
-        pi_percent = percent * math.pi
-        pi_half_percent = percent * math.pi * .25
+        pi_percent = percent * pi
+        pi_half_percent = percent * pi * .25
 
-        size = math.sin(pi_percent) * max_size
+        size = sin(pi_percent) * max_size
         if fixed_size != 0:
           size = min(fixed_size, size)
 
         half = size / 2
 
-        x = lib.svg_safe.x + origin_x + math.sin(pi_half_percent) * stack_spread * i
-        y = lib.svg_safe.y + origin_y + math.cos(pi_half_percent) * stack_spread * i
+        x = svg_safe().x + origin_x + sin(pi_half_percent) * stack_spread * i
+        y = svg_safe().y + origin_y + cos(pi_half_percent) * stack_spread * i
 
-        lib.circ(x, y, half)
+        draw_circ(x, y, half)
 
 
 def loop(fixed_size):
   global max_col, max_row, worm_size
 
-  # lib.border()
+  # draw_border()
 
   worm_size = stack_count * stack_spread * .75
   worm_row_size = worm_size * 1.55
 
-  pad_x = lib.svg_safe.w - padding
-  pad_y = lib.svg_safe.h - padding
+  pad_x = svg_safe().w - padding
+  pad_y = svg_safe().h - padding
 
-  max_col = math.floor(pad_x / worm_size)
-  max_row = math.floor(pad_y / worm_row_size)
+  max_col = floor(pad_x / worm_size)
+  max_row = floor(pad_y / worm_row_size)
 
-  offset_x = (lib.svg_safe.w - (max_col * worm_size)) / 2
-  offset_y = (lib.svg_safe.h - (max_row * worm_row_size)) / 2
+  offset_x = (svg_safe().w - (max_col * worm_size)) / 2
+  offset_y = (svg_safe().h - (max_row * worm_row_size)) / 2
 
-  lib.open_group("transform=\"translate({},{})\"".format(offset_x, offset_y))
+  open_group("transform=\"translate({},{})\"".format(offset_x, offset_y))
   draw_worm(fixed_size)
-  lib.close_group()
-  lib.open_group("transform=\"translate({},{}) scale(-1,1)\"".format(lib.svg_full.w - offset_x + worm_size * .1, offset_y + worm_size * .75))
+  close_group()
+  open_group("transform=\"translate({},{}) scale(-1,1)\"".format(svg_full().w - offset_x + worm_size * .1, offset_y + worm_size * .75))
   draw_worm(fixed_size)
-  lib.close_group()
+  close_group()
 
 
 def loop_worm():
@@ -73,22 +72,9 @@ def loop_innards():
 
 seed = 0
 test = True
-image_size = lib.SvgSize.Size11x17
+size = SvgSize.Size11x17
 
 if __name__ == "__main__":
-  lib.main(
-    "worm",
-    test,
-    seed,
-    image_size,
-    loop_worm
-  )
-
-  lib.main(
-    "worm-innards",
-    test,
-    seed,
-    image_size,
-    loop_innards
-  )
+  mainseed = main("worm", test, seed, size, loop_worm)
+  main("worm-innards", test, mainseed, size, loop_innards)
 

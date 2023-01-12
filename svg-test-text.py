@@ -1,23 +1,27 @@
-import lib
-import text
+from lib import *
+from text import *
 
 
 def loop():
-  # lib.border()
+  # draw_border()
 
-  text.draw_string(100, 200, 10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-  text.draw_string(100, 300, 10, "abcdefghijklmnopqrstuvwxyz")
-  text.draw_string(100, 400, 10, "0123456789 ;:'\"éÉ`~")
-  text.draw_string(100, 500, 10, "!@#$%^&*()-_+={}[]\|,./<>?")
+  draw_text(100, 200, 10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+  draw_text(100, 300, 10, "abcdefghijklmnopqrstuvwxyz")
+  draw_text(100, 400, 10, "0123456789 ;:'\"éÉ`~")
+  draw_text(100, 500, 10, "!@#$%^&*()-_+={}[]\|,./<>?")
 
-  lib.open_group("transform=\"translate(100,600) scale(0.5,0.5)\"")
-  text.draw_string(0, 0, 10, "Test Small Text too")
-  lib.close_group()
+  open_group("transform=\"translate(100,600) scale(0.5,0.5)\"")
+  draw_text(0, 0, 10, "Test Small Text too")
+  close_group()
 
-  lib.open_group("transform=\"translate(100, 700) rotate(10)\"")
-  text.draw_string(0, 0, 10, "TEST ROTATED TEXT")
-  lib.close_group()
+  open_group("transform=\"translate(100, 700) rotate(10)\"")
+  draw_text(0, 0, 10, "TEST ROTATED TEXT")
+  close_group()
 
+
+seed = 1
+test = True
+size = SvgSize.Size9x12
 
 if __name__ == "__main__":
-  lib.main("test-text", True, 1, lib.SvgSize.Size9x12, loop)
+  mainseed = main("test-text", test, seed, size, loop)
