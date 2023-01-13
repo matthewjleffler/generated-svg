@@ -1,5 +1,5 @@
 from lib import *
-from text import *
+from lib_text import *
 from os import listdir
 from typing import List
 

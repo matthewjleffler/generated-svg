@@ -1,5 +1,5 @@
 from lib import *
-from path import *
+from lib_path import *
 from math import *
 from typing import List
 

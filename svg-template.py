@@ -1,7 +1,8 @@
 from lib import *
-from path import *
-from text import *
+from lib_path import *
+from lib_text import *
 from math import *
+
 
 def loop():
   draw_border()
@@ -9,10 +10,11 @@ def loop():
   draw_text(200, 200, 5, "Test Text")
 
 
-seed = 0
+dir = "template"
 test = True
+seed = 0
 size = SvgSize.Size9x12
 
 if __name__ == "__main__":
-  mainseed = main("template", test, seed, size, loop)
+  mainseed = main(dir, "main", test, seed, size, loop)
 

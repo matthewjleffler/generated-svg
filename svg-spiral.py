@@ -1,6 +1,6 @@
 from lib import *
 from math import *
-from path import *
+from lib_path import *
 from typing import List
 from enum import IntEnum
 

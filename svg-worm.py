@@ -1,26 +1,28 @@
-from worm import *
+from lib_worm import *
 
 
-def loop_worm():
-  # draw_border()
-
+def loop_combined():
   params = WormParams()
   draw_worm(params)
 
+def loop_main():
+  params = WormParams()
+  params.draw_innards = False
+  draw_worm(params)
 
 def loop_innards():
-  #draw_border()
-
   params = WormParams()
-  params.fixed_size = 5
+  params.draw_worm = False
   draw_worm(params)
 
 
+dir = "worm"
 seed = 0
 test = True
 size = SvgSize.Size11x17
 
 if __name__ == "__main__":
-  mainseed = main("worm", test, seed, size, loop_worm)
-  main("worm-innards", test, mainseed, size, loop_innards)
+  mainseed = main(dir, "combined", test, seed, size, loop_combined)
+  main(dir, "main", test, mainseed, size, loop_main)
+  main(dir, "innards", test, mainseed, size, loop_innards)
 

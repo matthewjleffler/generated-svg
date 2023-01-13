@@ -6,9 +6,9 @@ from math import *
 from enum import Enum
 from typing import List
 
-
-# Core SVG Drawing Library
-
+###
+### Core SVG Drawing Library
+###
 
 # Helper classes
 
@@ -208,7 +208,7 @@ def svg_full() -> Rect:
 
 # Text Writing
 
-def add_text_line(line):
+def add_text_line(line:str):
   global _text_content, _text_indent
 
   for _ in range(_text_indent):
@@ -217,26 +217,26 @@ def add_text_line(line):
   _text_content += "\n"
 
 
-def open_text_indent(line):
+def open_text_indent(line:str):
   global _text_indent
   add_text_line(line)
   _text_indent = _text_indent + 1
 
 
-def close_text_indent(line):
+def close_text_indent(line:str):
   global _text_indent
 
   _text_indent = max(_text_indent - 1, 0)
   add_text_line(line)
 
 
-def write_file(name, number):
+def write_file(path:str, name:str, number:int):
   if number > 0:
     svg_name = "{}_{}.svg".format(name, number)
   else:
     svg_name = "{}.svg".format(name)
 
-  f = open("./{}/{}".format(name, svg_name), "w")
+  f = open(f"{path}/{svg_name}", "w")
   f.write(_text_content)
   f.close()
   print("Wrote file: {}".format(svg_name))
@@ -265,7 +265,7 @@ def commit_group(group:Group):
   close_text_indent("</g>")
 
 
-def open_group(settings, parent = None) -> Group:
+def open_group(settings, parent:Group = None) -> Group:
   global _current_group
 
   if not parent:
@@ -289,22 +289,22 @@ def close_group():
 
 # Drawing
 
-def draw_rect(x, y, w, h, group = None):
+def draw_rect(x:float, y:float, w:float, h:float, group:Group = None):
   if not group:
     group = _current_group
-  group.children.append("<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"/>".format(x, y, w, h))
+  group.children.append(f"<rect x=\"{x}\" y=\"{y}\" width=\"{w}\" height=\"{h}\"/>")
 
 
-def draw_circ(x, y, r, group = None):
+def draw_circ(x:float, y:float, r:float, group:Group = None):
   if not group:
     group = _current_group
-  group.children.append("<circle cx=\"{}\" cy=\"{}\" r=\"{}\"/>".format(x, y, r))
+  group.children.append(f"<circle cx=\"{x}\" cy=\"{y}\" r=\"{r}\"/>")
 
 
-def draw_path(value, group = None):
+def draw_path(value:str, group:Group = None):
   if not group:
     group = _current_group
-  group.children.append("<path d=\"{}\"/>".format(value))
+  group.children.append(f"<path d=\"{value}\"/>")
 
 
 def draw_border():
@@ -313,7 +313,7 @@ def draw_border():
   close_group()
 
 
-def draw_sunburst(bursts, c_x, c_y, start_rad, ray_len, group = None):
+def draw_sunburst(bursts:int, c_x:float, c_y:float, start_rad:float, ray_len:float, group:Group = None):
   sunburst_points = bursts
   for i in range(0, sunburst_points):
     t = i / sunburst_points
@@ -329,7 +329,7 @@ def draw_sunburst(bursts, c_x, c_y, start_rad, ray_len, group = None):
     draw_path("M{} {} L{} {}".format(x, y, round(x + vec.x, 2), round(y + vec.y, 2)), group)
 
 
-def draw_ring_of_circles(number, c_x, c_y, center_rad, circle_rad, group = None):
+def draw_ring_of_circles(number:int, c_x:float, c_y:float, center_rad:float, circle_rad:float, group:Group = None):
   for i in range(0, number):
     t = i / number
     rad = t * pi * 2
@@ -340,7 +340,7 @@ def draw_ring_of_circles(number, c_x, c_y, center_rad, circle_rad, group = None)
 
 # Main
 
-def main(name: str, test: bool, seed:int, size:SvgSize, loop:callable) -> int:
+def main(dir:str, layer: str, test: bool, seed:int, size:SvgSize, loop:callable) -> int:
   init()
   setup_size(size)
 
@@ -354,20 +354,21 @@ def main(name: str, test: bool, seed:int, size:SvgSize, loop:callable) -> int:
   # print(text_content)
 
   # Make directory if necessary
-  if not os.path.exists(name):
-    os.makedirs(name)
+  fullpath = f"./output/{dir}/{layer}"
+  if not os.path.exists(fullpath):
+    os.makedirs(fullpath)
 
   # Write content
   if test:
     # Only overwrite test content
-    write_file(name, 0)
+    write_file(fullpath, layer, 0)
   else:
     # Write numbered content
     # Consume existing file names
     max_number = 0
-    existing = os.listdir("./{}".format(name))
+    existing = os.listdir(fullpath)
 
-    file_name_search = compile(r"""^{}\D*(\d*).*svg$""".format(name))
+    file_name_search = compile(r"""^{}\D*(\d*).*svg$""".format(layer))
 
     for file in existing:
       search = file_name_search.match(file)
@@ -384,7 +385,7 @@ def main(name: str, test: bool, seed:int, size:SvgSize, loop:callable) -> int:
     # Pick the next number in sequence, including missing numbers
     min_available_number = max_number + 1
 
-    write_file(name, min_available_number)
+    write_file(fullpath, layer, min_available_number)
 
   return seed
 

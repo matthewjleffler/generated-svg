@@ -1,5 +1,5 @@
 from lib import *
-from text import *
+from lib_text import *
 
 
 def loop():
@@ -19,9 +19,10 @@ def loop():
   close_group()
 
 
+dir = "test-text"
 seed = 1
 test = True
 size = SvgSize.Size9x12
 
 if __name__ == "__main__":
-  mainseed = main("test-text", test, seed, size, loop)
+  mainseed = main(dir, "main", test, seed, size, loop)

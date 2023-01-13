@@ -2,11 +2,11 @@ from lib_stack import *
 
 
 def loop():
-  params = CircleStackParams()
-  draw_circle_stack(params)
+  params = RectStackParams()
+  draw_rect_stack(params)
 
 
-dir = "circle-stack"
+dir = "rect-stack"
 test = True
 seed = 0
 size = SvgSize.Size9x12
