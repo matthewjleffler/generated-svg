@@ -5,8 +5,6 @@ from typing import List
 from enum import IntEnum
 
 
-# TODO wiggle the origins
-
 class BorderType(IntEnum):
   Empty = 0
   Circles = 1
@@ -27,6 +25,7 @@ class SpiralParams:
     self.padding = 0
     self.size_range = RangeInt(20, 350)
     self.size_pad = 20
+    self.origin_shuffle_range = 0
 
 
 
@@ -145,6 +144,10 @@ def draw_spiral(params:SpiralParams, group:Group = None):
         if col == col_max - 1:
           continue
         x += size
+      change_x = rand_float(-params.origin_shuffle_range, params.origin_shuffle_range)
+      change_y = rand_float(-params.origin_shuffle_range, params.origin_shuffle_range)
+      x += change_x
+      y += change_y
       _draw_circle(x, y, floor(size_h / 2), 10, size_h, points, params)
       _add_border(x, y, size_h, params)
   close_group()
