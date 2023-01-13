@@ -253,8 +253,6 @@ def draw_long_worm(params:LongWormParams, group:Group = None):
   # Subdivide space
   space = pad_rect.w / (peaks + 1)
 
-  # TODO correctly space extreme curves
-
   # Pick direction of motion
   if top_first:
     first = pad_rect.y

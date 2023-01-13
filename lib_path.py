@@ -101,8 +101,11 @@ def _add_points_along_line(p0:Point, p1:Point, size:float, next_size:float, step
 
 
 def _add_points_along_curve(p0:Point, p1:Point, control:Point, size:float, next_size:float, step_dist:float, positions:List[Position]):
-  vector = p1.subtract_copy(p0)
-  length = vector.length() * 1.1
+  # Calculate rough distance
+  vector = p1.subtract_copy(control)
+  length = vector.length()
+  vector = control.subtract_copy(p0)
+  length += vector.length()
   steps = floor(length / step_dist)
 
   for i in range(0, steps):
