@@ -1,16 +1,15 @@
-from lib_checkerboard import *
+from lib_strings import *
 
 
 def loop():
-  params = CheckerboardParams()
-  draw_checkerboard(params)
+  params = StringParams()
+  draw_strings(params)
 
 
-dir = "checkerboard"
+dir = "strings"
 seed = 0
 test = True
 size = SvgSize.Size9x12
 
 if __name__ == "__main__":
   mainseed = main(dir, "main", test, seed, size, loop)
-

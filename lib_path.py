@@ -19,6 +19,7 @@ class Position:
     return Point(self.x, self.y)
 
 
+#TODO ignore range instead of ends
 def subdivide_point_path(rough:List[Point], sub_count:RangeInt, ignore_ends:bool = True) -> List[Point]:
   last = rough[0]
   points: List[Point] = []

@@ -3,12 +3,20 @@ from lib_text import *
 from os import listdir
 from typing import List
 
-text_file = "" # Specific override text file
+###
+### String Content Drawing
+###
 
-def loop():
-  # draw_border()
+class StringParams:
+  def __init__(self) -> None:
+    self.text_file = "" # Specific override text file
+    self.line_count = RangeInt(5, 15)
 
-  global text_file
+
+def draw_strings(params:StringParams, group:Group = None):
+  # draw_border(group)
+
+  text_file = params.text_file
 
   # Find text file if we don't have one assigned
   if text_file == "":
@@ -51,8 +59,7 @@ def loop():
     return
 
   # Setup variables
-  line_count = RangeInt(5, 15)
-  num_lines = line_count.rand()
+  num_lines = params.line_count.rand()
   num_lines = min(num_lines, text_len)
 
   # Pick lines
@@ -80,7 +87,7 @@ def loop():
   height = line_num * text_line_height() * scale
 
   # Draw text
-  open_group(f"transform=\"translate({svg_safe().x}, {svg_safe().center_y() - height / 2}) scale({scale}, {scale})\"")
+  open_group(f"transform=\"translate({svg_safe().x}, {svg_safe().center_y() - height / 2}) scale({scale}, {scale})\"", group)
 
   for i in range(0, line_num):
     line = render_lines[i]
@@ -88,9 +95,3 @@ def loop():
 
   close_group()
 
-seed = 0
-test = True
-size = SvgSize.Size9x12
-
-if __name__ == "__main__":
-  mainseed = main("text-strings", test, seed, size, loop)

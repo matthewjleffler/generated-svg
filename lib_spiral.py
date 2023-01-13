@@ -4,6 +4,10 @@ from lib_path import *
 from typing import List
 from enum import IntEnum
 
+###
+### Spiral Circle Design
+###
+
 
 class BorderType(IntEnum):
   Empty = 0
@@ -112,6 +116,7 @@ def draw_spiral(params:SpiralParams, group:Group = None):
   # draw_border(group)
 
   # Rough path
+  #TODO shrink rect
   top = svg_safe().y + params.padding
   bottom = svg_safe().bottom() - params.padding
   height = bottom - top
