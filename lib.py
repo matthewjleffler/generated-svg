@@ -95,6 +95,24 @@ class Group:
     self.children = []
 
 
+class RangeInt:
+  def __init__(self, min_val:int, max_val:int):
+    self.min_val = min_val
+    self.max_val = max_val
+
+  def rand(self) -> int:
+    return rand_int(self.min_val, self.max_val)
+
+
+class RangeFloat:
+  def __init__(self, min_val:float, max_val:float):
+    self.min_val = min_val
+    self.max_val = max_val
+
+  def rand(self) -> float:
+    return rand_float(self.min_val, self.max_val)
+
+
 # Math
 
 def lerp(a:float, b:float, t:float) -> float:

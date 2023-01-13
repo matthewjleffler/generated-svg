@@ -111,7 +111,7 @@ def loop(draw_circles, border):
   # Generate points and control points
   points: List[List[Point]] = []
 
-  size_h = random.randint(20, 350)
+  size_h = rand_int(20, 350)
   size = size_h + 20
   size_d = size * 2
 

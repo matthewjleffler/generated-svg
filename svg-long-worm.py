@@ -59,7 +59,7 @@ def check_point_consumed(position:Position, consumed_highlights:List[Position]) 
 
 def pick_valid_highlight(available_highlights:List[int], consumed_highlights:List[Position], positions:List[Position]):
   while True:
-    index = random.randint(0, len(available_highlights) - 1)
+    index = rand_int(0, len(available_highlights) - 1)
     index = available_highlights.pop(index)
     position = positions[index]
 
@@ -95,7 +95,7 @@ def draw_worm_highlights(draw:bool, positions:List[Position]):
     available_highlights.append(i)
 
   # highlight_size = size_max + 10
-  highlight_count = random.randint(min_highlights, max_highlights)
+  highlight_count = rand_int(min_highlights, max_highlights)
 
   connect_next = False
   last = Point(0,0)
@@ -107,11 +107,11 @@ def draw_worm_highlights(draw:bool, positions:List[Position]):
       return # Ran out of points
 
     num = 0
-    if random.randint(0, 3) == 0:
-      num = random.randint(200, 50000)
+    if rand_int(0, 3) == 0:
+      num = rand_int(200, 50000)
 
     # Pick random highlight type
-    highlight_index = random.randint(0, int(HighlightType.End - 1))
+    highlight_index = rand_int(0, int(HighlightType.End - 1))
     highlight_type = HighlightType(highlight_index)
 
     highlight_count -= 1
@@ -137,7 +137,7 @@ def draw_worm_highlights(draw:bool, positions:List[Position]):
         close_group()
 
     last = point
-    connect_next = random.randint(0, 3) == 0
+    connect_next = rand_int(0, 3) == 0
 
   close_group()
 
@@ -146,8 +146,8 @@ def loop(draw_worm:bool, draw_highlight:bool):
   # draw_border()
 
   # Variables
-  peaks = random.randint(min_peaks, max_peaks)
-  top_first = random.randint(0, 1) == 0
+  peaks = rand_int(min_peaks, max_peaks)
+  top_first = rand_int(0, 1) == 0
 
   # Build outline
   padding = 100

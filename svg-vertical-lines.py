@@ -15,11 +15,11 @@ def create_highlight(draw:bool, line:List[Point], final:float):
   # Variables
   strike_min = 0
   strike_max = 10
-  strike = random.randint(strike_min, strike_max)
+  strike = rand_int(strike_min, strike_max)
 
   circles_min = 0
   circles_max = 5
-  circles = random.randint(circles_min, circles_max)
+  circles = rand_int(circles_min, circles_max)
 
   # Collect available indexes
   for i in range(1, len(line) - 1):
@@ -27,7 +27,7 @@ def create_highlight(draw:bool, line:List[Point], final:float):
 
   # Create strikethroughs
   for _ in range(0, strike):
-    i = random.randint(0, len(available) - 1)
+    i = rand_int(0, len(available) - 1)
     index = available[i]
     available.pop(i)
 
@@ -51,7 +51,7 @@ def create_highlight(draw:bool, line:List[Point], final:float):
   for _ in range(0, circles):
     if len(available) < 1:
       break
-    i = random.randint(0, len(available) - 1)
+    i = rand_int(0, len(available) - 1)
     index = available[i]
     available.pop(i)
 
@@ -74,7 +74,7 @@ def create_highlight(draw:bool, line:List[Point], final:float):
   for _ in range(0, circles):
     if len(available) < 1:
       break
-    i = random.randint(0, len(available) - 1)
+    i = rand_int(0, len(available) - 1)
     index = available[i]
     available.pop(i)
 
@@ -101,7 +101,7 @@ def create_lines(draw:bool):
   # Pick subdivisions, make sure it's an even number
   subdivide_min = 50
   subdivide_max = 70
-  subdivide = random.randint(subdivide_min, subdivide_max)
+  subdivide = rand_int(subdivide_min, subdivide_max)
   if subdivide % 2 == 1:
     subdivide += 1
 
