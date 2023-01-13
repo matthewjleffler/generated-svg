@@ -1,8 +1,6 @@
 from lib import draw_path, draw_circ, draw_rect, Group
 
 
-# TODO fix A
-
 ###
 ### Text Drawing
 ###
@@ -186,15 +184,13 @@ def _letter_cap_z(x:float, y:float, group:Group = None):
     .format(x + _let_h_half, y, -_let_h_half, _let_h_half, -_let_h, -_let_h_half), group)
 
 def _letter_low_a(x:float, y:float, group:Group = None):
-  draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}m{} {}v{}q{} {} {} {}h{}"
+  draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}v{}"
     .format(x + _let_h_half, y - _let_h_quart,
             0, _let_h_quart, -_let_h_quart, _let_h_quart,
             -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
             0, -_let_h_quart, _let_h_quart, -_let_h_quart,
             _let_h_quart, 0, _let_h_quart, _let_h_quart,
-            0, _let_h_quart, -_let_h_half + _let_h_eight,
-            0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
-            -_let_h_eight), group)
+            _let_h_quart), group)
 
 def _letter_low_b(x:float, y:float, group:Group = None):
   draw_path("M{} {}v{}M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"

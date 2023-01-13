@@ -180,6 +180,9 @@ def rand_weight(array) -> any:
 def clamp(val:float, min_val:float, max_val:float) -> float:
   return min(max(val, min_val), max_val)
 
+def clamp_value(val:float, clamp_value:float) -> float:
+  return floor(val / clamp_value) * clamp_value
+
 # Setup Variables
 
 _svg_full = Rect(0, 0, 0, 0)

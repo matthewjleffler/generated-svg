@@ -26,11 +26,8 @@ def draw_circle_stack(params:CircleStackParams, group:Group = None):
   y_range = RangeInt(svg_safe().y, svg_safe().bottom())
 
   for _ in range(params.count):
-    x = x_range.rand()
-    y = y_range.rand()
-
-    x = round(x / params.clamp_start, 0) * params.clamp_start
-    y = round(y / params.clamp_start, 0) * params.clamp_start
+    x = clamp_value(x_range.rand(), params.clamp_start)
+    y = clamp_value(y_range.rand(), params.clamp_start)
 
     add_nondup_point(x, y, circles)
 
@@ -82,12 +79,8 @@ def draw_rect_stack(params:RectStackParams, group:Group = None):
   y_range = RangeInt(0, svg_full().bottom())
 
   for _ in range(params.count):
-    x = x_range.rand()
-    y = y_range.rand()
-
-    # TODO find all these clamps
-    x = round(x / params.clamp_start, 0) * params.clamp_start
-    y = round(y / params.clamp_start, 0) * params.clamp_start
+    x = clamp_value(x_range.rand(), params.clamp_start)
+    y = clamp_value(y_range.rand(), params.clamp_start)
 
     for i in range(0, params.stack_count + 1):
       add_nondup_point(x + i * params.stack_range, y + i * params.stack_range, rects)
@@ -95,8 +88,7 @@ def draw_rect_stack(params:RectStackParams, group:Group = None):
   rects.sort()
 
   for point in rects:
-    size = params.size_range.rand()
-    size = round(size / params.clamp_size, 0) * params.clamp_size
+    size = clamp_value(params.size_range.rand(), params.clamp_size)
     half = size / 2
 
     x = point.x - half
