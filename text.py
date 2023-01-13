@@ -184,7 +184,7 @@ def _letter_low_a(x:float, y:float, group = None):
             -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
             0, -_let_h_quart, _let_h_quart, -_let_h_quart,
             _let_h_quart, 0, _let_h_quart, _let_h_quart,
-            0, _let_h_quart, -_let_h_half,
+            0, _let_h_quart, -_let_h_half + _let_h_eight,
             0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
             -_let_h_eight), group)
 
