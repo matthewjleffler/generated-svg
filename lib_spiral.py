@@ -17,6 +17,8 @@ class BorderType(IntEnum):
 
 class SpiralParams:
   def __init__(self) -> None:
+    self.draw_circles = True
+    self.draw_border = True
     self.rotate_range = pi / 10
     self.ring_pad = 5
     self.ring_weights: List[tuple[int, float]] = [
@@ -25,8 +27,6 @@ class SpiralParams:
     self.border_weights: List[tuple[BorderType, float]] = [
       (BorderType.Empty, 5), (BorderType.Circles, 1), (BorderType.Starburst, 2)
     ]
-    self.draw_circles = True
-    self.draw_border = True
     self.padding = 0
     self.size_range = RangeInt(20, 350)
     self.size_pad = 20

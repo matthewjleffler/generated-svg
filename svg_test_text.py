@@ -24,5 +24,9 @@ seed = 1
 test = True
 size = SvgSize.Size9x12
 
-if __name__ == "__main__":
+def run():
   mainseed = main(dir, "main", test, seed, size, loop)
+
+if __name__ == "__main__":
+  run()
+

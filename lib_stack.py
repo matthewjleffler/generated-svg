@@ -11,11 +11,12 @@ from lib import *
 class CircleStackParams:
   def __init__(self) -> None:
     self.draw = True
-    self.count = 20
-    self.clamp_start = 50
-    self.stack_range = RangeInt(35, 35)
-    self.min_size = 10
-    self.max_size_range = RangeInt(50, 150)
+    self.count: int = 20
+    self.clamp_start: int = 50
+    self.stack_count: RangeInt = RangeInt(35, 35)
+    self.fixed_size: int = 0
+    self.min_size: int = 10
+    self.max_size_range: RangeInt = RangeInt(50, 150)
 
 def draw_circle_stack(params:CircleStackParams, group:Group = None):
   # draw_border(group)
@@ -39,7 +40,7 @@ def draw_circle_stack(params:CircleStackParams, group:Group = None):
   circles.sort()
 
   for point in circles:
-    stack_count = params.stack_range.rand()
+    stack_count = params.stack_count.rand()
     max_size = params.max_size_range.rand()
 
     for i in range(0, stack_count + 1):
@@ -47,6 +48,8 @@ def draw_circle_stack(params:CircleStackParams, group:Group = None):
       pi_percent = percent * pi
 
       size = params.min_size + sin(pi_percent) * max_size
+      if params.fixed_size > 0:
+        size = params.fixed_size
       half = size / 2
 
       x = point.x + 10 * i

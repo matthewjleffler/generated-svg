@@ -121,6 +121,9 @@ class RangeInt:
     self._min_val = min_val
     self._max_val = max_val
 
+  def __repr__(self) -> str:
+    return f"[RangeInt] min: {self._min_val} max: {self._max_val}"
+
   def rand(self) -> int:
     return rand_int(self._min_val, self._max_val)
 
@@ -129,6 +132,9 @@ class RangeFloat:
   def __init__(self, min_val:float, max_val:float):
     self._min_val = min_val
     self._max_val = max_val
+
+  def __repr__(self) -> str:
+    return f"[RangeFloat] min: {self._min_val} max: {self._max_val}"
 
   def rand(self) -> float:
     return rand_float(self._min_val, self._max_val)
@@ -253,14 +259,23 @@ def write_file(path:str, name:str, number:int):
   f = open(f"{path}/{svg_name}", "w")
   f.write(_text_content)
   f.close()
-  print("Wrote file: {}".format(svg_name))
+  print(f"Wrote file: {path}/{svg_name}")
 
 
 # SVG Management
 
-def commit(seed):
+def commit(seed:int, size:SvgSize, params:any):
   open_text_indent("<svg version=\"1.1\" width=\"{}\" height=\"{}\" xmlns=\"http://www.w3.org/2000/svg\">".format(_svg_full.w, _svg_full.h))
-  add_text_line("<!-- Seed: {} -->".format(seed))
+  add_text_line(f"<!-- Seed: {seed} -->")
+  add_text_line(f"<!-- Size: {size} -->")
+  if params is not None:
+    list_params = vars(params)
+    open_text_indent("<!-- Params:")
+    for item in list_params:
+      add_text_line(f"{item}: {list_params[item]}")
+    close_text_indent("-->")
+  else:
+    add_text_line("<!-- No params -->")
   commit_group(_root_group)
   close_text_indent("</svg>")
 
@@ -363,8 +378,8 @@ def main(dir:str, layer: str, test: bool, seed:int, size:SvgSize, loop:callable)
   random.seed(seed)
   print("Seed: {}".format(seed))
 
-  loop()
-  commit(seed)
+  params = loop()
+  commit(seed, size, params)
   # print(text_content)
 
   # Make directory if necessary

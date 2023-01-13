@@ -11,14 +11,15 @@ from typing import List
 
 class StringParams:
   def __init__(self) -> None:
-    self.text_file = "" # Specific override text file
+    self.draw = True
+    self.text_file_override = "" # Specific override text file
     self.line_count = RangeInt(5, 15)
 
 
 def draw_strings(params:StringParams, group:Group = None):
   # draw_border(group)
 
-  text_file = params.text_file
+  text_file = params.text_file_override
 
   # Find text file if we don't have one assigned
   if text_file == "":
@@ -91,9 +92,10 @@ def draw_strings(params:StringParams, group:Group = None):
   # Draw text
   open_group(f"transform=\"translate({svg_safe().x}, {svg_safe().center_y() - height / 2}) scale({scale}, {scale})\"", group)
 
-  for i in range(0, line_num):
-    line = render_lines[i]
-    draw_text(0, text_line_height() * (i + 1), 10, line)
+  if params.draw:
+    for i in range(0, line_num):
+      line = render_lines[i]
+      draw_text(0, text_line_height() * (i + 1), 10, line)
 
   close_group()
 

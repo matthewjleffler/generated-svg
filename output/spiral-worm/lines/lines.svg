@@ -1,14 +1,38 @@
 <svg version="1.1" width="1630" height="1060" xmlns="http://www.w3.org/2000/svg">
-  <!-- Seed: 210447692552850631 -->
+  <!-- Seed: 5275667466986781703 -->
+  <!-- Size: SvgSize.Size11x17 -->
+  <!-- Params:
+    draw_worm: False
+    draw_highlight: False
+    draw_highlight2: True
+    ring_distance: 10
+    weight_rings: [(0, 1), (1, 1), (2, 0.5), (3, 0.1), (4, 0.05)]
+    weight_border: [(<SpiralWormBorderType.Empty: 0>, 1), (<SpiralWormBorderType.Sunburst: 1>, 0.5), (<SpiralWormBorderType.Circles: 2>, 0.5)]
+    h2_size: [RangeInt] min: 25 max: 100
+    padding: 100
+    spiral_rows: 4
+    points_per_ring: 10
+    rough_shuffle_range: 20
+    fine_shuffle_range: 30
+    rough_clamp_distance: 30
+    subdivision_range: [RangeInt] min: 3 max: 7
+    position_range: [RangeInt] min: 1 max: 50
+    position_steps: 5
+    ring_range: [RangeInt] min: 1 max: 4
+  -->
   <g stroke="black" fill="none">
     <g stroke="blue">
     </g>
     <g stroke="red">
-      <circle cx="245" cy="530" r="43"/>
-      <circle cx="245" cy="530" r="53"/>
-      <circle cx="1385" cy="530" r="43"/>
-      <path d="M245 530L779.0 451.0L1385 530"/>
-      <circle cx="779.0" cy="451.0" r="28.29"/>
+      <circle cx="245" cy="530" r="72"/>
+      <circle cx="245" cy="530" r="82"/>
+      <circle cx="245" cy="530" r="92"/>
+      <circle cx="1385" cy="530" r="72"/>
+      <circle cx="1385" cy="530" r="82"/>
+      <circle cx="1385" cy="530" r="92"/>
+      <circle cx="1385" cy="530" r="102"/>
+      <path d="M245 530L1040.0 819.0L1385 530"/>
+      <circle cx="1040.0" cy="819.0" r="44.75"/>
     </g>
   </g>
 </svg>

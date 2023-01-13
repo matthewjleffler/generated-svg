@@ -11,10 +11,10 @@ from typing import List
 
 class VerticalLineParams:
   def __init__(self) -> None:
-    self.mutate = False
-
     self.draw_highlights = True
     self.draw_lines = True
+
+    self.mutate = False
 
     self.draw_curves = True # Curves or straight lines
 

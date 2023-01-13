@@ -1,16 +1,29 @@
 <svg version="1.1" width="1150" height="870" xmlns="http://www.w3.org/2000/svg">
-  <!-- Seed: 274735184153343853 -->
+  <!-- Seed: 5249979066121302517 -->
+  <!-- Size: SvgSize.Size9x12 -->
+  <!-- Params:
+    draw_highlights: True
+    draw_lines: False
+    mutate: False
+    draw_curves: True
+    pad_x: 100
+    pad_y: 50
+    subdivide_range: [RangeInt] min: 50 max: 70
+    line_spacing: 5
+    rate_default: 5
+    shuffle_range_max_x: 40
+    shuffle_range_max_y: 5
+    strike_range: [RangeInt] min: 0 max: 10
+    circle_range: [RangeInt] min: 0 max: 5
+    mutate_range_x: 3
+    mutate_range_y: 3
+    mutate_max_range: 30
+  -->
   <g stroke="black" fill="none">
     <g stroke="blue">
-      <path d="M50 323.0h1050"/>
-      <path d="M50 628.0157067542457h1050"/>
-      <path d="M50 151.6093616811379h1050"/>
-      <path d="M50 480.0h1050"/>
-      <path d="M50 212.0h1050"/>
-      <path d="M50 301.0h1050"/>
-      <path d="M50 694.3440570608506h1050"/>
-      <path d="M50 368.0h1050"/>
-      <path d="M50 457.0h1050"/>
+      <path d="M50 392.1099780788574h1050"/>
+      <path d="M50 425.0h1050"/>
+      <path d="M50 109.38572857947263h1050"/>
     </g>
   </g>
 </svg>

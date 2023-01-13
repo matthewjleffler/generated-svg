@@ -14,12 +14,12 @@ from enum import IntEnum, Enum
 
 class WormParams:
   def __init__(self) -> None:
+    self.draw_worm = True
+    self.draw_innards = True
     self.padding = 50
     self.stack_count = 50
     self.size_range = RangeInt(5, 100)
     self.stack_spread = 3
-    self.draw_worm = True
-    self.draw_innards = True
     self.fixed_size = 5
 
 
@@ -95,6 +95,10 @@ def draw_worm(params:WormParams, group:Group = None):
 
 class LongWormParams:
   def __init__(self) -> None:
+    # Draw
+    self.draw_worm = True
+    self.draw_highlight = True
+
     # Setup variables
     self.step_dist = 5 # How far (roughly) between steps
     self.circle = True # Render circles or squares
@@ -131,10 +135,6 @@ class LongWormParams:
     self.connect_highlight_weight = [
       (0, 1), (1, 3),
     ]
-
-    # Draw
-    self.draw_worm = True
-    self.draw_highlight = True
 
 class HighlightType(IntEnum):
   Circle = 0
@@ -309,6 +309,9 @@ class SpiralWormBorderType(Enum):
 
 class SprialWormParams:
   def __init__(self) -> None:
+    self.draw_worm = True
+    self.draw_highlight = True
+    self.draw_highlight2 = True
     self.ring_distance = 10
     self.weight_rings = [
       (0, 1), (1, 1), (2, 0.5), (3, 0.1), (4, 0.05)
@@ -317,9 +320,6 @@ class SprialWormParams:
       (SpiralWormBorderType.Empty, 1), (SpiralWormBorderType.Sunburst, 0.5), (SpiralWormBorderType.Circles, 0.5)
     ]
     self.h2_size = RangeInt(25, 100)
-    self.draw_worm = True
-    self.draw_highlight = True
-    self.draw_highlight2 = True
     self.padding = 100
     self.spiral_rows = 4
     self.points_per_ring = 10
