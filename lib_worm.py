@@ -328,7 +328,7 @@ class SprialWormParams:
     self.rough_clamp_distance = 30
     self.subdivision_range = RangeInt(3, 7)
     self.position_range = RangeInt(1, 50)
-    self.position_steps = 3
+    self.position_steps = 5
     self.ring_range = RangeInt(1, 4)
 
 
