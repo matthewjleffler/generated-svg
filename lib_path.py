@@ -2,9 +2,11 @@ from lib import *
 from math import *
 from typing import List
 
+
 ###
 ### Path Drawing
 ###
+
 
 _round_digits = 0 # How many digits to round positions to
 _size_digits = 2 # How many digits to round the radius size to
@@ -19,8 +21,7 @@ class Position:
     return Point(self.x, self.y)
 
 
-#TODO ignore range instead of ends
-def subdivide_point_path(rough:List[Point], sub_count:RangeInt, ignore_ends:bool = True) -> List[Point]:
+def subdivide_point_path(rough:List[Point], sub_count:RangeInt, ignored_indexes: List[int] = []) -> List[Point]:
   last = rough[0]
   points: List[Point] = []
   points.append(rough[0])
@@ -31,9 +32,8 @@ def subdivide_point_path(rough:List[Point], sub_count:RangeInt, ignore_ends:bool
     length = vector.length()
 
     subdivisions = sub_count.rand()
-    if ignore_ends:
-      if i == 1 or i == len(rough) - 1:
-        subdivisions = 1
+    if i in ignored_indexes:
+      subdivisions = 1
 
     sub_length = length / subdivisions
     vector.normalize()
@@ -76,13 +76,13 @@ def add_nondup_position(x:float, y:float, size:float, array:List[Position]):
   array.append(Position(x, y, size))
 
 
-def step_along_quadratic(start:float, end:float, control:Point, t:float) -> Point:
+def _step_along_quadratic(start:float, end:float, control:Point, t:float) -> Point:
   x = (1 - t) * (1 - t) * start.x + 2 * (1 - t) * t * control.x + t * t * end.x
   y = (1 - t) * (1 - t) * start.y + 2 * (1 - t) * t * control.y + t * t * end.y
   return Point(x, y)
 
 
-def add_points_along_line(p0:Point, p1:Point, size:float, next_size:float, step_dist:float, positions:List[Position]):
+def _add_points_along_line(p0:Point, p1:Point, size:float, next_size:float, step_dist:float, positions:List[Position]):
   vector = p1.subtract_copy(p0)
   length = vector.length()
   vector.normalize()
@@ -100,14 +100,14 @@ def add_points_along_line(p0:Point, p1:Point, size:float, next_size:float, step_
   add_nondup_position(round(p1.x, _round_digits), round(p1.y, _round_digits), next_size, positions)
 
 
-def add_points_along_curve(p0:Point, p1:Point, control:Point, size:float, next_size:float, step_dist:float, positions:List[Position]):
+def _add_points_along_curve(p0:Point, p1:Point, control:Point, size:float, next_size:float, step_dist:float, positions:List[Position]):
   vector = p1.subtract_copy(p0)
   length = vector.length() * 1.1
   steps = floor(length / step_dist)
 
   for i in range(0, steps):
     t = i / steps
-    point = step_along_quadratic(p0, p1, control, t)
+    point = _step_along_quadratic(p0, p1, control, t)
 
     step_size = round(ease_in_out_quad(t, size, next_size - size, 1), _size_digits)
     # step_size = lerp(size, next_size, t)
@@ -192,18 +192,18 @@ def generate_final_positions(points: List[Point], centers: List[Point], size_end
       # Draw straight line in beginning
       p0 = points[i - 1]
       p1 = centers[i - 1]
-      add_points_along_line(p0, p1, size, next_size, step_dist, positions)
+      _add_points_along_line(p0, p1, size, next_size, step_dist, positions)
     elif i == len(points):
       # Draw straight line at end
       p0 = centers[i - 2]
       p1 = points[i - 1]
-      add_points_along_line(p0, p1, size, next_size, step_dist, positions)
+      _add_points_along_line(p0, p1, size, next_size, step_dist, positions)
     else:
       # Draw along quadratic bezier curve for each other step
       p0 = centers[i - 2]
       p1 = centers[i - 1]
       control = points[i - 1]
-      add_points_along_curve(p0, p1, control, size, next_size, step_dist, positions)
+      _add_points_along_curve(p0, p1, control, size, next_size, step_dist, positions)
 
     size = next_size
 

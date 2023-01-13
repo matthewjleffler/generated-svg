@@ -3,9 +3,11 @@ from lib_path import *
 from math import *
 from typing import List
 
+
 ###
 ### Vertical Line Design
 ###
+
 
 class VerticalLineParams:
   def __init__(self) -> None:
@@ -33,7 +35,7 @@ class VerticalLineParams:
     self.mutate_max_range = 30
 
 
-def create_highlight(line:List[Point], left:float, final:float, params:VerticalLineParams, group:Group = None):
+def _create_highlight(line:List[Point], left:float, final:float, params:VerticalLineParams, group:Group = None):
   available: List[int] = []
   claimed: List[int] = []
 
@@ -108,30 +110,25 @@ def create_highlight(line:List[Point], left:float, final:float, params:VerticalL
   close_group()
 
 
-def create_lines(params:VerticalLineParams, group:Group = None):
-  top = svg_safe().y + params.pad_y
-  bottom = svg_safe().bottom() - params.pad_y
-  left = svg_safe().x + params.pad_x
-  right = svg_safe().right() - params.pad_x
-  width = right - left
+def _create_lines(params:VerticalLineParams, group:Group = None):
+  pad_rect = svg_safe().shrink_xy_copy(params.pad_x, params.pad_y)
 
   # Pick subdivisions, make sure it's an even number
-  #TODO get rid of extra rand_ints?
   subdivide = params.subdivide_range.rand()
   if subdivide % 2 == 1:
     subdivide += 1
 
   space = params.line_spacing
   rate = space / params.rate_default
-  line_count = floor(width / space)
+  line_count = floor(pad_rect.w / space)
 
   # Create first line
   rough: List[Point] = []
-  rough.append(Point(0, top))
-  rough.append(Point(0, bottom))
+  rough.append(Point(0, pad_rect.y))
+  rough.append(Point(0, pad_rect.bottom()))
 
   # Subdivide
-  fine = subdivide_point_path(rough, RangeInt(subdivide, subdivide), False)
+  fine = subdivide_point_path(rough, RangeInt(subdivide, subdivide))
 
   # Shuffle odd points
   for i in range(1, len(fine), 2):
@@ -144,14 +141,14 @@ def create_lines(params:VerticalLineParams, group:Group = None):
   mutate_range_y = params.mutate_range_y * rate
   max_range = params.mutate_max_range
 
-  space = width / line_count
+  space = pad_rect.w / line_count
   lines: List[List[Point]] = []
   for i in range(0, line_count):
     line: List[Point] = []
     lines.append(line)
     for j in range(0, len(fine)):
       fine_point = fine[j]
-      point = Point(round(left + fine_point.x + space * i, 2), round(fine_point.y, 2))
+      point = Point(round(pad_rect.x + fine_point.x + space * i, 2), round(fine_point.y, 2))
       line.append(point)
 
       if params.mutate:
@@ -160,7 +157,7 @@ def create_lines(params:VerticalLineParams, group:Group = None):
           fine_point.x = clamp(fine_point.x + mutate_amt_x, -max_range, max_range)
 
         mutate_amt_y = rand_float(-mutate_range_y, mutate_range_y)
-        fine_point.y = clamp(fine_point.y + mutate_amt_y, top, bottom)
+        fine_point.y = clamp(fine_point.y + mutate_amt_y, pad_rect.y, pad_rect.bottom())
 
   # Draw curves
   for j in range(0, len(lines)):
@@ -203,5 +200,5 @@ def create_lines(params:VerticalLineParams, group:Group = None):
 def draw_lines(params:VerticalLineParams, group:Group = None):
   # draw_border(group)
 
-  result = create_lines(params, group)
-  create_highlight(result[0], result[1], result[2], params, group)
+  result = _create_lines(params, group)
+  _create_highlight(result[0], result[1], result[2], params, group)

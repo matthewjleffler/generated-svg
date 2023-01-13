@@ -6,9 +6,11 @@ from math import *
 from enum import Enum
 from typing import List
 
+
 ###
 ### Core SVG Drawing Library
 ###
+
 
 # Helper classes
 
@@ -19,6 +21,9 @@ class Rect:
     self.w = w
     self.h = h
 
+  def __repr__(self) -> str:
+    return f"[Rect] x:{self.x} y:{self.y} w:{self.w} h:{self.h} cx:{self.center_x()} cy:{self.center_y()} r:{self.right()} b:{self.bottom()}"
+
   def bottom(self) -> float:
     return self.y + self.h
 
@@ -26,13 +31,19 @@ class Rect:
     return self.x + self.w
 
   def center_x(self) -> float:
-    return self.x + self.w / 2
+    return floor(self.x + self.w / 2)
 
   def center_y(self) -> float:
-    return self.y + self.h / 2
+    return floor(self.y + self.h / 2)
 
   def contains(self, x:float, y:float) -> bool:
     return x >= self.x and y >= self.y and x <= self.right() and y <= self.bottom()
+
+  def shrink_xy_copy(self, amount_x:float, amount_y:float):
+    return Rect(self.x + amount_x, self.y + amount_y, self.w - amount_x * 2, self.h - amount_y * 2)
+
+  def shrink_copy(self, amount:float):
+    return Rect(self.x + amount, self.y + amount, self.w - amount * 2, self.h - amount * 2)
 
 
 class Point:
@@ -134,6 +145,9 @@ def ease_in_out_quad(t:float, b:float, c:float, d:float) -> float:
 def rand() -> float:
   return random.random()
 
+def rand_bool() -> bool:
+  return rand_int(0, 1) == 0
+
 def rand_float(min:float, max:float) -> float:
   delta = max - min
   return min + random.random() * delta
@@ -141,7 +155,7 @@ def rand_float(min:float, max:float) -> float:
 def rand_int(min:int, max:int) -> int:
   return random.randint(min, max)
 
-def weighted_random(array) -> any:
+def rand_weight(array) -> any:
   if len(array) < 1:
     return None
   sum = 0

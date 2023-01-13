@@ -3,9 +3,11 @@ from lib_text import *
 from os import listdir
 from typing import List
 
+
 ###
 ### String Content Drawing
 ###
+
 
 class StringParams:
   def __init__(self) -> None:

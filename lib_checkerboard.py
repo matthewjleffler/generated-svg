@@ -1,9 +1,11 @@
 from lib import *
 from math import *
 
+
 ###
 ### Checkerboard Design
 ###
+
 
 # TODO finish this
 

@@ -4,6 +4,7 @@ from lib_path import *
 from typing import List
 from enum import IntEnum
 
+
 ###
 ### Spiral Circle Design
 ###
@@ -65,7 +66,7 @@ def _draw_circle(
   subdivisions = floor(max_dist / 10)
   if subdivisions % 2 == 1:
     subdivisions += 1
-  subdivided = subdivide_point_path(rough_points, RangeInt(subdivisions, subdivisions), False)
+  subdivided = subdivide_point_path(rough_points, RangeInt(subdivisions, subdivisions))
 
   # Adjust control points
   for i in range(1, len(subdivided), 2):
@@ -96,7 +97,7 @@ def _draw_circle(
   # points.append(subdivided)
 
 def _add_border(x:float, y:float, size_h:float, params:SpiralParams):
-  ring_count = weighted_random(params.ring_weights)
+  ring_count = rand_weight(params.ring_weights)
 
   if params.draw_border:
     for i in range(0, ring_count):
@@ -104,7 +105,7 @@ def _add_border(x:float, y:float, size_h:float, params:SpiralParams):
 
   ring_buffer = params.ring_pad + params.ring_pad * (ring_count + 1)
 
-  border = weighted_random(params.border_weights)
+  border = rand_weight(params.border_weights)
   if border == BorderType.Empty or not params.draw_border:
     return
   elif border == BorderType.Circles:
@@ -116,15 +117,7 @@ def draw_spiral(params:SpiralParams, group:Group = None):
   # draw_border(group)
 
   # Rough path
-  #TODO shrink rect
-  top = svg_safe().y + params.padding
-  bottom = svg_safe().bottom() - params.padding
-  height = bottom - top
-  c_y = svg_full().center_y()
-  left = svg_safe().x + params.padding
-  right = svg_safe().right() - params.padding
-  width = right - left
-  c_x = svg_full().center_x()
+  pad_rect = svg_safe().shrink_copy(params.padding)
 
   # Generate points and control points
   points: List[List[Point]] = []
@@ -133,8 +126,8 @@ def draw_spiral(params:SpiralParams, group:Group = None):
   size = size_h + params.size_pad
   size_d = size * 2
 
-  col_max = floor(width / size_d)
-  row_max = floor(height / size_d)
+  col_max = floor(pad_rect.w / size_d)
+  row_max = floor(pad_rect.h / size_d)
 
   offset_x = (svg_safe().w - (col_max * size_d)) / 2
   offset_y = (svg_safe().h - size / 2 - (row_max * size_d * .85)) / 2
@@ -142,9 +135,9 @@ def draw_spiral(params:SpiralParams, group:Group = None):
   # Calculate circles and draw borders
   open_group("stroke=\"blue\"", group)
   for row in range(0, row_max):
-    y = offset_y + top + size + (size_d * .85) * row
+    y = offset_y + pad_rect.y + size + (size_d * .85) * row
     for col in range(0, col_max):
-      x = offset_x + left + size + size_d * col
+      x = offset_x + pad_rect.x + size + size_d * col
       if row % 2 == 1:
         if col == col_max - 1:
           continue

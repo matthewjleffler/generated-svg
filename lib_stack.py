@@ -1,5 +1,6 @@
 from lib import *
 
+
 ###
 ### Stack Drawing
 ###
@@ -20,10 +21,12 @@ def draw_circle_stack(params:CircleStackParams, group:Group = None):
   # draw_border(group)
 
   circles = []
+  x_range = RangeInt(svg_safe().x, svg_safe().right())
+  y_range = RangeInt(svg_safe().y, svg_safe().bottom())
 
   for _ in range(params.count):
-    x = rand_int(svg_safe().x, svg_safe().w)
-    y = rand_int(svg_safe().y, svg_safe().h)
+    x = x_range.rand()
+    y = y_range.rand()
 
     x = round(x / params.clamp_start, 0) * params.clamp_start
     y = round(y / params.clamp_start, 0) * params.clamp_start
@@ -72,9 +75,12 @@ def draw_rect_stack(params:RectStackParams, group:Group = None):
 
   rects = []
 
+  x_range = RangeInt(0, svg_full().right())
+  y_range = RangeInt(0, svg_full().bottom())
+
   for _ in range(params.count):
-    x = rand_int(0, svg_full().w)
-    y = rand_int(0, svg_full().h)
+    x = x_range.rand()
+    y = y_range.rand()
 
     x = round(x / params.clamp_start, 0) * params.clamp_start
     y = round(y / params.clamp_start, 0) * params.clamp_start

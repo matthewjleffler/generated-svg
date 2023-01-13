@@ -4,6 +4,7 @@ from lib_text import *
 from typing import List
 from enum import IntEnum, Enum
 
+
 ###
 ### Worm Drawing
 ###
@@ -105,6 +106,7 @@ class LongWormParams:
     self.shuffle_small_max_x = 30
     self.shuffle_small_max_y = 30
     self.rough_subdivisions = RangeInt(1, 10)
+    self.padding = 100
 
     # Worm circle sizes
     self.size_end = 1
@@ -122,6 +124,14 @@ class LongWormParams:
     self.consumed_check_radius = 50
     self.highlight_spacing = 10
 
+    self.highlight_text_weight = [
+      (0, 1), (1, 3),
+    ]
+    self.highlight_text_num_range = RangeInt(200, 50000)
+    self.connect_highlight_weight = [
+      (0, 1), (1, 3),
+    ]
+
     # Draw
     self.draw_worm = True
     self.draw_highlight = True
@@ -133,7 +143,7 @@ class HighlightType(IntEnum):
 
   End = 3,
 
-def check_point_consumed(position:Position, consumed_highlights:List[Position], params:LongWormParams) -> bool:
+def _check_point_consumed(position:Position, consumed_highlights:List[Position], params:LongWormParams) -> bool:
   point = position.point()
   for consumed in consumed_highlights:
     vec = consumed.point()
@@ -145,13 +155,13 @@ def check_point_consumed(position:Position, consumed_highlights:List[Position], 
       return True
   return False
 
-def pick_valid_highlight(available_highlights:List[int], consumed_highlights:List[Position], positions:List[Position], params:LongWormParams):
+def _pick_valid_highlight(available_highlights:List[int], consumed_highlights:List[Position], positions:List[Position], params:LongWormParams):
   while True:
     index = rand_int(0, len(available_highlights) - 1)
     index = available_highlights.pop(index)
     position = positions[index]
 
-    consumed = check_point_consumed(position, consumed_highlights, params)
+    consumed = _check_point_consumed(position, consumed_highlights, params)
     if not consumed:
       # We're good, consume the point
       consumed_highlights.append(position)
@@ -161,7 +171,7 @@ def pick_valid_highlight(available_highlights:List[int], consumed_highlights:Lis
     if len(available_highlights) < 1:
       return None
 
-def draw_worm_highlights(positions:List[Position], params:LongWormParams, group:Group = None):
+def _draw_worm_highlights(positions:List[Position], params:LongWormParams, group:Group = None):
   open_group("stroke=\"blue\"", group)
 
   start = positions[0]
@@ -189,13 +199,15 @@ def draw_worm_highlights(positions:List[Position], params:LongWormParams, group:
 
   while highlight_count > 0:
     # Pick valid highlight
-    point = pick_valid_highlight(available_highlights, consumed_highlights, positions, params)
+    point = _pick_valid_highlight(available_highlights, consumed_highlights, positions, params)
     if point is None:
       return # Ran out of points
 
     num = 0
-    if rand_int(0, 3) == 0:
-      num = rand_int(200, 50000)
+    # Decide whether to render a number
+    if rand_weight(params.highlight_text_weight) == 0:
+      # Pick number to render
+      num = params.highlight_text_num_range.rand()
 
     # Pick random highlight type
     highlight_index = rand_int(0, int(HighlightType.End - 1))
@@ -223,7 +235,8 @@ def draw_worm_highlights(positions:List[Position], params:LongWormParams, group:
         close_group()
 
     last = point
-    connect_next = rand_int(0, 3) == 0
+    # Decide whether to connect the next line
+    connect_next = rand_weight(params.connect_highlight_weight) == 0
 
   close_group()
 
@@ -232,35 +245,31 @@ def draw_long_worm(params:LongWormParams, group:Group = None):
 
   # Variables
   peaks = params.peaks.rand()
-  top_first = rand_int(0, 1) == 0
+  top_first = rand_bool()
 
   # Build outline
-  padding = 100
-  top = svg_safe().y + padding
-  bottom = svg_safe().bottom() - padding
-  center_y = svg_full().center_y()
-  left = svg_safe().x + padding
-  right = svg_safe().right() - padding
-  width = right - left
+  pad_rect = svg_safe().shrink_copy(params.padding)
 
   # Subdivide space
-  space = width / (peaks + 1)
+  space = pad_rect.w / (peaks + 1)
+
+  # TODO correctly space extreme curves
 
   # Pick direction of motion
   if top_first:
-    first = top
-    second = bottom
+    first = pad_rect.y
+    second = pad_rect.bottom()
   else:
-    first = bottom
-    second = top
+    first = pad_rect.bottom()
+    second = pad_rect.y
 
   # Pick rough points
   rough_points: List[Point] = []
-  rough_points.append(Point(left, center_y))
+  rough_points.append(Point(pad_rect.x, pad_rect.center_y()))
   for i in range(0, peaks):
-    rough_points.append(Point(left + space * (i + 1), first))
-    rough_points.append(Point(left + space * (i + 1), second))
-  rough_points.append(Point(right, center_y))
+    rough_points.append(Point(pad_rect.x + space * (i + 1), first))
+    rough_points.append(Point(pad_rect.x + space * (i + 1), second))
+  rough_points.append(Point(pad_rect.right(), pad_rect.center_y()))
 
   # Shuffle rough points
   shuffle_points(params.shuffle_large_max_x, params.shuffle_large_max_y, rough_points)
@@ -269,7 +278,7 @@ def draw_long_worm(params:LongWormParams, group:Group = None):
   # draw_point_path(rough_points, group)
 
   # Subdivide rough path
-  points = subdivide_point_path(rough_points, params.rough_subdivisions)
+  points = subdivide_point_path(rough_points, params.rough_subdivisions, [1, len(rough_points) - 1])
 
   # Shuffle subdivided path
   shuffle_points(params.shuffle_small_max_x, params.shuffle_small_max_y, points)
@@ -289,7 +298,7 @@ def draw_long_worm(params:LongWormParams, group:Group = None):
       else:
         draw_rect(pos.x - pos.size, pos.y - pos.size, pos.size * 2, pos.size * 2, group)
 
-  draw_worm_highlights(positions, params, group)
+  _draw_worm_highlights(positions, params, group)
 
 
 # Spiral Worm Drawing
@@ -322,6 +331,7 @@ class SprialWormParams:
     self.subdivision_range = RangeInt(3, 7)
     self.position_range = RangeInt(1, 50)
     self.position_steps = 3
+    self.ring_range = RangeInt(1, 4)
 
 
 def _spiral_worm_highlight(
@@ -329,14 +339,14 @@ def _spiral_worm_highlight(
   x:float, y:float,
   params:SprialWormParams):
 
-  rings = weighted_random(params.weight_rings)
+  rings = rand_weight(params.weight_rings)
   half_height = height / 2
   if params.draw_highlight:
     for i in range(0, rings):
       draw_circ(x, y, half_height + params.ring_distance * i)
 
   max_ring = half_height + params.ring_distance * rings
-  border = weighted_random(params.weight_border)
+  border = rand_weight(params.weight_border)
   if params.draw_highlight:
     if border == SpiralWormBorderType.Empty:
       pass
@@ -356,11 +366,11 @@ def _highlight_2(
   center = (width - height)
 
   size = params.h2_size.rand()
-  left_rings = rand_int(1, 4)
+  left_rings = params.ring_range.rand()
   left_circ_x = x - center
 
   size = params.h2_size.rand()
-  right_rings = rand_int(1, 4)
+  right_rings = params.ring_range.rand()
   right_circ_x = x + center
 
   pos_index = rand_int(0, len(positions) - 1)
@@ -380,17 +390,10 @@ def draw_spiral_worm(params:SprialWormParams, group:Group = None):
   # draw_border()
 
   # Build outline
-  top = svg_safe().y + params.padding
-  bottom = svg_safe().bottom() - params.padding
-  height = bottom - top
-  center_y = svg_full().center_y()
-  left = svg_safe().x + params.padding
-  right = svg_safe().right() - params.padding
-  width = right - left
-  center_x = svg_full().center_x()
+  pad_rect = svg_safe().shrink_copy(params.padding)
 
   # Spiral settings
-  spacing = height / (params.spiral_rows * 4)
+  spacing = pad_rect.h / (params.spiral_rows * 4)
   total_points = params.points_per_ring * params.spiral_rows
   rand_offset = rand() * pi * 2
 
@@ -403,8 +406,8 @@ def draw_spiral_worm(params:SprialWormParams, group:Group = None):
     dist = spiral * params.points_per_ring * spacing + in_row * spacing * 2
 
     rads = in_row * pi * 2
-    x = center_x + cos(rads + rand_offset) * dist
-    y = center_y + sin(rads + rand_offset) * dist
+    x = pad_rect.center_x() + cos(rads + rand_offset) * dist
+    y = pad_rect.center_y() + sin(rads + rand_offset) * dist
     rough_points.append(Point(x, y))
 
   # Shuffle rough points
@@ -415,7 +418,7 @@ def draw_spiral_worm(params:SprialWormParams, group:Group = None):
   # draw_point_path(rough_points, group)
 
   # Subdivide path into final points
-  points = subdivide_point_path(rough_points, params.subdivision_range)
+  points = subdivide_point_path(rough_points, params.subdivision_range, [1, len(rough_points) - 1])
 
   # Cull close points
   clamp_point_list(params.rough_clamp_distance, points)
@@ -445,10 +448,10 @@ def draw_spiral_worm(params:SprialWormParams, group:Group = None):
       draw_circ(pos.x, pos.y, pos.size, group)
 
   open_group("stroke=\"blue\"", group)
-  _spiral_worm_highlight(height, center_x, center_y, params)
+  _spiral_worm_highlight(pad_rect.h, pad_rect.center_x(), pad_rect.center_y(), params)
   close_group()
 
   open_group("stroke=\"red\"", group)
-  _highlight_2(width, height, center_x, center_y, positions, params)
+  _highlight_2(pad_rect.w, pad_rect.h, pad_rect.center_x(), pad_rect.center_y(), positions, params)
   close_group()
 
