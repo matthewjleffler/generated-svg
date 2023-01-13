@@ -1,6 +1,7 @@
 from lib import *
 from math import *
 
+
 def loop():
   draw_border()
 
@@ -18,6 +19,7 @@ def loop():
   for i in range(0, count_vert):
     path = f"M{svg_safe().x} {svg_safe().y + size + i * size}l{svg_safe().w} {bias_y}"
     draw_path(path)
+
 
 seed = 0
 test = True

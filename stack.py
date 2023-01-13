@@ -1,6 +1,11 @@
 from lib import *
 
 
+# Stack Drawing
+
+
+# Circle Stack Drawing
+
 class CircleStackParams:
   def __init__(self) -> None:
     self.draw = True
@@ -47,6 +52,8 @@ def draw_circle_stack(params:CircleStackParams):
         draw_circ(x, y, half)
 
 
+# Rectangle Stack Drawing
+
 class RectStackParams:
   def __init__(self) -> None:
     self.draw = True
@@ -85,3 +92,4 @@ def draw_rect_stack(params:RectStackParams):
 
     if params.draw:
       draw_rect(x, y, size, size)
+

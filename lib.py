@@ -6,6 +6,10 @@ from math import *
 from enum import Enum
 from typing import List
 
+
+# Core SVG Drawing Library
+
+
 # Helper classes
 
 class Rect:
@@ -85,6 +89,12 @@ def add_nondup_point(x, y, points):
     if point.x == x and point.y == y:
       return
   points.append(Point(x, y))
+
+
+def clamp_point_list(clamp_val:int, points:List[Point]):
+  for point in points:
+    point.x = round(point.x / clamp_val, 0) * clamp_val
+    point.y = round(point.y / clamp_val, 0) * clamp_val
 
 
 class Group:

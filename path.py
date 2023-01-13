@@ -2,6 +2,9 @@ from lib import *
 from math import *
 from typing import List
 
+# Path Drawing
+
+
 _round_digits = 0 # How many digits to round positions to
 _size_digits = 2 # How many digits to round the radius size to
 
@@ -169,7 +172,7 @@ def generate_centerpoints(points:List[Point]) -> List[Point]:
   return centers
 
 
-def generate_final_positions(points: List[Point], centers: List[Point], size_end:float, size_min:float, size_max:float, step_dist:float) -> List[Position]:
+def generate_final_positions(points: List[Point], centers: List[Point], size_end:float, size_range:RangeInt, step_dist:float) -> List[Position]:
   positions: List[Position] = []
 
   # Start point
@@ -179,7 +182,7 @@ def generate_final_positions(points: List[Point], centers: List[Point], size_end
 
   # Add positions
   for i in range(1, len(points) + 1):
-    next_size = rand_int(size_min, size_max)
+    next_size = size_range.rand()
     if i == len(points):
       next_size = size_end
 

@@ -51,9 +51,8 @@ def loop():
     return
 
   # Setup variables
-  min_lines = 5
-  max_lines = 15
-  num_lines = rand_int(min_lines, max_lines)
+  line_count = RangeInt(5, 15)
+  num_lines = line_count.rand()
   num_lines = min(num_lines, text_len)
 
   # Pick lines

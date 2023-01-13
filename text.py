@@ -1,5 +1,9 @@
 from lib import draw_path, draw_circ, draw_rect
 
+
+# Text Drawing
+
+
 # Letter sizes
 _let_h = 50
 _let_h_half = _let_h / 2
@@ -747,3 +751,4 @@ def draw_text(x:float, y:float, kern:float, value:str, group = None):
     elif char == "É": _letter_cap_e_accent(x, y, group)
     else: print("Unhandled character: {}".format(char))
     x += _let_h_half + kern
+

@@ -1,8 +1,14 @@
 from lib import *
 from path import *
 from text import *
-from enum import IntEnum
+from typing import List
+from enum import IntEnum, Enum
 
+
+# Worm Drawing
+
+
+# Small Repeated Worm Pattern
 
 class WormParams:
   def __init__(self) -> None:
@@ -62,6 +68,8 @@ def draw_worm(params:WormParams):
   close_group()
 
 
+# Long Worm Random Winding
+
 class LongWormParams:
   def __init__(self) -> None:
     # Setup variables
@@ -78,8 +86,7 @@ class LongWormParams:
 
     # Worm circle sizes
     self.size_end = 1
-    self.size_min = 5
-    self.size_max = 60
+    self.size_range = RangeInt(5, 60)
 
     # Highlights
     self.highlight_end_circle_radius = 30
@@ -247,7 +254,7 @@ def draw_long_worm(params:LongWormParams):
 
   centers = generate_centerpoints(points)
   # draw_curved_path(points, centers)
-  positions = generate_final_positions(points, centers, params.size_end, params.size_min, params.size_max, params.step_dist)
+  positions = generate_final_positions(points, centers, params.size_end, params.size_range, params.step_dist)
 
   # Draw actual items created in last loop
   if params.draw_worm:
@@ -258,3 +265,163 @@ def draw_long_worm(params:LongWormParams):
         draw_rect(pos.x - pos.size, pos.y - pos.size, pos.size * 2, pos.size * 2)
 
   draw_worm_highlights(positions, params)
+
+
+# Spiral Worm Drawing
+
+class SpiralWormBorderType(Enum):
+  Empty = 0
+  Sunburst = 1
+  Circles = 2
+
+
+class SprialWormParams:
+  def __init__(self) -> None:
+    self.ring_distance = 10
+    self.weight_rings = [
+      (0, 1), (1, 1), (2, 0.5), (3, 0.1), (4, 0.05)
+    ]
+    self.weight_border = [
+      (SpiralWormBorderType.Empty, 1), (SpiralWormBorderType.Sunburst, 0.5), (SpiralWormBorderType.Circles, 0.5)
+    ]
+    self.h2_size = RangeInt(25, 100)
+    self.draw_worm = True
+    self.draw_highlight = True
+    self.draw_highlight2 = True
+    self.padding = 100
+    self.spiral_rows = 4
+    self.points_per_ring = 10
+    self.rough_shuffle_range = 20
+    self.fine_shuffle_range = 30
+    self.rough_clamp_distance = 30
+    self.subdivision_range = RangeInt(3, 7)
+    self.position_range = RangeInt(1, 50)
+    self.position_steps = 3
+
+
+def _spiral_worm_highlight(
+  height:float,
+  x:float, y:float,
+  params:SprialWormParams):
+
+  rings = weighted_random(params.weight_rings)
+  half_height = height / 2
+  if params.draw_highlight:
+    for i in range(0, rings):
+      draw_circ(x, y, half_height + params.ring_distance * i)
+
+  max_ring = half_height + params.ring_distance * rings
+  border = weighted_random(params.weight_border)
+  if params.draw_highlight:
+    if border == SpiralWormBorderType.Empty:
+      pass
+    elif border == SpiralWormBorderType.Circles:
+      draw_ring_of_circles(100, x, y, max_ring, 5)
+    elif border == SpiralWormBorderType.Sunburst:
+      draw_sunburst(100, x, y, max_ring, 15)
+
+
+def _highlight_2(
+  width:float,
+  height:float,
+  x:float, y:float,
+  positions:List[Position],
+  params:SprialWormParams):
+
+  center = (width - height)
+
+  size = params.h2_size.rand()
+  left_rings = rand_int(1, 4)
+  left_circ_x = x - center
+
+  size = params.h2_size.rand()
+  right_rings = rand_int(1, 4)
+  right_circ_x = x + center
+
+  pos_index = rand_int(0, len(positions) - 1)
+  pos = positions[pos_index]
+  path = "M{} {}L{} {}L{} {}".format(left_circ_x, y, pos.x, pos.y, right_circ_x, y)
+
+  if params.draw_highlight2:
+    for i in range(0, left_rings):
+      draw_circ(left_circ_x, y, size + 10 * i)
+    for i in range(0, right_rings):
+      draw_circ(right_circ_x, y, size + 10 * i)
+    draw_path(path)
+    draw_circ(pos.x, pos.y, pos.size + 10)
+
+
+def draw_spiral_worm(params:SprialWormParams):
+  # Build outline
+  top = svg_safe().y + params.padding
+  bottom = svg_safe().bottom() - params.padding
+  height = bottom - top
+  center_y = svg_full().center_y()
+  left = svg_safe().x + params.padding
+  right = svg_safe().right() - params.padding
+  width = right - left
+  center_x = svg_full().center_x()
+
+  # Spiral settings
+  spacing = height / (params.spiral_rows * 4)
+  total_points = params.points_per_ring * params.spiral_rows
+  rand_offset = rand() * pi * 2
+
+  # Generate rough points
+  rough_points: List[Point] = []
+  for i in range(0, total_points):
+    spiral = floor(i / params.points_per_ring) / params.spiral_rows
+    in_row = (i % params.points_per_ring) / params.points_per_ring
+
+    dist = spiral * params.points_per_ring * spacing + in_row * spacing * 2
+
+    rads = in_row * pi * 2
+    x = center_x + cos(rads + rand_offset) * dist
+    y = center_y + sin(rads + rand_offset) * dist
+    rough_points.append(Point(x, y))
+
+  # Shuffle rough points
+  shuffle_points(params.rough_shuffle_range, params.rough_shuffle_range, rough_points)
+
+  # Draw rough points
+  # draw_point_circles(rough_points)
+  # draw_point_path(rough_points)
+
+  # Subdivide path into final points
+  points = subdivide_point_path(rough_points, params.subdivision_range)
+
+  # Cull close points
+  clamp_point_list(params.rough_clamp_distance, points)
+  clean_duplicates(points)
+
+  # Shuffle fine points
+  shuffle_points(params.fine_shuffle_range, params.fine_shuffle_range, points)
+
+  clamp_point_list(1, points)
+  clean_duplicates(points)
+
+  # Draw fine points
+  # draw_point_circles(points)
+  # draw_point_path(points)
+
+  # Generate curve
+  centers = generate_centerpoints(points)
+
+  # Draw curve
+  # draw_curved_path(points, centers)
+
+  # Generate positions
+  positions = generate_final_positions(points, centers, 1, params.position_range, params.position_steps)
+
+  if params.draw_worm:
+    for pos in positions:
+      draw_circ(pos.x, pos.y, pos.size)
+
+  open_group("stroke=\"blue\"")
+  _spiral_worm_highlight(height, center_x, center_y, params)
+  close_group()
+
+  open_group("stroke=\"red\"")
+  _highlight_2(width, height, center_x, center_y, positions, params)
+  close_group()
+
