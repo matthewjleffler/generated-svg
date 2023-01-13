@@ -41,11 +41,10 @@ def subdivide_point_path(rough:List[Point], sub_count:RangeInt, ignored_indexes:
 
     x = last.x
     y = last.y
-    # add_nondup_point(round(x, 0), round(y, 0), points)
     for _ in range(0, subdivisions):
       x += vector.x
       y += vector.y
-      add_nondup_point(round(x, 0), round(y, 0), points)
+      add_nondup_point(x, y, points)
     last = point
 
   return points
@@ -70,6 +69,9 @@ def shuffle_points(range_x:float, range_y:float, points:List[Point]):
 
 
 def add_nondup_position(x:float, y:float, size:float, array:List[Position]):
+  x = round(x, _round_digits)
+  y = round(y, _round_digits)
+  size = round(size, _size_digits)
   for item in array:
     if item.x == x and item.y == y and item.size == size:
       return
@@ -90,14 +92,14 @@ def _add_points_along_line(p0:Point, p1:Point, size:float, next_size:float, step
   copy = vector.multiply_copy(step_dist)
   copy_len = copy.length()
   while copy_len < length:
-    step_size = round(ease_in_out_quad(copy_len, size, next_size - size, length), _size_digits)
-    # step_size = round(lerp(size, next_size, copy_len / length), _size_digits)
+    step_size = ease_in_out_quad(copy_len, size, next_size - size, length)
+    # step_size = lerp(size, next_size, copy_len / length)
 
-    add_nondup_position(round(p0.x + copy.x, _round_digits), round(p0.y + copy.y, _round_digits), step_size, positions)
+    add_nondup_position(p0.x + copy.x, p0.y + copy.y, step_size, positions)
     copy = vector.multiply_copy(copy_len + step_dist)
     copy_len = copy.length()
 
-  add_nondup_position(round(p1.x, _round_digits), round(p1.y, _round_digits), next_size, positions)
+  add_nondup_position(p1.x, p1.y, next_size, positions)
 
 
 def _add_points_along_curve(p0:Point, p1:Point, control:Point, size:float, next_size:float, step_dist:float, positions:List[Position]):
@@ -112,13 +114,13 @@ def _add_points_along_curve(p0:Point, p1:Point, control:Point, size:float, next_
     t = i / steps
     point = _step_along_quadratic(p0, p1, control, t)
 
-    step_size = round(ease_in_out_quad(t, size, next_size - size, 1), _size_digits)
+    step_size = ease_in_out_quad(t, size, next_size - size, 1)
     # step_size = lerp(size, next_size, t)
 
-    add_nondup_position(round(point.x, _round_digits), round(point.y, _round_digits), step_size, positions)
+    add_nondup_position(point.x, point.y, step_size, positions)
 
   # Finish with final point
-  add_nondup_position(round(p1.x, _round_digits), round(p1.y, _round_digits), next_size, positions)
+  add_nondup_position(p1.x, p1.y, next_size, positions)
 
 
 def draw_point_circles(points:List[Point], group:Group = None):
@@ -181,7 +183,7 @@ def generate_final_positions(points: List[Point], centers: List[Point], size_end
   positions: List[Position] = []
 
   # Start point
-  add_nondup_position(round(points[0].x, _round_digits), round(points[0].y, 0), size_end, positions)
+  add_nondup_position(points[0].x, points[0].y, size_end, positions)
   size = size_end
   next_size = 0
 

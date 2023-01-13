@@ -95,7 +95,9 @@ class Point:
                  sa * self.x + ca * self.y)
 
 
-def add_nondup_point(x, y, points):
+def add_nondup_point(x:float, y:float, points:List[Point]):
+  x = round(x, 0)
+  y = round(y, 0)
   for point in points:
     if point.x == x and point.y == y:
       return
@@ -321,12 +323,19 @@ def close_group():
 def draw_rect(x:float, y:float, w:float, h:float, group:Group = None):
   if not group:
     group = _current_group
+  x = round(x, 2)
+  y = round(y, 2)
+  w = round(w, 2)
+  h = round(h, 2)
   group.children.append(f"<rect x=\"{x}\" y=\"{y}\" width=\"{w}\" height=\"{h}\"/>")
 
 
 def draw_circ(x:float, y:float, r:float, group:Group = None):
   if not group:
     group = _current_group
+  x = round(x, 2)
+  y = round(y, 2)
+  r = round(r, 2)
   group.children.append(f"<circle cx=\"{x}\" cy=\"{y}\" r=\"{r}\"/>")
 
 

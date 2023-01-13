@@ -1,5 +1,5 @@
 <svg version="1.1" width="1630" height="1060" xmlns="http://www.w3.org/2000/svg">
-  <!-- Seed: 5275667466986781703 -->
+  <!-- Seed: 7840282841083530237 -->
   <!-- Size: SvgSize.Size11x17 -->
   <!-- Params:
     draw_worm: False
@@ -24,15 +24,16 @@
     <g stroke="blue">
     </g>
     <g stroke="red">
-      <circle cx="245" cy="530" r="72"/>
-      <circle cx="245" cy="530" r="82"/>
-      <circle cx="245" cy="530" r="92"/>
-      <circle cx="1385" cy="530" r="72"/>
-      <circle cx="1385" cy="530" r="82"/>
-      <circle cx="1385" cy="530" r="92"/>
-      <circle cx="1385" cy="530" r="102"/>
-      <path d="M245 530L1040.0 819.0L1385 530"/>
-      <circle cx="1040.0" cy="819.0" r="44.75"/>
+      <circle cx="245" cy="530" r="34"/>
+      <circle cx="245" cy="530" r="44"/>
+      <circle cx="245" cy="530" r="54"/>
+      <circle cx="245" cy="530" r="64"/>
+      <circle cx="1385" cy="530" r="34"/>
+      <circle cx="1385" cy="530" r="44"/>
+      <circle cx="1385" cy="530" r="54"/>
+      <circle cx="1385" cy="530" r="64"/>
+      <path d="M245 530L890.0 185.0L1385 530"/>
+      <circle cx="890.0" cy="185.0" r="17.39"/>
     </g>
   </g>
 </svg>

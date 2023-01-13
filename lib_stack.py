@@ -85,6 +85,7 @@ def draw_rect_stack(params:RectStackParams, group:Group = None):
     x = x_range.rand()
     y = y_range.rand()
 
+    # TODO find all these clamps
     x = round(x / params.clamp_start, 0) * params.clamp_start
     y = round(y / params.clamp_start, 0) * params.clamp_start
 

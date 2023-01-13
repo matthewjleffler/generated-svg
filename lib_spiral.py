@@ -87,7 +87,7 @@ def _draw_circle(
     for sub in subdivided:
       rotated = sub.subtract_floats_copy(x, y)
       rotated = rotated.rotate_copy(rot)
-      final.append(Point(x + rotated.x, y + rotated.y))
+      final.append(Point(round(x + rotated.x, 2), round(y + rotated.y, 2)))
 
     # Draw rotated lines
     # draw_point_circles(final)

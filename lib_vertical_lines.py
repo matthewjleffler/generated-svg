@@ -58,7 +58,7 @@ def _create_highlight(line:List[Point], left:float, final:float, params:Vertical
     claimed.append(index)
     point = line[index]
     if params.draw_highlights:
-      draw_path(f"M{svg_safe().x} {point.y}h{svg_safe().w}")
+      draw_path(f"M{svg_safe().x} {round(point.y, 2)}h{svg_safe().w}")
 
   # Collect available indexes
   available = []

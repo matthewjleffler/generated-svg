@@ -66,8 +66,8 @@ def _draw_worm_layer(params:WormParams, fixed_size:float, group:Group = None):
   max_col = floor(pad_x / worm_size)
   max_row = floor(pad_y / worm_row_size)
 
-  offset_x = (svg_safe().w - (max_col * worm_size)) / 2
-  offset_y = (svg_safe().h - (max_row * worm_row_size)) / 2
+  offset_x = round((svg_safe().w - (max_col * worm_size)) / 2, 2)
+  offset_y = round((svg_safe().h - (max_row * worm_row_size)) / 2, 2)
 
   open_group(f"transform=\"translate({offset_x},{offset_y})\"", group)
   _draw_worm_set(max_row, max_col, worm_size, fixed_size, params)
