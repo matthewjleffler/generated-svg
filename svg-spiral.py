@@ -38,7 +38,7 @@ def draw_circle(x:float, y:float, rays:int, min_dist:float, max_dist:float, poin
   subdivisions = floor(max_dist / 10)
   if subdivisions % 2 == 1:
     subdivisions += 1
-  subdivided = subdivide_point_path(rough_points, subdivisions, subdivisions, False)
+  subdivided = subdivide_point_path(rough_points, RangeInt(subdivisions, subdivisions), False)
 
   # Adjust control points
   for i in range(1, len(subdivided), 2):

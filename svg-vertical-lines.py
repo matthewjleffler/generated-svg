@@ -123,7 +123,7 @@ def create_lines(draw:bool):
   # draw_point_path(rough)
 
   # Subdivide
-  fine = subdivide_point_path(rough, subdivide, subdivide, False)
+  fine = subdivide_point_path(rough, RangeInt(subdivide, subdivide), False)
 
   # Shuffle odd points
   for i in range(1, len(fine), 2):

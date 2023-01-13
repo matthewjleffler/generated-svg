@@ -114,7 +114,7 @@ def loop(draw_worm, draw_highlight, draw_highlight_2):
   # draw_point_path(rough_points)
 
   # Subdivide path into final points
-  points = subdivide_point_path(rough_points, 3, 7)
+  points = subdivide_point_path(rough_points, RangeInt(3, 7))
 
   # Cull close points
   clamp_points(30, points)

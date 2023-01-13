@@ -15,7 +15,7 @@ class Position:
     return Point(self.x, self.y)
 
 
-def subdivide_point_path(rough:List[Point], sub_min:int, sub_max:int, ignore_ends:bool = True) -> List[Point]:
+def subdivide_point_path(rough:List[Point], sub_count:RangeInt, ignore_ends:bool = True) -> List[Point]:
   last = rough[0]
   points: List[Point] = []
   points.append(rough[0])
@@ -25,7 +25,7 @@ def subdivide_point_path(rough:List[Point], sub_min:int, sub_max:int, ignore_end
     vector = point.subtract_copy(last)
     length = vector.length()
 
-    subdivisions = rand_int(sub_min, sub_max)
+    subdivisions = sub_count.rand()
     if ignore_ends:
       if i == 1 or i == len(rough) - 1:
         subdivisions = 1
@@ -36,7 +36,7 @@ def subdivide_point_path(rough:List[Point], sub_min:int, sub_max:int, ignore_end
 
     x = last.x
     y = last.y
-    # lib.add_nondup_point(round(x, 0), round(y, 0), points)
+    # add_nondup_point(round(x, 0), round(y, 0), points)
     for _ in range(0, subdivisions):
       x += vector.x
       y += vector.y
@@ -105,7 +105,7 @@ def add_points_along_curve(p0:Point, p1:Point, control:Point, size:float, next_s
     point = step_along_quadratic(p0, p1, control, t)
 
     step_size = round(ease_in_out_quad(t, size, next_size - size, 1), _size_digits)
-    # step_size = lib.lerp(size, next_size, t)
+    # step_size = lerp(size, next_size, t)
 
     add_nondup_position(round(point.x, _round_digits), round(point.y, _round_digits), step_size, positions)
 
@@ -162,7 +162,7 @@ def generate_centerpoints(points:List[Point]) -> List[Point]:
     center_y = last.y + vector.y
     centers.append(Point(center_x, center_y))
 
-    # lib.circ(center_x, center_y, 5)
+    # circ(center_x, center_y, 5)
 
     last = point
 
