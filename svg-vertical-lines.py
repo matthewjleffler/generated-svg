@@ -19,7 +19,7 @@ def loop_highlight():
 dir = "vertical-lines"
 seed = 0
 test = True
-size = SvgSize.Size11x17
+size = SvgSize.Size9x12
 
 if __name__ == "__main__":
   mainseed = main(dir, "combined", test, seed, size, loop_combined)
