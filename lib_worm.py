@@ -37,7 +37,7 @@ def _draw_worm_set(
       origin_x = worm_size * col
 
       # Debug bounds
-      # draw_rect(svg_safe().x + origin_x, svg_safe().y + origin_y, params.worm_size, params.worm_size)
+      # draw_rect(svg_safe().x + origin_x, svg_safe().y + origin_y, params.worm_size, params.worm_size, group)
 
       for i in range(0, params.stack_count + 1):
         percent = i / params.stack_count
@@ -78,7 +78,7 @@ def _draw_worm_layer(params:WormParams, fixed_size:float, group:Group = None):
   close_group()
 
 def draw_worm(params:WormParams, group:Group = None):
-  # draw_border()
+  # draw_border(group)
 
   if params.draw_worm:
     _draw_worm_layer(params, 0, group)
@@ -120,6 +120,7 @@ class LongWormParams:
 
     self.highlight_padding = 20
     self.consumed_check_radius = 50
+    self.highlight_spacing = 10
 
     # Draw
     self.draw_worm = True
@@ -205,16 +206,16 @@ def draw_worm_highlights(positions:List[Position], params:LongWormParams, group:
 
     if params.draw_highlight:
       if connect_next:
-        draw_path("M {} {} L{} {}".format(last.x, last.y, point.x, point.y))
+        draw_path(f"M {last.x} {last.y}L{point.x} {point.y}")
 
       if highlight_type == HighlightType.Circle:
         draw_circ(point.x, point.y, highlight_size)
       elif highlight_type == HighlightType.DoubleRing:
         draw_circ(point.x, point.y, highlight_size)
-        draw_circ(point.x, point.y, highlight_size + 10)
+        draw_circ(point.x, point.y, highlight_size + params.highlight_spacing)
       elif highlight_type == HighlightType.SunRing:
         draw_circ(point.x, point.y, highlight_size)
-        draw_sunburst(20, point.x, point.y, highlight_size + 10, 10)
+        draw_sunburst(20, point.x, point.y, highlight_size + params.highlight_spacing, params.highlight_spacing)
 
       if num > 0:
         open_group(f"transform=\"translate({point.x + highlight_size * 1.5},{point.y}) scale(0.5,0.5)\"")
@@ -226,8 +227,8 @@ def draw_worm_highlights(positions:List[Position], params:LongWormParams, group:
 
   close_group()
 
-def draw_long_worm(params:LongWormParams):
-  # draw_border()
+def draw_long_worm(params:LongWormParams, group:Group = None):
+  # draw_border(group)
 
   # Variables
   peaks = params.peaks.rand()
@@ -265,7 +266,7 @@ def draw_long_worm(params:LongWormParams):
   shuffle_points(params.shuffle_large_max_x, params.shuffle_large_max_y, rough_points)
 
   # Draw rough points
-  # draw_point_path(rough_points)
+  # draw_point_path(rough_points, group)
 
   # Subdivide rough path
   points = subdivide_point_path(rough_points, params.rough_subdivisions)
@@ -274,7 +275,7 @@ def draw_long_worm(params:LongWormParams):
   shuffle_points(params.shuffle_small_max_x, params.shuffle_small_max_y, points)
 
   # Draw subdivided points
-  # draw_point_path(points)
+  # draw_point_path(points, group)
 
   centers = generate_centerpoints(points)
   # draw_curved_path(points, centers)
@@ -284,11 +285,11 @@ def draw_long_worm(params:LongWormParams):
   if params.draw_worm:
     for pos in positions:
       if params.circle:
-        draw_circ(pos.x, pos.y, pos.size)
+        draw_circ(pos.x, pos.y, pos.size, group)
       else:
-        draw_rect(pos.x - pos.size, pos.y - pos.size, pos.size * 2, pos.size * 2)
+        draw_rect(pos.x - pos.size, pos.y - pos.size, pos.size * 2, pos.size * 2, group)
 
-  draw_worm_highlights(positions, params)
+  draw_worm_highlights(positions, params, group)
 
 
 # Spiral Worm Drawing

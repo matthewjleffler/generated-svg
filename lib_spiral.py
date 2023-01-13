@@ -109,7 +109,7 @@ def _add_border(x:float, y:float, size_h:float, params:SpiralParams):
     draw_sunburst(floor(size_h / 3), x, y, size_h + ring_buffer, 5)
 
 def draw_spiral(params:SpiralParams, group:Group = None):
-  # draw_border()
+  # draw_border(group)
 
   # Rough path
   top = svg_safe().y + params.padding
@@ -154,8 +154,8 @@ def draw_spiral(params:SpiralParams, group:Group = None):
 
   # Draw points
   for point_array in points:
-    # draw_point_circles(point_array)
-    # draw_point_path(point_array)
+    # draw_point_circles(point_array, group)
+    # draw_point_path(point_array, group)
 
     start = point_array[0]
     path = "M{} {}".format(start.x, start.y)

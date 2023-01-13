@@ -307,8 +307,8 @@ def draw_path(value:str, group:Group = None):
   group.children.append(f"<path d=\"{value}\"/>")
 
 
-def draw_border():
-  open_group("stroke=\"red\"")
+def draw_border(group:Group = None):
+  open_group("stroke=\"red\"", group)
   draw_rect(_svg_safe.x, _svg_safe.y, _svg_safe.w, _svg_safe.h)
   close_group()
 

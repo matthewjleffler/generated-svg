@@ -17,7 +17,7 @@ class CircleStackParams:
     self.max_size_range = RangeInt(50, 150)
 
 def draw_circle_stack(params:CircleStackParams, group:Group = None):
-  # draw_border()
+  # draw_border(group)
 
   circles = []
 
@@ -68,7 +68,7 @@ class RectStackParams:
     self.clamp_size = 10
 
 def draw_rect_stack(params:RectStackParams, group:Group = None):
-  # draw_border()
+  # draw_border(group)
 
   rects = []
 

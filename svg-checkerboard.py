@@ -1,30 +1,14 @@
-from lib import *
-from math import *
-
+from lib_checkerboard import *
 
 def loop():
-  draw_border()
+  params = CheckerboardParams()
+  draw_checkerboard(params)
 
-  size = 50
-  bias_x = 135
-  bias_y = 20
-
-  count_horiz = floor(svg_safe().w / size)
-  count_vert = floor(svg_safe().h / size)
-
-  for i in range(0, count_horiz):
-    path = f"M{svg_safe().x + i * size} {svg_safe().y}l{bias_x} {svg_safe().h}"
-    draw_path(path)
-
-  for i in range(0, count_vert):
-    path = f"M{svg_safe().x} {svg_safe().y + size + i * size}l{svg_safe().w} {bias_y}"
-    draw_path(path)
-
-
+dir = "checkerboard"
 seed = 0
 test = True
 size = SvgSize.Size9x12
 
 if __name__ == "__main__":
-  mainseed = main("checkerboard", test, seed, size, loop)
+  mainseed = main(dir, "main", test, seed, size, loop)
 
