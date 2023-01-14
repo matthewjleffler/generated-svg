@@ -10,6 +10,7 @@ import svg_template
 import svg_test_text
 import svg_vertical_lines
 import svg_vertical_mutate
+import svg_vertical_wave
 import svg_worm
 
 

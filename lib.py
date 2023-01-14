@@ -139,16 +139,16 @@ class RangeFloat:
     return f"[RangeFloat] min: {self._min_val} max: {self._max_val}"
 
   def rand(self) -> float:
-    return rand_float(self._min_val, self._max_val)
+    return round(rand_float(self._min_val, self._max_val), 2)
 
 
 # Math
 
 def lerp(a:float, b:float, t:float) -> float:
-  return (1 - t) * a + t * b
+  return round((1 - t) * a + t * b, 2)
 
 def ease_in_out_quad(t:float, b:float, c:float, d:float) -> float:
-  return -c / 2 * (cos(pi * t / d) - 1) + b
+  return round(-c / 2 * (cos(pi * t / d) - 1) + b, 2)
 
 def rand() -> float:
   return random.random()
