@@ -6,6 +6,8 @@ import time
 ### Test run a given script repeatedly
 ###
 
+wait_time = 1.5
+
 def run():
   if len(sys.argv) < 2:
     print("Please supply a script")
@@ -19,7 +21,10 @@ def run():
 
   while True:
     module.run()
-    time.sleep(1)
+    if wait_time <= 0:
+      input("Press enter...")
+    else:
+      time.sleep(wait_time)
 
 if __name__ == "__main__":
   run()

@@ -8,16 +8,15 @@ from typing import List
 ### Vertical Wave Drawing
 ###
 
-# TODO smooth out the columns
-
 class VerticalWaveParams:
   def __init__(self) -> None:
     self.draw: bool = True
     self.pad_x: int = 50
     self.pad_y: int = 0
-    self.vert_subdivisions: RangeInt = RangeInt(3, 10)
-    self.wave_subdivisions: RangeInt = RangeInt(5, 10)
+    self.row_range: RangeInt = RangeInt(3, 10)
+    self.col_range: RangeInt = RangeInt(5, 10)
     self.wave_range: float = 100
+    self.wave_y_range: float = 30
     self.step_size: int = 5
 
 
@@ -25,6 +24,70 @@ class _Wave:
   def __init__(self, point:Point, val:float) -> None:
     self.point = point
     self.val = val
+
+
+def _create_wave_columns(pad_rect:Rect, rows:int, cols:int, params:VerticalWaveParams, group:Group = None) -> List[List[Point]]:
+  # Calculate wave points
+  col_delta = pad_rect.w / (cols - 1)
+  row_delta = pad_rect.h / (rows - 1)
+
+  # Create column points
+  result: List[List[Point]] = []
+  for col in range(0, cols):
+    col_x = pad_rect.x + col_delta * col
+    col_list: List[Point] = []
+    result.append(col_list)
+    for row in range(0, rows):
+      col_y = pad_rect.y + row_delta * row
+      # Shuffle Y position
+      if row != 0 and row != rows - 1:
+        col_y += rand_float(-params.wave_y_range, params.wave_y_range)
+      col_list.append(Point(col_x, col_y))
+    # Debug Draw Points
+    # draw_point_circles(col_list, group)
+    # draw_point_path(col_list, group)
+
+  return result
+
+def _create_wave_patterns(pad_rect:Rect, rows:int, cols:int, params:VerticalWaveParams, group:Group = None) -> List[List[_Wave]]:
+  # Calculate wave points
+  col_delta = pad_rect.w / (cols - 1)
+  row_delta = pad_rect.h / (rows - 1)
+
+  # Create wave patterns
+  result: List[List[_Wave]] = []
+  for row in range(0, rows):
+    row_y = pad_rect.y + row_delta * row
+    wave_list: List[_Wave] = []
+    result.append(wave_list)
+    for col in range(0, cols):
+      x = pad_rect.x + col_delta * col
+      val = rand_float(-params.wave_range, params.wave_range)
+      wave_list.append(_Wave(Point(x, row_y), val))
+
+  # Normalize start and end rows
+  last_start = result[0][0].val
+  last_end = result[0][-1].val
+  for row in range(1, rows):
+    next_start = -last_start
+    next_end = -last_end
+    result[row][0].val = next_start
+    result[row][-1].val = next_end
+    last_start = next_start
+    last_end = next_end
+
+  # Debug draw wave patterns
+  # for row in range(0, len(result)):
+  #   wave_list = result[row]
+  #   for col in range(0, len(wave_list) - 1):
+  #     wave = wave_list[col]
+  #     wave_next = wave_list[col + 1]
+  #     path = f"M{wave.point.x} {wave.point.y}L{wave_next.point.x} {wave_next.point.y}"
+  #     draw_path(path, group)
+  #     path = f"M{wave.point.x} {wave.point.y}l{0} {wave.val}L{wave_next.point.x} {wave_next.point.y + wave_next.val}"
+  #     draw_path(path, group)
+
+  return result
 
 
 def draw_wave(params:VerticalWaveParams, group:Group = None):
@@ -35,67 +98,24 @@ def draw_wave(params:VerticalWaveParams, group:Group = None):
   # Debug draw pad rect
   # draw_rect(pad_rect.x, pad_rect.y, pad_rect.w, pad_rect.h, group)
 
-  # Create rough line
-  vertical_rough: List[Point] = []
-  add_nondup_point(pad_rect.x, pad_rect.y, vertical_rough)
-  add_nondup_point(pad_rect.x, pad_rect.bottom(), vertical_rough)
-  # Debug draw rough line
-  # draw_point_circles(rough, group)
+  # Create row and column counts
+  rows = params.row_range.rand()
+  cols = params.col_range.rand()
 
-  # Subdivide line
-  vertical_sub = subdivide_point_path(vertical_rough, params.vert_subdivisions)
-  # Debug draw subdivided line
-  # draw_point_circles(sub, group)
-  rows = len(vertical_sub)
+  # Create Points and Waves
+  column_lists = _create_wave_columns(pad_rect, rows, cols, params, group)
+  wave_lists = _create_wave_patterns(pad_rect, rows, cols, params, group)
 
-  # Create wave points
-  wave_rough: List[Point] = []
-  add_nondup_point(pad_rect.x, pad_rect.y, wave_rough)
-  add_nondup_point(pad_rect.right(), pad_rect.y, wave_rough)
-  wave_sub = subdivide_point_path(wave_rough, params.wave_subdivisions)
-  cols = len(wave_sub)
-
-  # Create wave patterns
-  wave_lists: List[List[_Wave]] = []
-  for row in range(0, rows):
-    row = vertical_sub[row].y
-    wave_list: List[_Wave] = []
-    wave_lists.append(wave_list)
-    for col in range(0, cols): # Extra row for final lerp
-      x = wave_sub[col].x
-      val = rand_float(-params.wave_range, params.wave_range)
-      wave_list.append(_Wave(Point(x, row), val))
-
-  # Normalize start and end rows
-  last_start = wave_lists[0][0].val
-  last_end = wave_lists[0][-1].val
-  for row in range(1, rows):
-    next_start = -last_start
-    next_end = -last_end
-    wave_lists[row][0].val = next_start
-    wave_lists[row][-1].val = next_end
-    last_start = next_start
-    last_end = next_end
-
-  # Debug draw wave patterns
-  # for row in range(0, len(wave_lists)):
-  #   wave_list = wave_lists[row]
-  #   for col in range(0, len(wave_list) - 1):
-  #     wave = wave_list[col]
-  #     wave_next = wave_list[col + 1]
-  #     path = f"M{wave.point.x} {wave.point.y}L{wave_next.point.x} {wave_next.point.y}"
-  #     draw_path(path, group)
-  #     path = f"M{wave.point.x} {wave.point.y}l{0} {wave.val}L{wave_next.point.x} {wave_next.point.y + wave_next.val}"
-  #     draw_path(path, group)
-
+  # Calculate delta between steps
   col_delta = wave_lists[0][1].point.x - wave_lists[0][0].point.x
   col_steps = floor(col_delta / params.step_size)
-  # step_size = col_delta / col_steps # Round out step size to remove gaps
 
   # Draw Wave Patterns
   total_step = 0
   first_x = wave_lists[0][0].point.x
   for col in range(0, cols - 1):
+    column = column_lists[col]
+    column_next = column_lists[col + 1]
     for step in range(0, col_steps):
       # Start Path
       first_wave = wave_lists[0][col]
@@ -107,22 +127,25 @@ def draw_wave(params:VerticalWaveParams, group:Group = None):
 
       # TODO flip alternating lines reverse
       # Draw Column
-      last_vert = vertical_sub[0]
+      # last_y = column[0].y
+      # last_y = lerp(column[0].y, column_next[0].y, percent)
+      last_y = ease_in_out_quad(percent, column[0].y, column_next[0].y - column[0].y, 1)
       for row in range(1, rows):
         wave = wave_lists[row][col]
         wave_next = wave_lists[row][col + 1]
-        vert = vertical_sub[row]
+        # current_y = lerp(column[row].y, column_next[row].y, percent)
+        current_y = ease_in_out_quad(percent, column[row].y, column_next[row].y - column[row].y, 1)
 
         # Create control
-        control = vert.subtract_copy(last_vert)
-        delta = control.length() * .5
-        control.normalize()
-        control.multiply(delta)
-        # control.x = lerp(wave.val, wave_next.val, percent)
-        control.x = ease_in_out_quad(percent, wave.val, wave_next.val - wave.val, 1)
+        control_y = last_y + (current_y - last_y) * .5
+        # control_x = lerp(wave.val, wave_next.val, percent)
+        control_x = ease_in_out_quad(percent, wave.val, wave_next.val - wave.val, 1)
 
-        # Draw
-        path += f"Q{round(x + control.x, 2)} {last_vert.y + control.y} {x} {vert.y}"
-        last_vert = vert
-      draw_path(path, group)
+        # Add to path
+        path += f"Q{round(x + control_x, 2)} {control_y} {x} {current_y}"
+        last_y = current_y
+
+      # Draw, when done
+      if params.draw:
+        draw_path(path, group)
 
