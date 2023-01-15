@@ -110,9 +110,10 @@ def draw_wave(params:VerticalWaveParams, group:Group = None):
   col_delta = wave_lists[0][1].point.x - wave_lists[0][0].point.x
   col_steps = floor(col_delta / params.step_size)
 
-  # Draw Wave Patterns
+  # Create Final Points
   total_step = 0
   first_x = wave_lists[0][0].point.x
+  final_points: List[List[Point]] = []
   for col in range(0, cols - 1):
     column = column_lists[col]
     column_next = column_lists[col + 1]
@@ -123,9 +124,10 @@ def draw_wave(params:VerticalWaveParams, group:Group = None):
       total_step += 1
       percent = step / (col_steps - 1)
 
-      path = f"M{x} {first_wave.point.y}"
+      points: List[Point] = []
+      final_points.append(points)
+      add_nondup_point(x, first_wave.point.y, points)
 
-      # TODO flip alternating lines reverse
       # Draw Column
       # last_y = column[0].y
       # last_y = lerp(column[0].y, column_next[0].y, percent)
@@ -142,10 +144,23 @@ def draw_wave(params:VerticalWaveParams, group:Group = None):
         control_x = ease_in_out_quad(percent, wave.val, wave_next.val - wave.val, 1)
 
         # Add to path
-        path += f"Q{round(x + control_x, 2)} {control_y} {x} {current_y}"
+        add_nondup_point(x + control_x, control_y, points) # Control
+        add_nondup_point(x, current_y, points) # End point
         last_y = current_y
 
-      # Draw, when done
-      if params.draw:
-        draw_path(path, group)
+      # Reverse alternating rows
+      if total_step % 2 == 1:
+        points.reverse()
+
+  # Draw points
+  if params.draw:
+    for col in range(0, len(final_points)):
+      column = final_points[col]
+      first = column[0]
+      path = f"M{first.x} {first.y}"
+      for row in range(1, len(column) - 1, 2):
+        control = column[row]
+        point = column[row + 1]
+        path += f"Q{control.x} {control.y} {point.x} {point.y}"
+      draw_path(path)
 
