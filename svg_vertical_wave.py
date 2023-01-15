@@ -9,7 +9,7 @@ def loop_main():
 dir = "vertical-wave"
 seed = 0
 test = True
-size = SvgSize.Size9x12
+size = SvgSize.Size11x17
 
 def run():
   mainseed = main(dir, "main", test, seed, size, loop_main)

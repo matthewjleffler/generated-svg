@@ -1,25 +1,25 @@
-from lib_spiral import *
+from lib_radial_circle import *
 
 
 def loop_combined():
-  params = SpiralParams()
-  draw_spiral(params)
+  params = RadialParams()
+  draw_radial_circles(params)
   return params
 
 def loop_main():
-  params = SpiralParams()
+  params = RadialParams()
   params.draw_border = False
-  draw_spiral(params)
+  draw_radial_circles(params)
   return params
 
 def loop_highlights():
-  params = SpiralParams()
+  params = RadialParams()
   params.draw_circles = False
-  draw_spiral(params)
+  draw_radial_circles(params)
   return params
 
 
-dir = "spiral-circles"
+dir = "radial-circles"
 seed = 0
 test = True
 size = SvgSize.Size9x12

@@ -6,7 +6,7 @@ from enum import IntEnum
 
 
 ###
-### Spiral Circle Design
+### Radial Circle Design
 ###
 
 
@@ -15,7 +15,7 @@ class BorderType(IntEnum):
   Circles = 1
   Starburst = 2
 
-class SpiralParams:
+class RadialParams:
   def __init__(self) -> None:
     self.draw_circles = True
     self.draw_border = True
@@ -51,7 +51,7 @@ def _draw_circle(
   min_dist:float,
   max_dist:float,
   points:List[Point],
-  params:SpiralParams):
+  params:RadialParams):
 
   # Create original rough line
   rough_points: List[Point] = []
@@ -96,7 +96,7 @@ def _draw_circle(
 
   # points.append(subdivided)
 
-def _add_border(x:float, y:float, size_h:float, params:SpiralParams):
+def _add_border(x:float, y:float, size_h:float, params:RadialParams):
   ring_count = rand_weight(params.ring_weights)
 
   if params.draw_border:
@@ -113,7 +113,7 @@ def _add_border(x:float, y:float, size_h:float, params:SpiralParams):
   elif border == BorderType.Starburst:
     draw_sunburst(floor(size_h / 3), x, y, size_h + ring_buffer, 5)
 
-def draw_spiral(params:SpiralParams, group:Group = None):
+def draw_radial_circles(params:RadialParams, group:Group = None):
   # draw_border(group)
 
   # Rough path
