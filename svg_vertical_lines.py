@@ -1,34 +1,39 @@
 from lib_vertical_lines import *
 
 
-def loop_combined():
-  params = VerticalLineParams()
-  draw_lines(params)
-  return params
+class VerticalLineRunner(Runner):
+  def __init__(self) -> None:
+    super().__init__("vertical-lines")
 
-def loop_main():
-  params = VerticalLineParams()
-  params.draw_highlights = False
-  draw_lines(params)
-  return params
+  def loop_combined(self):
+    params = VerticalLineParams()
+    draw_lines(params)
+    return params
 
-def loop_highlight():
-  params = VerticalLineParams()
-  params.draw_lines = False
-  draw_lines(params)
-  return params
+  def loop_main(self):
+    params = VerticalLineParams()
+    params.draw_highlights = False
+    draw_lines(params)
+    return params
+
+  def loop_highlight(self):
+    params = VerticalLineParams()
+    params.draw_lines = False
+    draw_lines(params)
+    return params
+
+  def run(self, test:bool, seed:int, size:SvgSize):
+    mainseed = main(self.dir, "combined", test, seed, size, self.loop_combined)
+    main(self.dir, "main", test, mainseed, size, self.loop_main)
+    main(self.dir, "highlight", test, mainseed, size, self.loop_highlight)
 
 
-dir = "vertical-lines"
-seed = 0
-test = True
-size = SvgSize.Size9x12
-
-def run():
-  mainseed = main(dir, "combined", test, seed, size, loop_combined)
-  main(dir, "main", test, mainseed, size, loop_main)
-  main(dir, "highlight", test, mainseed, size, loop_highlight)
+runner = VerticalLineRunner()
 
 if __name__ == "__main__":
-  run()
+  runner.run(
+    test = True,
+    seed = 0,
+    size = SvgSize.Size9x12
+  )
 

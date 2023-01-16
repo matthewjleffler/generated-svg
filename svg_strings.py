@@ -1,20 +1,25 @@
 from lib_strings import *
 
 
-def loop():
-  params = StringParams()
-  draw_strings(params)
-  return params
+class StringsRunner(Runner):
+  def __init__(self) -> None:
+    super().__init__("strings")
+
+  def loop(self):
+    params = StringParams()
+    draw_strings(params)
+    return params
+
+  def run(self, test:bool, seed:int, size:SvgSize):
+   mainseed = main(self.dir, "main", test, seed, size, self.loop)
 
 
-dir = "strings"
-seed = 0
-test = True
-size = SvgSize.Size9x12
-
-def run():
-  mainseed = main(dir, "main", test, seed, size, loop)
+runner = StringsRunner()
 
 if __name__ == "__main__":
-  run()
+  runner.run(
+    test = True,
+    seed = 0,
+    size = SvgSize.Size9x12
+  )
 

@@ -1,34 +1,39 @@
 from lib_worm import *
 
 
-def loop_combined():
-  params = WormParams()
-  draw_worm(params)
-  return params
+class WormRunner(Runner):
+  def __init__(self) -> None:
+    super().__init__("worm")
 
-def loop_main():
-  params = WormParams()
-  params.draw_innards = False
-  draw_worm(params)
-  return params
+  def loop_combined(self):
+    params = WormParams()
+    draw_worm(params)
+    return params
 
-def loop_innards():
-  params = WormParams()
-  params.draw_worm = False
-  draw_worm(params)
-  return params
+  def loop_main(self):
+    params = WormParams()
+    params.draw_innards = False
+    draw_worm(params)
+    return params
+
+  def loop_innards(self):
+    params = WormParams()
+    params.draw_worm = False
+    draw_worm(params)
+    return params
+
+  def run(self, test:bool, seed:int, size:SvgSize):
+    mainseed = main(self.dir, "combined", test, seed, size, self.loop_combined)
+    main(self.dir, "main", test, mainseed, size, self.loop_main)
+    main(self.dir, "innards", test, mainseed, size, self.loop_innards)
 
 
-dir = "worm"
-seed = 0
-test = True
-size = SvgSize.Size11x17
-
-def run():
-  mainseed = main(dir, "combined", test, seed, size, loop_combined)
-  main(dir, "main", test, mainseed, size, loop_main)
-  main(dir, "innards", test, mainseed, size, loop_innards)
+runner = WormRunner()
 
 if __name__ == "__main__":
-  run()
+  runner.run(
+    test = True,
+    seed = 0,
+    size = SvgSize.Size9x12
+  )
 

@@ -1,20 +1,25 @@
 from lib_stack import *
 
 
-def loop():
-  params = CircleStackParams()
-  draw_circle_stack(params)
-  return params
+class CircleStackRunner(Runner):
+  def __init__(self) -> None:
+    super().__init__("circle-stack")
+
+  def loop(self):
+    params = CircleStackParams()
+    draw_circle_stack(params)
+    return params
+
+  def run(self, test:bool, seed:int, size:SvgSize):
+    mainseed = main(self.dir, "main", test, seed, size, self.loop)
 
 
-dir = "circle-stack"
-test = True
-seed = 0
-size = SvgSize.Size9x12
-
-def run():
-  mainseed = main(dir, "main", test, seed, size, loop)
+runner = CircleStackRunner()
 
 if __name__ == "__main__":
-  run()
+  runner.run(
+    test = True,
+    seed = 0,
+    size = SvgSize.Size9x12
+  )
 

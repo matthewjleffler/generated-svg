@@ -1,20 +1,25 @@
 from lib_stack import *
 
 
-def loop():
-  params = RectStackParams()
-  draw_rect_stack(params)
-  return params
+class RectStackRunner(Runner):
+  def __init__(self) -> None:
+    super().__init__("rect-stack")
+
+  def loop(self):
+    params = RectStackParams()
+    draw_rect_stack(params)
+    return params
+
+  def run(self, test:bool, seed:int, size:SvgSize):
+    mainseed = main(self.dir, "main", test, seed, size, self.loop)
 
 
-dir = "rect-stack"
-test = True
-seed = 0
-size = SvgSize.Size9x12
-
-def run():
-  mainseed = main(dir, "main", test, seed, size, loop)
+runner = RectStackRunner()
 
 if __name__ == "__main__":
-  run()
+  runner.run(
+    test = True,
+    seed = 0,
+    size = SvgSize.Size9x12
+  )
 

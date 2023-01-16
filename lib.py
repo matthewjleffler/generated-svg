@@ -231,6 +231,15 @@ def svg_safe() -> Rect:
 def svg_full() -> Rect:
   return _svg_full
 
+
+# Running
+class Runner:
+  def __init__(self, dir:str) -> None:
+    self.dir = dir
+
+  def run(self, test:bool, seed:int, size:SvgSize):
+    pass # Override
+
 # Text Writing
 
 def add_text_line(line:str):

@@ -4,20 +4,25 @@ from lib_text import *
 from math import *
 
 
-def loop():
-  draw_border()
+class TemplateRunner(Runner):
+  def __init__(self) -> None:
+    super().__init__("template")
 
-  draw_text(200, 200, 5, "Test Text")
+  def loop(self):
+    draw_border()
+
+    draw_text(200, 200, 5, "Test Text")
+
+  def run(self, test:bool, seed:int, size:SvgSize):
+    mainseed = main(self.dir, "main", test, seed, size, self.loop)
 
 
-dir = "template"
-test = True
-seed = 0
-size = SvgSize.Size9x12
-
-def run():
-  mainseed = main(dir, "main", test, seed, size, loop)
+runner = TemplateRunner()
 
 if __name__ == "__main__":
-  run()
+  runner.run(
+    test = True,
+    seed = 1,
+    size = SvgSize.Size9x12
+  )
 

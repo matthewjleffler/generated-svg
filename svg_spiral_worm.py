@@ -1,44 +1,49 @@
 from lib_worm import *
 
 
-def loop_combined():
-  params = SprialWormParams()
-  draw_spiral_worm(params)
-  return params
+class SpiralWormRunner(Runner):
+  def __init__(self) -> None:
+    super().__init__("spiral-worm")
 
-def loop_main():
-  params = SprialWormParams()
-  params.draw_highlight = False
-  params.draw_highlight2 = False
-  draw_spiral_worm(params)
-  return params
+  def loop_combined(self):
+    params = SprialWormParams()
+    draw_spiral_worm(params)
+    return params
 
-def loop_circle():
-  params = SprialWormParams()
-  params.draw_worm = False
-  params.draw_highlight2 = False
-  draw_spiral_worm(params)
-  return params
+  def loop_main(self):
+    params = SprialWormParams()
+    params.draw_highlight = False
+    params.draw_highlight2 = False
+    draw_spiral_worm(params)
+    return params
 
-def loop_lines():
-  params = SprialWormParams()
-  params.draw_worm = False
-  params.draw_highlight = False
-  draw_spiral_worm(params)
-  return params
+  def loop_circle(self):
+    params = SprialWormParams()
+    params.draw_worm = False
+    params.draw_highlight2 = False
+    draw_spiral_worm(params)
+    return params
+
+  def loop_lines(self):
+    params = SprialWormParams()
+    params.draw_worm = False
+    params.draw_highlight = False
+    draw_spiral_worm(params)
+    return params
+
+  def run(self, test:bool, seed:int, size:SvgSize):
+    mainseed = main(self.dir, "combined", test, seed, size, self.loop_combined)
+    main(self.dir, "main", test, mainseed, size, self.loop_main)
+    main(self.dir, "circle", test, mainseed, size, self.loop_circle)
+    main(self.dir, "lines", test, mainseed, size, self.loop_lines)
 
 
-dir = "spiral-worm"
-seed = 0
-test = True
-image_size = SvgSize.Size11x17
-
-def run():
-  mainseed = main(dir, "combined", test, seed, image_size, loop_combined)
-  main(dir, "main", test, mainseed, image_size, loop_main)
-  main(dir, "circle", test, mainseed, image_size, loop_circle)
-  main(dir, "lines", test, mainseed, image_size, loop_lines)
+runner = SpiralWormRunner()
 
 if __name__ == "__main__":
-  run()
+  runner.run(
+    test = True,
+    seed = 0,
+    size = SvgSize.Size9x12
+  )
 

@@ -1,34 +1,39 @@
 from lib_worm import *
 
 
-def loop_combined():
-  params = LongWormParams()
-  draw_long_worm(params)
-  return params
+class LongWormRunner(Runner):
+  def __init__(self) -> None:
+    super().__init__("long-worm")
 
-def loop_main():
-  params = LongWormParams()
-  params.draw_highlight = False
-  draw_long_worm(params)
-  return params
+  def loop_combined(self):
+    params = LongWormParams()
+    draw_long_worm(params)
+    return params
 
-def loop_highlight():
-  params = LongWormParams()
-  params.draw_worm = False
-  draw_long_worm(params)
-  return params
+  def loop_main(self):
+    params = LongWormParams()
+    params.draw_highlight = False
+    draw_long_worm(params)
+    return params
+
+  def loop_highlight(self):
+    params = LongWormParams()
+    params.draw_worm = False
+    draw_long_worm(params)
+    return params
+
+  def run(self, test:bool, seed:int, size:SvgSize):
+    mainseed = main(self.dir, "combined", test, seed, size, self.loop_combined)
+    main(self.dir, "main", test, mainseed, size, self.loop_main)
+    main(self.dir, "highlight", test, mainseed, size, self.loop_highlight)
 
 
-dir = "long-worm"
-seed = 0
-test = True
-image_size = SvgSize.Size9x12
-
-def run():
-  mainseed = main(dir, "combined", test, seed, image_size, loop_combined)
-  main(dir, "main", test, mainseed, image_size, loop_main)
-  main(dir, "highlight", test, mainseed, image_size, loop_highlight)
+runner = LongWormRunner()
 
 if __name__ == "__main__":
-  run()
+  runner.run(
+    test = True,
+    seed = 0,
+    size = SvgSize.Size9x12
+  )
 

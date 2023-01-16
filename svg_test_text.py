@@ -2,31 +2,36 @@ from lib import *
 from lib_text import *
 
 
-def loop():
-  # draw_border()
+class TestTextRunner(Runner):
+  def __init__(self) -> None:
+    super().__init__("test-text")
 
-  draw_text(100, 200, 10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-  draw_text(100, 300, 10, "abcdefghijklmnopqrstuvwxyz")
-  draw_text(100, 400, 10, "0123456789 ;:'\"éÉ`~")
-  draw_text(100, 500, 10, "!@#$%^&*()-_+={}[]\|,./<>?")
+  def loop(self):
+    # draw_border()
 
-  open_group("transform=\"translate(100,600) scale(0.5,0.5)\"")
-  draw_text(0, 0, 10, "Test Small Text too")
-  close_group()
+    draw_text(100, 200, 10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    draw_text(100, 300, 10, "abcdefghijklmnopqrstuvwxyz")
+    draw_text(100, 400, 10, "0123456789 ;:'\"éÉ`~")
+    draw_text(100, 500, 10, "!@#$%^&*()-_+={}[]\|,./<>?")
 
-  open_group("transform=\"translate(100, 700) rotate(10)\"")
-  draw_text(0, 0, 10, "TEST ROTATED TEXT")
-  close_group()
+    open_group("transform=\"translate(100,600) scale(0.5,0.5)\"")
+    draw_text(0, 0, 10, "Test Small Text too")
+    close_group()
+
+    open_group("transform=\"translate(100, 700) rotate(10)\"")
+    draw_text(0, 0, 10, "TEST ROTATED TEXT")
+    close_group()
+
+  def run(self, test:bool, seed:int, size:SvgSize):
+    mainseed = main(self.dir, "main", test, seed, size, self.loop)
 
 
-dir = "test-text"
-seed = 1
-test = True
-size = SvgSize.Size9x12
-
-def run():
-  mainseed = main(dir, "main", test, seed, size, loop)
+runner = TestTextRunner()
 
 if __name__ == "__main__":
-  run()
+  runner.run(
+    test = True,
+    seed = 1,
+    size = SvgSize.Size9x12
+  )
 

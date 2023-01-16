@@ -1,3 +1,4 @@
+from lib import SvgSize
 import types
 import svg_checkerboard
 import svg_circle_stack
@@ -23,9 +24,12 @@ def run():
     if isinstance(val, types.ModuleType):
       if not name.startswith("svg_"):
         continue
+      if not val.runner:
+        print(f"No Runner present in {name}")
+        continue
       print(f"\nRunning {name}")
       count += 1
-      val.run()
+      val.runner.run(True, 0, SvgSize.Size9x12)
 
   print(f"\nFinished running {count} script(s)")
 

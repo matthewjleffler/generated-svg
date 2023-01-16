@@ -1,6 +1,7 @@
 import sys
 import importlib
 import time
+from lib import SvgSize
 
 ###
 ### Test run a given script repeatedly
@@ -20,7 +21,7 @@ def run():
     print(f"Couldn't load module: {module_path}")
 
   while True:
-    module.run()
+    module.runner.run(True, 0, SvgSize.Size9x12)
     if wait_time <= 0:
       input("Press enter...")
     else:
