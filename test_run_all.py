@@ -1,4 +1,4 @@
-from lib import SvgSize
+from lib import SvgSize, Args
 import types
 import svg_checkerboard
 import svg_circle_stack
@@ -19,6 +19,9 @@ import svg_worm
 def run():
   print("Running all SVG scripts...")
 
+  args = Args()
+  defaults = args.get_defaults(True, 0, SvgSize.Size9x12)
+
   count = 0
   for name, val in globals().items():
     if isinstance(val, types.ModuleType):
@@ -29,7 +32,7 @@ def run():
         continue
       print(f"\nRunning {name}")
       count += 1
-      val.runner.run(True, 0, SvgSize.Size9x12)
+      val.runner.run(defaults.test, defaults.seed, defaults.size)
 
   print(f"\nFinished running {count} script(s)")
 

@@ -1,5 +1,5 @@
 import random
-from sys import maxsize
+from sys import maxsize, argv
 import os
 from re import compile
 from math import *
@@ -214,6 +214,16 @@ class SvgSize(Enum):
   Size11x17 = 1,
   Size9x12 = 2,
 
+  @staticmethod
+  def from_str(val:str):
+    val = val.lower()
+    if val == "size9x12" or val == "9x12":
+      return SvgSize.Size9x12
+    if val == "size11x17" or val == "11x17":
+      return SvgSize.Size11x17
+    print(f"Unhandled SvgSize: {val}")
+    return SvgSize.Size9x12
+
 
 def setup_size(size:SvgSize):
   global _svg_full, _svg_safe
@@ -239,6 +249,78 @@ class Runner:
 
   def run(self, test:bool, seed:int, size:SvgSize):
     pass # Override
+
+
+class Defaults:
+  def __init__(self, test:bool, seed:int, size:SvgSize) -> None:
+    self.test:bool = test
+    self.seed:int = seed
+    self.size:SvgSize = size
+
+
+class Args:
+  def __init__(self) -> None:
+    self.__positional = []
+    self.__args = dict()
+
+    parse = compile(r"""--(.*?)=(.*)""")
+    for i in range(1, len(argv)):
+      arg = argv[i]
+      parsed = parse.match(arg)
+      if parsed is None:
+        self.__positional.append(arg)
+      else:
+        self.__args[parsed.group(1)] = parsed.group(2)
+
+  def _get_bool(self, val:str) -> bool:
+    return val == "True" or val == "true" or val == "t"
+
+  def positional_count(self) -> int:
+    return len(self.__positional)
+
+  def positional_str(self, index:int) -> str:
+    return self.__positional[index]
+
+  def positional_int(self, index:int) -> int:
+    return int(self.__positional[index])
+
+  def positional_bool(self, index:int) -> bool:
+    return self._get_bool(self.__positional[index])
+
+  def positional_float(self, index:int) -> float:
+    return float(self.__positional[index])
+
+  def get_str(self, key:str, default:str) -> str:
+    if key not in self.__args:
+      return default
+    return self.__args[key]
+
+  def get_int(self, key:str, default:int) -> int:
+    if key not in self.__args:
+      return default
+    return int(self.__args[key])
+
+  def get_bool(self, key:str, default:bool) -> bool:
+    if key not in self.__args:
+      return default
+    return self._get_bool(self.__args[key])
+
+  def get_float(self, key:str, default:float) -> float:
+    if key not in self.__args:
+      return default
+    return float(self.__args[key])
+
+  def get_svg_size(self, key:str, default:SvgSize) -> SvgSize:
+    if key not in self.__args:
+      return default
+    return SvgSize.from_str(self.__args[key])
+
+  def get_defaults(self, test:bool, seed:int, size:SvgSize) -> Defaults:
+    test = self.get_bool("test", test)
+    seed = self.get_int("seed", seed)
+    size = self.get_svg_size("size", size)
+    return Defaults(test, seed, size)
+
 
 # Text Writing
 

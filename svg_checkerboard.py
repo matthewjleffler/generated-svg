@@ -17,9 +17,11 @@ class CheckerboardRunner(Runner):
 runner = CheckerboardRunner()
 
 if __name__ == "__main__":
-  runner.run(
+  args = Args()
+  defaults = args.get_defaults(
     test = True,
     seed = 0,
     size = SvgSize.Size9x12
   )
+  runner.run(defaults.test, defaults.seed, defaults.size)
 
