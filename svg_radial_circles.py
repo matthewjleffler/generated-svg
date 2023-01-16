@@ -22,10 +22,11 @@ class RadialCirclesRunner(Runner):
     draw_radial_circles(params)
     return params
 
-  def run(self, test:bool, seed:int, size:SvgSize):
+  def run(self, test:bool, seed:int, size:SvgSize) -> int:
     mainseed = main(self.dir, "combined", test, seed, size, self.loop_combined)
     main(self.dir, "main", test, mainseed, size, self.loop_main)
     main(self.dir, "highlights", test, mainseed, size, self.loop_highlights)
+    return mainseed
 
 
 runner = RadialCirclesRunner()

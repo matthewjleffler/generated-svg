@@ -10,8 +10,9 @@ class CircleStackRunner(Runner):
     draw_circle_stack(params)
     return params
 
-  def run(self, test:bool, seed:int, size:SvgSize):
+  def run(self, test:bool, seed:int, size:SvgSize) -> int:
     mainseed = main(self.dir, "main", test, seed, size, self.loop)
+    return mainseed
 
 
 runner = CircleStackRunner()

@@ -22,10 +22,11 @@ class LongWormRunner(Runner):
     draw_long_worm(params)
     return params
 
-  def run(self, test:bool, seed:int, size:SvgSize):
+  def run(self, test:bool, seed:int, size:SvgSize) -> int:
     mainseed = main(self.dir, "combined", test, seed, size, self.loop_combined)
     main(self.dir, "main", test, mainseed, size, self.loop_main)
     main(self.dir, "highlight", test, mainseed, size, self.loop_highlight)
+    return mainseed
 
 
 runner = LongWormRunner()

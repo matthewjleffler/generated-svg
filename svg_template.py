@@ -13,8 +13,9 @@ class TemplateRunner(Runner):
 
     draw_text(200, 200, 5, "Test Text")
 
-  def run(self, test:bool, seed:int, size:SvgSize):
+  def run(self, test:bool, seed:int, size:SvgSize) -> int:
     mainseed = main(self.dir, "main", test, seed, size, self.loop)
+    return mainseed
 
 
 runner = TemplateRunner()

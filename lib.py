@@ -247,8 +247,8 @@ class Runner:
   def __init__(self, dir:str) -> None:
     self.dir = dir
 
-  def run(self, test:bool, seed:int, size:SvgSize):
-    pass # Override
+  def run(self, test:bool, seed:int, size:SvgSize) -> int:
+    return 0
 
 
 class Defaults:
