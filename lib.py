@@ -139,7 +139,7 @@ class RangeFloat:
     return f"[RangeFloat] min: {self._min_val} max: {self._max_val}"
 
   def rand(self) -> float:
-    return round(rand_float(self._min_val, self._max_val), 2)
+    return rand_float(self._min_val, self._max_val)
 
 
 # Math

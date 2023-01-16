@@ -6,7 +6,7 @@ import time
 ### Test run a given script repeatedly
 ###
 
-wait_time = 1.5
+wait_time = 0
 
 def run():
   if len(sys.argv) < 2:

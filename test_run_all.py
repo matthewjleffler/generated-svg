@@ -3,6 +3,7 @@ import svg_checkerboard
 import svg_circle_stack
 import svg_long_worm
 import svg_rect_stack
+import svg_radial_circles
 import svg_spiral_circle
 import svg_spiral_worm
 import svg_strings

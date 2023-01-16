@@ -154,7 +154,7 @@ def draw_curved_path(points:List[Point], centers:List[Point], group:Group = None
   draw_path(path, group)
 
 
-def generate_centerpoints(points:List[Point], group:Group = None) -> List[Point]:
+def generate_centerpoints(points:List[Point]) -> List[Point]:
   centers = []
 
   # Generate centerpoints
