@@ -17,10 +17,6 @@ class _Result(Enum):
   Save = 2
   Quit = 3
 
-def _save_output(runner:Runner, defaults:Defaults, lastseed:int):
-  print("Saving last output...")
-  runner.run(False, lastseed, defaults.size)
-
 def _wait_on_input(key:KeyPoller) -> _Result:
   print("Press [s] to save last output, [esc] to quit, or any other key to re-run...\n")
   while True:
@@ -35,7 +31,7 @@ def _wait_on_input(key:KeyPoller) -> _Result:
       else:
         return _Result.Continue
 
-def _poll_after_wait(key:KeyPoller) -> _Result:
+def _poll_after_sleep(key:KeyPoller) -> _Result:
   char = key.poll()
   if char is not None:
     char = char.lower()
@@ -60,7 +56,7 @@ def _run_step(runner:Runner, wait:float, key:KeyPoller, current:Defaults, defaul
   else:
     print("") # Empty line between runs
     time.sleep(wait)
-    result = _poll_after_wait(key)
+    result = _poll_after_sleep(key)
     if result == _Result.Save:
       print("Saving last output...")
       return (Defaults(False, lastseed, current.size), False)
@@ -94,7 +90,6 @@ def run():
       if quit:
         print("Escape pressed.")
         return
-
 
 
 if __name__ == "__main__":
