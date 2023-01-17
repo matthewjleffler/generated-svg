@@ -51,6 +51,9 @@ class Point:
     self.x = x
     self.y = y
 
+  def __repr__(self) -> str:
+    return f"[Point] x:{self.x} y:{self.y}"
+
   def __lt__(self, other):
     if self.x == other.x:
       return self.y < other.y
@@ -72,6 +75,9 @@ class Point:
     result = Point(self.x, self.y)
     result.multiply(scale)
     return result
+
+  def add_copy(self, other:float):
+    return Point(self.x + other.x, self.y + other.y)
 
   def subtract_floats_copy(self, x:float,  y:float):
     return Point(self.x - x, self.y - y)
