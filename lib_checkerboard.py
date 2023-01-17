@@ -35,14 +35,15 @@ def intersection(L1, L2):
   else:
       return None
 
-def _draw_line(
+def _draw_line(start:Point, end:Point) -> str:
+  return f"M{round(start.x, 2)} {round(start.y, 2)}L{round(end.x, 2)} {round(end.y, 2)}"
+
+def _create_line_endpoints(
   origin_x:float,
   origin_y:float,
   vec:Point,
   pad_rect:Rect,
-  l0, l1, l2, l3, # Ordering matters
-  params:CheckerboardParams,
-  group:Group = None):
+  l0, l1, l2, l3):
 
   origin_point = Point(origin_x, origin_y)
   vec = line(origin_point, origin_point.add_copy(vec))
@@ -66,15 +67,13 @@ def _draw_line(
 
   if not pad_rect.contains(origin_point.x, origin_point.y) and not pad_rect.contains(end_point.x, end_point.y):
     # Out of bounds
-    return
+    return None
 
-  path = f"M{origin_point.x} {origin_point.y}L{end_point.x} {end_point.y}"
-  if params.draw:
-    draw_path(path, group)
+  return (origin_point, end_point)
 
 
 def draw_checkerboard(params:CheckerboardParams, group:Group = None):
-  draw_border(group)
+  # draw_border(group)
 
   # Pad safe space
   pad_rect = svg_safe().shrink_copy(params.pad)
@@ -114,21 +113,33 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
   horiz_vec = Point(1, 0)
   horiz_vec = horiz_vec.rotate_copy(horiz_rads)
 
-  # Draw Lines
+  # Line points
+  horiz: List[Point] = []
+  vert: List[Point] = []
+
+  # Create Lines
   for i in range(-count, count):
     # Cast from top edge
     origin_x = pad_rect.x + i * size
     origin_y = pad_rect.y
 
+    mod = i % 2
+    first = 0 + mod
+    second = (1 + mod) % 2
+
     # Pick direction
     if vert_degs < 0:
-      _draw_line(origin_x, origin_y, vert_vec, pad_rect,
-                line_bottom, line_right, line_top, line_left,
-                params, group)
+      points = _create_line_endpoints(origin_x, origin_y, vert_vec, pad_rect,
+                                      line_bottom, line_right, line_top, line_left)
+      if points is not None:
+        horiz.append(points[first])
+        horiz.append(points[second])
     else:
-      _draw_line(origin_x, origin_y, vert_vec, pad_rect,
-                line_bottom, line_left, line_top, line_right,
-                params, group)
+      points = _create_line_endpoints(origin_x, origin_y, vert_vec, pad_rect,
+                                      line_bottom, line_left, line_top, line_right)
+      if points is not None:
+        horiz.append(points[first])
+        horiz.append(points[second])
 
 
     # Cast from left edge
@@ -137,11 +148,31 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
 
     # Pick direction
     if horiz_degs < 0:
-      _draw_line(origin_x, origin_y, horiz_vec, pad_rect,
-                line_right, line_top, line_left, line_bottom,
-                params, group)
+      points = _create_line_endpoints(origin_x, origin_y, horiz_vec, pad_rect,
+                                      line_right, line_top, line_left, line_bottom)
+      if points is not None:
+        vert.append(points[first])
+        vert.append(points[second])
     else:
-      _draw_line(origin_x, origin_y, horiz_vec, pad_rect,
-                line_right, line_bottom, line_left, line_top,
-                params, group)
+      points = _create_line_endpoints(origin_x, origin_y, horiz_vec, pad_rect,
+                                      line_right, line_bottom, line_left, line_top)
+      if points is not None:
+        vert.append(points[first])
+        vert.append(points[second])
+
+  # Draw horiz lines
+  path = ""
+  for i in range(0, len(horiz) - 1, 2):
+    start = horiz[i]
+    end = horiz[i + 1]
+    path += _draw_line(start, end)
+
+  # Draw vert lines
+  for i in range(0, len(vert) - 1, 2):
+    start = vert[i]
+    end = vert[i + 1]
+    path += _draw_line(start, end)
+
+  if params.draw:
+    draw_path(path, group)
 
