@@ -17,6 +17,11 @@ class _Result(Enum):
   Save = 2
   Quit = 3
 
+def _remove_suffix(input_string:str, suffix:str) -> str:
+  if suffix and input_string.endswith(suffix):
+      return input_string[:-len(suffix)]
+  return input_string
+
 def _wait_on_input(key:KeyPoller) -> _Result:
   print("Press [s] to save last output, [esc] to quit, or any other key to re-run...\n")
   while True:
@@ -73,7 +78,7 @@ def run():
     return
   module_path = args.positional_str(0)
   if module_path.endswith(".py"):
-    module_path = module_path.removesuffix(".py")
+    module_path = _remove_suffix(module_path, ".py")
   module = importlib.import_module(module_path)
   if not module:
     print(f"Couldn't load module: {module_path}")

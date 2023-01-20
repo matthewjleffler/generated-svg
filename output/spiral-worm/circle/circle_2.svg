@@ -1,0 +1,30 @@
+<svg version="1.1" width="1150" height="870" xmlns="http://www.w3.org/2000/svg">
+  <!-- Seed: 2382237050817939922 -->
+  <!-- Size: SvgSize.Size9x12 -->
+  <!-- Params:
+    draw_worm: False
+    draw_highlight: True
+    draw_highlight2: False
+    ring_distance: 10
+    weight_rings: [(0, 1), (1, 1), (2, 0.5), (3, 0.1), (4, 0.05)]
+    weight_border: [(<SpiralWormBorderType.Empty: 0>, 1), (<SpiralWormBorderType.Sunburst: 1>, 0.5), (<SpiralWormBorderType.Circles: 2>, 0.5)]
+    h2_size: [RangeInt] min: 25 max: 100
+    padding: 100
+    spiral_rows: 4
+    points_per_ring: 10
+    rough_shuffle_range: 20
+    fine_shuffle_range: 30
+    rough_clamp_distance: 30
+    subdivision_range: [RangeInt] min: 3 max: 7
+    position_range: [RangeInt] min: 1 max: 50
+    position_steps: 10
+    ring_range: [RangeInt] min: 1 max: 4
+  -->
+  <g stroke="black" fill="none">
+    <g stroke="blue">
+      <circle cx="575" cy="435" r="285.0"/>
+    </g>
+    <g stroke="red">
+    </g>
+  </g>
+</svg>

@@ -41,7 +41,7 @@ def draw_strings(params:StringParams, group:Group = None):
   # Load content
   print(f"Loading: {text_file}")
   text_lines = []
-  with open(f"./text-content/{text_file}") as f:
+  with open(f"./text-content/{text_file}", errors="ignore") as f:
     text_lines = f.readlines()
 
   # Prune empty lines
