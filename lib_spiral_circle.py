@@ -43,7 +43,7 @@ def draw_spiral_circle(params:SpiralCircleParams, group:Group = None):
     y = c_y + sin(rad) * dist * i
     if not pad_rect.contains(x, y):
       break
-    add_nondup_point(x, y, points)
+    add_nondup_floats(x, y, points)
 
   # draw_point_circles(points, group)
   # draw_point_path(points, group)

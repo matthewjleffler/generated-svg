@@ -29,7 +29,7 @@ def draw_circle_stack(params:CircleStackParams, group:Group = None):
     x = clamp_value(x_range.rand(), params.clamp_start)
     y = clamp_value(y_range.rand(), params.clamp_start)
 
-    add_nondup_point(x, y, circles)
+    add_nondup_floats(x, y, circles)
 
     # Debug show origins
     # draw_rect(x, y, 10, 10, group)
@@ -83,7 +83,7 @@ def draw_rect_stack(params:RectStackParams, group:Group = None):
     y = clamp_value(y_range.rand(), params.clamp_start)
 
     for i in range(0, params.stack_count + 1):
-      add_nondup_point(x + i * params.stack_range, y + i * params.stack_range, rects)
+      add_nondup_floats(x + i * params.stack_range, y + i * params.stack_range, rects)
 
   rects.sort()
 
