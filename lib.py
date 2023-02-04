@@ -11,40 +11,11 @@ from typing import List
 ### Core SVG Drawing Library
 ###
 
+# Constants
+deg_to_rad = pi / 180
+
 
 # Helper classes
-
-class Rect:
-  def __init__(self, x:float, y:float, w:float, h:float):
-    self.x = x
-    self.y = y
-    self.w = w
-    self.h = h
-
-  def __repr__(self) -> str:
-    return f"[Rect] x:{self.x} y:{self.y} w:{self.w} h:{self.h} cx:{self.center_x()} cy:{self.center_y()} r:{self.right()} b:{self.bottom()}"
-
-  def bottom(self) -> float:
-    return self.y + self.h
-
-  def right(self) -> float:
-    return self.x + self.w
-
-  def center_x(self) -> float:
-    return floor(self.x + self.w / 2)
-
-  def center_y(self) -> float:
-    return floor(self.y + self.h / 2)
-
-  def contains(self, x:float, y:float) -> bool:
-    return x >= self.x and y >= self.y and x <= self.right() and y <= self.bottom()
-
-  def shrink_xy_copy(self, amount_x:float, amount_y:float):
-    return Rect(self.x + amount_x, self.y + amount_y, self.w - amount_x * 2, self.h - amount_y * 2)
-
-  def shrink_copy(self, amount:float):
-    return Rect(self.x + amount, self.y + amount, self.w - amount * 2, self.h - amount * 2)
-
 
 class Point:
   def __init__(self, x:float, y:float):
@@ -76,7 +47,7 @@ class Point:
     result.multiply(scale)
     return result
 
-  def add_copy(self, other:float):
+  def add_copy(self, other):
     return Point(self.x + other.x, self.y + other.y)
 
   def subtract_floats_copy(self, x:float,  y:float):
@@ -101,9 +72,18 @@ class Point:
                  sa * self.x + ca * self.y)
 
 
-def add_nondup_point(x:float, y:float, points:List[Point]):
+def add_nondup_floats(x:float, y:float, points:List[Point]):
   x = round(x, 0)
   y = round(y, 0)
+  for point in points:
+    if point.x == x and point.y == y:
+      return
+  points.append(Point(x, y))
+
+
+def add_nondup_point(point:Point, points:List[Point]):
+  x = round(point.x, 0)
+  y = round(point.y, 0)
   for point in points:
     if point.x == x and point.y == y:
       return
@@ -114,6 +94,43 @@ def clamp_point_list(clamp_val:int, points:List[Point]):
   for point in points:
     point.x = round(point.x / clamp_val, 0) * clamp_val
     point.y = round(point.y / clamp_val, 0) * clamp_val
+
+
+class Rect:
+  def __init__(self, x:float, y:float, w:float, h:float):
+    self.x = x
+    self.y = y
+    self.w = w
+    self.h = h
+
+  def __repr__(self) -> str:
+    return f"[Rect] x:{self.x} y:{self.y} w:{self.w} h:{self.h} cx:{self.center_x()} cy:{self.center_y()} r:{self.right()} b:{self.bottom()}"
+
+  def bottom(self) -> float:
+    return self.y + self.h
+
+  def right(self) -> float:
+    return self.x + self.w
+
+  def center_x(self) -> float:
+    return floor(self.x + self.w / 2)
+
+  def center_y(self) -> float:
+    return floor(self.y + self.h / 2)
+
+  def contains(self, x:float, y:float) -> bool:
+    return x >= self.x and y >= self.y and x <= self.right() and y <= self.bottom()
+
+  def contains_point(self, point:Point) -> bool:
+    return self.contains(point.x, point.y)
+
+  def shrink_xy_copy(self, amount_x:float, amount_y:float):
+    return Rect(self.x + amount_x, self.y + amount_y, self.w - amount_x * 2, self.h - amount_y * 2)
+
+  def shrink_copy(self, amount:float):
+    return Rect(self.x + amount, self.y + amount, self.w - amount * 2, self.h - amount * 2)
+
+
 
 
 class Group:

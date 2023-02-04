@@ -1,12 +1,11 @@
 from lib import *
 from math import *
+from lib_text import *
 
 
 ###
 ### Checkerboard Design
 ###
-
-_deg_to_rad = pi / 180
 
 class CheckerboardParams:
   def __init__(self) -> None:
@@ -20,23 +19,56 @@ class CheckerboardParams:
     self.skew_horiz_degs = RangeFloat(0, 45)
     self.interior_space_aligned = 5
     self.interior_space_filled = 5
+    self.mutate_checkers = True
 
-def line(p1:Point, p2:Point):
-  A = (p1.y - p2.y)
-  B = (p2.x - p1.x)
-  C = (p1.x*p2.y - p2.x*p1.y)
-  return A, B, -C
+class Line:
+  def __init__(self, p1:Point, p2:Point) -> None:
+    self.a = (p1.y - p2.y)
+    self.b = (p2.x - p1.x)
+    self.c = -(p1.x*p2.y - p2.x*p1.y)
 
-def intersection(L1, L2):
-  D  = L1[0] * L2[1] - L1[1] * L2[0]
-  Dx = L1[2] * L2[1] - L1[1] * L2[2]
-  Dy = L1[0] * L2[2] - L1[2] * L2[0]
+
+class Checker:
+  def __init__(self, left:Line, right:Line, top:Line, bottom:Line) -> None:
+    self.top = top
+    self.bottom = bottom
+    self.left = left
+    self.right = right
+    self.tl = intersection(top, left)
+    self.br = intersection(bottom, right)
+    self.tr = intersection(top, right)
+    self.bl = intersection(bottom, left)
+    self.center = self.br.subtract_copy(self.tl)
+    centerlen = self.center.length() * .5
+    self.center.normalize()
+    self.center.multiply(centerlen)
+    self.center = self.tl.add_copy(self.center)
+
+  def __lt__(self, other):
+    return self.center.__lt__(other.center)
+
+  def visible(self, rect:Rect) -> bool:
+    if rect.contains_point(self.tl):
+      return True
+    if rect.contains_point(self.tr):
+      return True
+    if rect.contains_point(self.br):
+      return True
+    if rect.contains_point(self.bl):
+      return True
+    return False
+
+
+def intersection(L1:Line, L2:Line):
+  D  = L1.a * L2.b - L1.b * L2.a
+  Dx = L1.c * L2.b - L1.b * L2.c
+  Dy = L1.a * L2.c - L1.c * L2.a
   if D != 0:
-      x = Dx / D
-      y = Dy / D
-      return Point(x, y)
+    x = Dx / D
+    y = Dy / D
+    return Point(x, y)
   else:
-      return None
+    return None
 
 def _draw_line(start:Point, end:Point) -> str:
   return f"M{round(start.x, 2)} {round(start.y, 2)}L{round(end.x, 2)} {round(end.y, 2)}"
@@ -60,7 +92,7 @@ def _create_line_endpoints(
   lines:List):
 
   origin_point = Point(origin_x, origin_y)
-  vec_line = line(origin_point, origin_point.add_copy(vec))
+  vec_line = Line(origin_point, origin_point.add_copy(vec))
 
   end_point = _pick_closest_intersection(origin_point, vec_line, [lines[0], lines[1]])
   origin_point = _pick_closest_intersection(end_point, vec_line, [lines[2], lines[3]])
@@ -116,13 +148,13 @@ def _pick_closest_intersection(origin:Point, line, others) -> Point:
 def _create_fill(
   vec:Point,
   pad_rect:Rect,
-  checker, bounds, checker_fill:List[Point],
+  checker:Checker, bounds, checker_fill:List[Point],
   params:CheckerboardParams) -> List[Point]:
 
-  left = checker[0]
-  right = checker[1]
-  top = checker[2]
-  bottom = checker[3]
+  left = checker.left
+  right = checker.right
+  top = checker.top
+  bottom = checker.bottom
   bounds_top = bounds[0]
   bounds_bottom = bounds[1]
 
@@ -147,7 +179,7 @@ def _create_fill(
     origin_y = min_y - 10
 
     origin = Point(origin_x, origin_y)
-    stroke_line = line(origin, origin.add_copy(vec))
+    stroke_line = Line(origin, origin.add_copy(vec))
 
     l_intersect = intersection(stroke_line, left)
     r_intersect = intersection(stroke_line, right)
@@ -196,6 +228,31 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
   count_vert = floor(svg_safe().h / size) * 2
   count = max(count_horiz, count_vert)
 
+  # shift_x_range = RangeFloat(-30, 30) # TODO move to params
+  # shift_x = shift_x_range.rand()
+
+  # shift_y_range = RangeFloat(-30, 30) # TODO params
+  # shift_y = shift_y_range.rand()
+
+  # print(shift_x, shift_y)
+
+  corners: List[Point] = []
+  for y in range(-count_vert, count_vert * 2):
+    for x in range(-count_horiz, count_horiz * 2):
+      point = Point(x * size + shift_x * x, y * size + shift_y)
+      corners.append(point)
+
+  # print(len(corners))
+
+  for i in range(0, len(corners)):
+    point = corners[i]
+    draw_circ(point.x, point.y, 5)
+    # open_group(f"transform=\"translate({point.x},{point.y}) scale(0.5,0.5)\"")
+    # draw_text(0, 0, 5, str(i))
+    # close_group()
+
+  return
+
   # Edge vectors
   edge_vec_horiz = Point(1, 0)
   edge_vec_vert = Point(0, 1)
@@ -206,10 +263,10 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
   corner_tr = Point(pad_rect.right(), pad_rect.y)
 
   # Edge lines
-  line_bottom = line(corner_bl, corner_bl.add_copy(edge_vec_horiz))
-  line_right = line(corner_tr, corner_tr.add_copy(edge_vec_vert))
-  line_top = line(corner_tl, corner_tl.add_copy(edge_vec_horiz))
-  line_left = line(corner_tl, corner_tl.add_copy(edge_vec_vert))
+  line_bottom = Line(corner_bl, corner_bl.add_copy(edge_vec_horiz))
+  line_right = Line(corner_tr, corner_tr.add_copy(edge_vec_vert))
+  line_top = Line(corner_tl, corner_tl.add_copy(edge_vec_horiz))
+  line_left = Line(corner_tl, corner_tl.add_copy(edge_vec_vert))
 
   # Skew Rads
   vert_degs = params.skew_vert_degs.rand()
@@ -246,7 +303,7 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
     origin_y = pad_rect.y
 
     # Store line for later
-    vert_line = line(Point(origin_x, origin_y), Point(origin_x + vert_vec.x, origin_y + vert_vec.y))
+    vert_line = Line(Point(origin_x, origin_y), Point(origin_x + vert_vec.x, origin_y + vert_vec.y))
     vert_lines.append(vert_line)
 
     # Create rendering points
@@ -260,7 +317,7 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
     origin_y = pad_rect.y + i * size
 
     # Store line for later
-    horiz_line = line(Point(origin_x, origin_y), Point(origin_x + horiz_vec.x, origin_y + horiz_vec.y))
+    horiz_line = Line(Point(origin_x, origin_y), Point(origin_x + horiz_vec.x, origin_y + horiz_vec.y))
     horiz_lines.append(horiz_line)
 
     # Create rendering points
@@ -317,7 +374,7 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
 
 
   # Step through and create checkerboard sets
-  checkers = []
+  checkers: List[Checker] = []
   checker_fill: List[Point] = []
 
   # Add vertical checkers
@@ -327,7 +384,7 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
     for j in range(0, len(horiz_lines) - 1, 2):
       checker_top = horiz_lines[j]
       checker_bottom = horiz_lines[j + 1]
-      checkers.append((checker_left, checker_right, checker_top, checker_bottom))
+      checkers.append(Checker(checker_left, checker_right, checker_top, checker_bottom))
 
   # Add horizontal checkers
   for i in range(1, len(horiz_lines) - 1, 2):
@@ -336,7 +393,26 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
     for j in range(1, len(vert_lines) - 1, 2):
       checker_left = vert_lines[j]
       checker_right = vert_lines[j + 1]
-      checkers.append((checker_left, checker_right, checker_top, checker_bottom))
+      checkers.append(Checker(checker_left, checker_right, checker_top, checker_bottom))
+
+  # Cull and sort checkers
+  i = len(checkers)
+  while i > 0:
+    i = i - 1
+    checker = checkers[i]
+    if not checker.visible(pad_rect):
+      checkers.pop(i)
+  checkers.sort()
+
+  # Debug draw checker centers
+  # for i in range(0, len(checkers)):
+  #   checker = checkers[i]
+  #   center = checker.center
+  #   draw_circ(center.x, center.y, 5, group)
+  #   scale = 0.3
+  #   open_group(f"transform=\"translate({center.x}, {center.y}) scale({scale}, {scale})\"")
+  #   draw_text(0, 0, 5, str(i))
+  #   close_group()
 
   # Create checker fill points
   top_bottom = [line_top, line_bottom]
@@ -350,3 +426,21 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
     draw_path(path)
     close_group()
 
+  # Collect checker corner points
+  corners: List[Point] = []
+  for checker in checkers:
+    add_nondup_point(checker.tl, corners)
+    add_nondup_point(checker.tr, corners)
+    add_nondup_point(checker.br, corners)
+    add_nondup_point(checker.bl, corners)
+
+  corners.sort()
+
+  # Debug draw corners
+  for i in range(0, len(corners)):
+    corner = corners[i]
+    draw_circ(corner.x, corner.y, 5, group)
+    scale = 0.3
+    open_group(f"transform=\"translate({corner.x}, {corner.y}) scale({scale}, {scale})\"")
+    draw_text(0, 0, 5, str(i))
+    close_group()

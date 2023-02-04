@@ -126,7 +126,7 @@ def draw_wave(params:VerticalWaveParams, group:Group = None):
 
       points: List[Point] = []
       final_points.append(points)
-      add_nondup_point(x, first_wave.point.y, points)
+      add_nondup_floats(x, first_wave.point.y, points)
 
       # Draw Column
       # last_y = column[0].y
@@ -144,8 +144,8 @@ def draw_wave(params:VerticalWaveParams, group:Group = None):
         control_x = ease_in_out_quad(percent, wave.val, wave_next.val - wave.val, 1)
 
         # Add to path
-        add_nondup_point(x + control_x, control_y, points) # Control
-        add_nondup_point(x, current_y, points) # End point
+        add_nondup_floats(x + control_x, control_y, points) # Control
+        add_nondup_floats(x, current_y, points) # End point
         last_y = current_y
 
       # Reverse alternating rows

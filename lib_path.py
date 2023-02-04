@@ -44,7 +44,7 @@ def subdivide_point_path(rough:List[Point], sub_count:RangeInt, ignored_indexes:
     for _ in range(0, subdivisions):
       x += vector.x
       y += vector.y
-      add_nondup_point(x, y, points)
+      add_nondup_floats(x, y, points)
     last = point
 
   return points
