@@ -1,0 +1,93 @@
+<svg version="1.1" width="1150" height="870" xmlns="http://www.w3.org/2000/svg">
+  <!-- Seed: 110207965729709246 -->
+  <!-- Size: SvgSize.Size9x12 -->
+  <!-- Params:
+    draw_worm: False
+    draw_highlight: True
+    step_dist: 5
+    circle: True
+    peaks: [RangeInt] min: 3 max: 7
+    shuffle_large_max_x: 80
+    shuffle_large_max_y: 100
+    shuffle_small_max_x: 30
+    shuffle_small_max_y: 30
+    rough_subdivisions: [RangeInt] min: 1 max: 10
+    padding: 100
+    size_end: 1
+    size_range: [RangeInt] min: 5 max: 60
+    highlight_end_circle_radius: 30
+    highlight_end_points: 10
+    highlight_end_point_radius: 5
+    highlight_sunburst_ray_len: 10
+    highlights: [RangeInt] min: 3 max: 5
+    highlight_padding: 20
+    consumed_check_radius: 50
+    highlight_spacing: 10
+    highlight_text_weight: [(0, 1), (1, 3)]
+    highlight_text_num_range: [RangeInt] min: 200 max: 50000
+    connect_highlight_weight: [(0, 1), (1, 3)]
+  -->
+  <g stroke="black" fill="none">
+    <g stroke="blue">
+      <circle cx="156.0" cy="402.0" r="5"/>
+      <circle cx="150.27" cy="419.63" r="5"/>
+      <circle cx="135.27" cy="430.53" r="5"/>
+      <circle cx="116.73" cy="430.53" r="5"/>
+      <circle cx="101.73" cy="419.63" r="5"/>
+      <circle cx="96.0" cy="402.0" r="5"/>
+      <circle cx="101.73" cy="384.37" r="5"/>
+      <circle cx="116.73" cy="373.47" r="5"/>
+      <circle cx="135.27" cy="373.47" r="5"/>
+      <circle cx="150.27" cy="384.37" r="5"/>
+      <path d="M1071.0 451.0 L1071.0 461.0"/>
+      <path d="M1088.63 445.27 L1094.51 453.36"/>
+      <path d="M1099.53 430.27 L1109.04 433.36"/>
+      <path d="M1099.53 411.73 L1109.04 408.64"/>
+      <path d="M1088.63 396.73 L1094.51 388.64"/>
+      <path d="M1071.0 391.0 L1071.0 381.0"/>
+      <path d="M1053.37 396.73 L1047.49 388.64"/>
+      <path d="M1042.47 411.73 L1032.96 408.64"/>
+      <path d="M1042.47 430.27 L1032.96 433.36"/>
+      <path d="M1053.37 445.27 L1047.49 453.36"/>
+      <circle cx="513.0" cy="455.0" r="47.38"/>
+      <path d="M 513.0 455.0L290.0 491.0"/>
+      <circle cx="290.0" cy="491.0" r="40.33"/>
+      <path d="M290.0 541.33 L290.0 551.33"/>
+      <path d="M305.55 538.87 L308.64 548.38"/>
+      <path d="M319.58 531.72 L325.46 539.81"/>
+      <path d="M330.72 520.58 L338.81 526.46"/>
+      <path d="M337.87 506.55 L347.38 509.64"/>
+      <path d="M340.33 491.0 L350.33 491.0"/>
+      <path d="M337.87 475.45 L347.38 472.36"/>
+      <path d="M330.72 461.42 L338.81 455.54"/>
+      <path d="M319.58 450.28 L325.46 442.19"/>
+      <path d="M305.55 443.13 L308.64 433.62"/>
+      <path d="M290.0 440.67 L290.0 430.67"/>
+      <path d="M274.45 443.13 L271.36 433.62"/>
+      <path d="M260.42 450.28 L254.54 442.19"/>
+      <path d="M249.28 461.42 L241.19 455.54"/>
+      <path d="M242.13 475.45 L232.62 472.36"/>
+      <path d="M239.67 491.0 L229.67 491.0"/>
+      <path d="M242.13 506.55 L232.62 509.64"/>
+      <path d="M249.28 520.58 L241.19 526.46"/>
+      <path d="M260.42 531.72 L254.54 539.81"/>
+      <path d="M274.45 538.87 L271.36 548.38"/>
+      <circle cx="453.0" cy="606.0" r="60.0"/>
+      <circle cx="453.0" cy="606.0" r="70.0"/>
+      <g transform="translate(584.0699999999999,455.0) scale(0.5,0.5)">
+        <path d="M0 -50v25.0h25.0m0 25.0v-50"/>
+        <path d="M60.0 -50h-12.5q-12.5 0 -12.5 12.5v25.0q0 12.5 12.5 12.5q12.5 0 12.5 -12.5q0 -12.5 -12.5 -12.5h-12.5"/>
+        <path d="M82.5 -50q12.5 0 12.5 12.5q0 12.5 -12.5 12.5q-12.5 0 -12.5 12.5q0 12.5 12.5 12.5q12.5 0 12.5 -12.5q0 -12.5 -12.5 -12.5q-12.5 0 -12.5 -12.5q0 -12.5 12.5 -12.5"/>
+        <path d="M130.0 -50h-12.5q-12.5 0 -12.5 12.5v25.0q0 12.5 12.5 12.5q12.5 0 12.5 -12.5q0 -12.5 -12.5 -12.5h-12.5"/>
+        <path d="M140.0 -50v25.0h25.0m0 25.0v-50"/>
+      </g>
+      <g transform="translate(350.495,491.0) scale(0.5,0.5)">
+        <path d="M25.0 0h-25.0v-12.5q0 -12.5 12.5 -12.5q12.5 0 12.5 -12.5q0 -12.5 -12.5 -12.5q-12.5 0 -12.5 12.5"/>
+        <path d="M60.0 -50h-25.0v25.0h12.5q12.5 0 12.5 12.5q0 12.5 -12.5 12.5h-12.5"/>
+        <path d="M95.0 0h-25.0v-12.5q0 -12.5 12.5 -12.5q12.5 0 12.5 -12.5q0 -12.5 -12.5 -12.5q-12.5 0 -12.5 12.5"/>
+        <path d="M105.0 -50v25.0h25.0m0 25.0v-50"/>
+        <path d="M140.0 0h25.0m-12.5 0v-50l-12.5 12.5"/>
+      </g>
+    </g>
+  </g>
+</svg>

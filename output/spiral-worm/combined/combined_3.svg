@@ -3,8 +3,8 @@
   <!-- Size: SvgSize.Size9x12 -->
   <!-- Params:
     draw_worm: True
-    draw_highlight: False
-    draw_highlight2: False
+    draw_highlight: True
+    draw_highlight2: True
     ring_distance: 10
     weight_rings: [(0, 1), (1, 1), (2, 0.5), (3, 0.1), (4, 0.05)]
     weight_border: [(<SpiralWormBorderType.Empty: 0>, 1), (<SpiralWormBorderType.Sunburst: 1>, 0.5), (<SpiralWormBorderType.Circles: 2>, 0.5)]
@@ -1974,8 +1974,20 @@
     <circle cx="348.0" cy="171.0" r="1.01"/>
     <circle cx="348.0" cy="170.0" r="1"/>
     <g stroke="blue">
+      <circle cx="575" cy="435" r="285.0"/>
+      <circle cx="575" cy="435" r="295.0"/>
     </g>
     <g stroke="red">
+      <circle cx="295" cy="435" r="31"/>
+      <circle cx="295" cy="435" r="41"/>
+      <circle cx="295" cy="435" r="51"/>
+      <circle cx="295" cy="435" r="61"/>
+      <circle cx="855" cy="435" r="31"/>
+      <circle cx="855" cy="435" r="41"/>
+      <circle cx="855" cy="435" r="51"/>
+      <circle cx="855" cy="435" r="61"/>
+      <path d="M295 435L643.0 707.0L855 435"/>
+      <circle cx="643.0" cy="707.0" r="49.91"/>
     </g>
   </g>
 </svg>

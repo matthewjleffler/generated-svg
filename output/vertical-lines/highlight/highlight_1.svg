@@ -1,0 +1,63 @@
+<svg version="1.1" width="1630" height="1060" xmlns="http://www.w3.org/2000/svg">
+  <!-- Seed: 5581990933050610920 -->
+  <!-- Size: SvgSize.Size11x17 -->
+  <!-- Params:
+    draw_highlights: True
+    draw_lines: False
+    mutate: False
+    draw_curves: True
+    pad_x: 100
+    pad_y: 50
+    subdivide_range: [RangeInt] min: 50 max: 70
+    line_spacing: 10
+    rate_default: 5
+    shuffle_range_max_x: 40
+    shuffle_range_max_y: 5
+    strike_range: [RangeInt] min: 0 max: 10
+    circle_range: [RangeInt] min: 0 max: 5
+    mutate_range_x: 3
+    mutate_range_y: 3
+    mutate_max_range: 30
+  -->
+  <g stroke="black" fill="none">
+    <g stroke="blue">
+      <path d="M50 415.0h1530"/>
+      <path d="M50 129.0h1530"/>
+      <path d="M50 543.01h1530"/>
+      <path d="M50 887.1h1530"/>
+      <circle cx="130.0" cy="262.98" r="10"/>
+      <circle cx="130.0" cy="224.55" r="10"/>
+      <circle cx="130.0" cy="117.74" r="10"/>
+      <path d="M1490.0 671.2 L1490.0 676.2"/>
+      <path d="M1495.88 669.29 L1498.82 673.33"/>
+      <path d="M1499.51 664.29 L1504.27 665.83"/>
+      <path d="M1499.51 658.11 L1504.26 656.56"/>
+      <path d="M1495.88 653.11 L1498.82 649.06"/>
+      <path d="M1490.0 651.2 L1490.0 646.2"/>
+      <path d="M1484.12 653.11 L1481.18 649.06"/>
+      <path d="M1480.49 658.11 L1475.74 656.56"/>
+      <path d="M1480.49 664.29 L1475.73 665.83"/>
+      <path d="M1484.12 669.29 L1481.18 673.33"/>
+      <path d="M1490.0 580.2 L1490.0 585.2"/>
+      <path d="M1495.88 578.29 L1498.82 582.34"/>
+      <path d="M1499.51 573.29 L1504.26 574.84"/>
+      <path d="M1499.51 567.11 L1504.27 565.57"/>
+      <path d="M1495.88 562.11 L1498.82 558.07"/>
+      <path d="M1490.0 560.2 L1490.0 555.2"/>
+      <path d="M1484.12 562.11 L1481.18 558.07"/>
+      <path d="M1480.49 567.11 L1475.73 565.57"/>
+      <path d="M1480.49 573.29 L1475.74 574.84"/>
+      <path d="M1484.12 578.29 L1481.18 582.34"/>
+      <path d="M1490.0 153.8 L1490.0 158.8"/>
+      <path d="M1495.88 151.89 L1498.82 155.93"/>
+      <path d="M1499.51 146.89 L1504.27 148.43"/>
+      <path d="M1499.51 140.71 L1504.27 139.16"/>
+      <path d="M1495.88 135.71 L1498.82 131.67"/>
+      <path d="M1490.0 133.8 L1490.0 128.8"/>
+      <path d="M1484.12 135.71 L1481.18 131.67"/>
+      <path d="M1480.49 140.71 L1475.73 139.16"/>
+      <path d="M1480.49 146.89 L1475.73 148.43"/>
+      <path d="M1484.12 151.89 L1481.18 155.93"/>
+    </g>
+  </g>
+</svg>

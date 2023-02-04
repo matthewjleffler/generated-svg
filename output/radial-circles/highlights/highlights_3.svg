@@ -1,0 +1,20 @@
+<svg version="1.1" width="1630" height="1060" xmlns="http://www.w3.org/2000/svg">
+  <!-- Seed: 1701891667993864 -->
+  <!-- Size: SvgSize.Size11x17 -->
+  <!-- Params:
+    draw_circles: False
+    draw_border: True
+    rotate_range: 1.0471975511965976
+    ring_pad: 5
+    ring_weights: [(0, 5), (1, 2), (2, 1), (3, 0.5)]
+    border_weights: [(<BorderType.Empty: 0>, 5), (<BorderType.Circles: 1>, 1), (<BorderType.Starburst: 2>, 2)]
+    padding: 0
+    size_range: [RangeInt] min: 20 max: 350
+    size_pad: 20
+    origin_shuffle_range: 0
+  -->
+  <g stroke="black" fill="none">
+    <g stroke="blue">
+    </g>
+  </g>
+</svg>
