@@ -21,23 +21,16 @@ class CheckerboardParams:
     self.interior_space_filled = 5
     self.mutate_checkers = True
 
-class Line:
-  def __init__(self, p1:Point, p2:Point) -> None:
-    self.a = (p1.y - p2.y)
-    self.b = (p2.x - p1.x)
-    self.c = -(p1.x*p2.y - p2.x*p1.y)
-
-
 class Checker:
   def __init__(self, left:Line, right:Line, top:Line, bottom:Line) -> None:
     self.top = top
     self.bottom = bottom
     self.left = left
     self.right = right
-    self.tl = intersection(top, left)
-    self.br = intersection(bottom, right)
-    self.tr = intersection(top, right)
-    self.bl = intersection(bottom, left)
+    self.tl = line_intersection(top, left)
+    self.br = line_intersection(bottom, right)
+    self.tr = line_intersection(top, right)
+    self.bl = line_intersection(bottom, left)
     self.center = self.br.subtract_copy(self.tl)
     centerlen = self.center.length() * .5
     self.center.normalize()
@@ -57,18 +50,6 @@ class Checker:
     if rect.contains_point(self.bl):
       return True
     return False
-
-
-def intersection(L1:Line, L2:Line):
-  D  = L1.a * L2.b - L1.b * L2.a
-  Dx = L1.c * L2.b - L1.b * L2.c
-  Dy = L1.a * L2.c - L1.c * L2.a
-  if D != 0:
-    x = Dx / D
-    y = Dy / D
-    return Point(x, y)
-  else:
-    return None
 
 def _draw_line(start:Point, end:Point) -> str:
   return f"M{round(start.x, 2)} {round(start.y, 2)}L{round(end.x, 2)} {round(end.y, 2)}"
@@ -135,7 +116,7 @@ def _pick_closest_intersection(origin:Point, line, others) -> Point:
   result = None
   min = maxsize
   for other in others:
-    point = intersection(line, other)
+    point = line_intersection(line, other)
     if point is None:
       continue
     dist = point.subtract_copy(origin)
@@ -158,10 +139,10 @@ def _create_fill(
   bounds_top = bounds[0]
   bounds_bottom = bounds[1]
 
-  top_left = intersection(left, top)
-  top_right = intersection(right, top)
-  bottom_left = intersection(left, bottom)
-  bottom_right = intersection(right, bottom)
+  top_left = line_intersection(left, top)
+  top_right = line_intersection(right, top)
+  bottom_left = line_intersection(left, bottom)
+  bottom_right = line_intersection(right, bottom)
 
   min_x = min(top_left.x, top_right.x, bottom_left.x, bottom_right.x)
   max_x = max(top_left.x, top_right.x, bottom_left.x, bottom_right.x)
@@ -181,10 +162,10 @@ def _create_fill(
     origin = Point(origin_x, origin_y)
     stroke_line = Line(origin, origin.add_copy(vec))
 
-    l_intersect = intersection(stroke_line, left)
-    r_intersect = intersection(stroke_line, right)
-    t_intersect = intersection(stroke_line, top)
-    b_intersect = intersection(stroke_line, bottom)
+    l_intersect = line_intersection(stroke_line, left)
+    r_intersect = line_intersection(stroke_line, right)
+    t_intersect = line_intersection(stroke_line, top)
+    b_intersect = line_intersection(stroke_line, bottom)
     intersections = [l_intersect, r_intersect, t_intersect, b_intersect]
 
     # Check validity as we go
@@ -200,11 +181,11 @@ def _create_fill(
       continue
 
     # Test top and bottom intersections
-    top_intersection = intersection(stroke_line, bounds_top)
+    top_intersection = line_intersection(stroke_line, bounds_top)
     if top_intersection.y > start.y:
       start = top_intersection
 
-    bottom_insection = intersection(stroke_line, bounds_bottom)
+    bottom_insection = line_intersection(stroke_line, bounds_bottom)
     if bottom_insection.y < end.y:
       end = bottom_insection
 

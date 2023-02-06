@@ -128,6 +128,61 @@ def draw_point_circles(points:List[Point], group:Group = None):
     draw_circ(point.x, point.y, 5, group)
 
 
+class HatchParams:
+  def __init__(self, on_range:RangeInt, off_range:RangeInt) -> None:
+    self.on_range = on_range
+    self.off_range = off_range
+
+  def on(self) -> float:
+    return self.on_range.rand()
+
+  def off(self) -> float:
+    return self.off_range.rand()
+
+
+def draw_point_path_hatched(points:List[Point], params:HatchParams, group:Group = None):
+  last = points[0]
+  for i in range(1, len(points)):
+    next = points[i]
+    _hatch_line(last, next, params, group)
+    last = next
+
+
+def _hatch_line(p0:Point, p1:Point, params:HatchParams, group:Group = None):
+  delta = p1.subtract_copy(p0)
+  total_len = delta.length()
+  cur_len = 0
+  delta.normalize()
+  last = p0
+  path = ""
+  while cur_len < total_len:
+    # On
+    on = params.on()
+    cur_len += on
+    on_delta = delta.multiply_copy(on)
+    next = last.add_copy(on_delta)
+    if cur_len >= total_len:
+      next = p1
+    path += "M{} {}L{} {}".format(
+      round(last.x, _size_digits),
+      round(last.y, _size_digits),
+      round(next.x, _size_digits),
+      round(next.y, _size_digits)
+    )
+    if cur_len >= total_len:
+      # Done
+      break
+    # Off
+    off = params.off()
+    cur_len += off
+    off_delta = delta.multiply_copy(off)
+    next = next.add_copy(off_delta)
+    if cur_len >= total_len:
+      # Done
+      break
+    last = next
+  draw_path(path, group)
+
 def draw_point_path(points:List[Point], group:Group = None):
   last = points[0]
   path = "M{} {}".format(last.x, last.y)

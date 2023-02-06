@@ -3,6 +3,7 @@ from sys import maxsize, argv
 import os
 from re import compile
 from math import *
+from lib_math import *
 from enum import Enum
 from typing import List
 
@@ -11,66 +12,7 @@ from typing import List
 ### Core SVG Drawing Library
 ###
 
-# Constants
-deg_to_rad = pi / 180
-
-
-# Helper classes
-
-class Point:
-  def __init__(self, x:float, y:float):
-    self.x = x
-    self.y = y
-
-  def __repr__(self) -> str:
-    return f"[Point] x:{self.x} y:{self.y}"
-
-  def __lt__(self, other):
-    if self.x == other.x:
-      return self.y < other.y
-    return self.x < other.x
-
-  def length(self) -> float:
-    return sqrt(self.x * self.x + self.y * self.y)
-
-  def normalize(self):
-    self_len = self.length()
-    self.x /= self_len
-    self.y /= self_len
-
-  def multiply(self, scale:float):
-    self.x *= scale
-    self.y *= scale
-
-  def multiply_copy(self, scale:float):
-    result = Point(self.x, self.y)
-    result.multiply(scale)
-    return result
-
-  def add_copy(self, other):
-    return Point(self.x + other.x, self.y + other.y)
-
-  def subtract_floats_copy(self, x:float,  y:float):
-    return Point(self.x - x, self.y - y)
-
-  def subtract_copy(self, other:float):
-    return Point(self.x - other.x, self.y - other.y)
-
-  def perpendicular_copy(self):
-    length = self.length()
-    angle = self.angle()
-    return Point( length * cos(angle + pi / 2),
-                  length * sin(angle + pi / 2))
-
-  def angle(self) -> float:
-    return atan2(self.y, self.x)
-
-  def rotate_copy(self, rads:float):
-    ca = cos(rads)
-    sa = sin(rads)
-    return Point(ca * self.x - sa * self.y,
-                 sa * self.x + ca * self.y)
-
+# Helper functions
 
 def add_nondup_floats(x:float, y:float, points:List[Point]):
   x = round(x, 0)
@@ -94,43 +36,6 @@ def clamp_point_list(clamp_val:int, points:List[Point]):
   for point in points:
     point.x = round(point.x / clamp_val, 0) * clamp_val
     point.y = round(point.y / clamp_val, 0) * clamp_val
-
-
-class Rect:
-  def __init__(self, x:float, y:float, w:float, h:float):
-    self.x = x
-    self.y = y
-    self.w = w
-    self.h = h
-
-  def __repr__(self) -> str:
-    return f"[Rect] x:{self.x} y:{self.y} w:{self.w} h:{self.h} cx:{self.center_x()} cy:{self.center_y()} r:{self.right()} b:{self.bottom()}"
-
-  def bottom(self) -> float:
-    return self.y + self.h
-
-  def right(self) -> float:
-    return self.x + self.w
-
-  def center_x(self) -> float:
-    return floor(self.x + self.w / 2)
-
-  def center_y(self) -> float:
-    return floor(self.y + self.h / 2)
-
-  def contains(self, x:float, y:float) -> bool:
-    return x >= self.x and y >= self.y and x <= self.right() and y <= self.bottom()
-
-  def contains_point(self, point:Point) -> bool:
-    return self.contains(point.x, point.y)
-
-  def shrink_xy_copy(self, amount_x:float, amount_y:float):
-    return Rect(self.x + amount_x, self.y + amount_y, self.w - amount_x * 2, self.h - amount_y * 2)
-
-  def shrink_copy(self, amount:float):
-    return Rect(self.x + amount, self.y + amount, self.w - amount * 2, self.h - amount * 2)
-
-
 
 
 class Group:
@@ -165,13 +70,7 @@ class RangeFloat:
     return rand_float(self._min_val, self._max_val)
 
 
-# Math
-
-def lerp(a:float, b:float, t:float) -> float:
-  return round((1 - t) * a + t * b, 2)
-
-def ease_in_out_quad(t:float, b:float, c:float, d:float) -> float:
-  return round(-c / 2 * (cos(pi * t / d) - 1) + b, 2)
+# Random
 
 def rand() -> float:
   return random.random()

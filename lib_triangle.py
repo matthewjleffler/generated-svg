@@ -10,22 +10,18 @@ class TriangleParams:
   def __init__(self) -> None:
     self.draw_triangles = True
     self.pad = 0
-    self.top_range_x = 300
-    self.top_range_y = 100
-    self.side_range_x = 300
-    self.side_range_y = 200
-    self.shrink_amt = 20
+    self.point_range = 100
+    self.step_size = 5
     self.rotate_range = RangeFloat(0, 180)
 
 
-def create_adjusted_point(
+def _create_adjusted_point(
   pad_rect:Rect,
   default:Point,
-  range_x:float,
-  range_y:float
+  params:TriangleParams
 ) -> Point:
-  x_range = RangeInt(-range_x, range_x)
-  y_range = RangeInt(-range_y, range_y)
+  x_range = RangeInt(-params.point_range, params.point_range)
+  y_range = RangeInt(-params.point_range, params.point_range)
   x_delta = x_range.rand()
   y_delta = y_range.rand()
   x = default.x + x_delta
@@ -35,12 +31,30 @@ def create_adjusted_point(
   return Point(x, y)
 
 
-def shrink_vec(point:Point, origin:Point, amt:float) -> Point:
-  delta = point.subtract_copy(origin)
-  length = delta.length() - amt
-  delta.normalize()
-  delta.multiply(length)
-  return origin.add_copy(delta)
+def _draw_scaled_triangle(center:Point, corners:List[Point], scale:float, group:Group = None) -> List[Point]:
+  result: List[Point] = []
+  for corner in corners:
+    scaled = corner.subtract_copy(center)
+    scaled.multiply(scale)
+    scaled = scaled.add_copy(center)
+    result.append(scaled)
+  # Re-add the first point to close the loop
+  result.append(result[0])
+  # draw_point_path(result, group)
+  return result
+
+
+def average_point(points:List[Point]) -> Point:
+  count = len(points)
+  if count < 1:
+    return Point(0,0)
+  sum_x = 0
+  sum_y = 0
+  for point in points:
+    sum_x += point.x
+    sum_y += point.y
+  return Point(sum_x / count, sum_y / count)
+
 
 def draw_triangle(params:TriangleParams, group:Group = None):
   # draw_border(group)
@@ -71,40 +85,37 @@ def draw_triangle(params:TriangleParams, group:Group = None):
   right = center.add_copy(right_delta)
 
   # Adjust points and clamp to pad
-  top = create_adjusted_point(pad_rect, top, params.top_range_x, params.top_range_y)
-  left = create_adjusted_point(pad_rect, left, params.side_range_x, params.side_range_y)
-  right = create_adjusted_point(pad_rect, right, params.side_range_x, params.side_range_y)
+  top = _create_adjusted_point(pad_rect, top, params)
+  left = _create_adjusted_point(pad_rect, left, params)
+  right = _create_adjusted_point(pad_rect, right, params)
 
-  # Recalc center
-  cx = (top.x + left.x + right.x) / 3
-  cy = (top.y + left.y + right.y) / 3
-  center = Point(cx, cy)
+  # Collect final corners, find center
+  corners = [top, right, left]
+  center = average_point(corners)
 
-  # Find length
-  top_delta = top.subtract_copy(center)
-  left_delta = left.subtract_copy(center)
-  right_delta = right.subtract_copy(center)
-  max_len = min(top_delta.length(), left_delta.length(), right_delta.length()) - params.shrink_amt
+  # Find the shortest distance to center
+  min_dist = maxsize
+  for corner in corners:
+    delta = center.subtract_copy(corner)
+    dist = delta.length()
+    min_dist = min(dist, min_dist)
 
-  i = 0
-  while (True):
-    points: List[Point] = []
-    shrink = i * params.shrink_amt
+  # Separate into steps
+  count = floor(min_dist / params.step_size)
 
-    top_shrunk = shrink_vec(top, center, shrink)
-    left_shrunk = shrink_vec(left, center, shrink)
-    right_shrunk = shrink_vec(right, center, shrink)
+  # Create point arrays
+  all_points: List[List[Point]] = []
+  for i in range(0, count):
+    scale = 1 - (i / count)
+    points = _draw_scaled_triangle(center, corners, scale)
+    all_points.append(points)
 
-    points.append(top_shrunk)
-    points.append(left_shrunk)
-    points.append(right_shrunk)
-    points.append(top_shrunk)
-    i = i + 1
+  # Draw points
+  if params.draw_triangles:
+    # hatch_params = HatchParams(10, 5)
+    hatch_params = HatchParams(RangeInt(10, 30), RangeInt(2, 2))
 
-    # draw_point_circles(points, group)
-    if params.draw_triangles:
-      draw_point_path(points, group)
-
-    if shrink >= max_len:
-      break
+    for points in all_points:
+      # draw_point_path(points, group)
+      draw_point_path_hatched(points, hatch_params, group)
 
