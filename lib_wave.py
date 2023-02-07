@@ -17,7 +17,10 @@ class VerticalWaveParams:
     self.col_range: RangeInt = RangeInt(5, 10)
     self.wave_range: float = 100
     self.wave_y_range: float = 30
-    self.step_size: int = 5
+    self.step_size: int = 2
+    self.hatch: bool = True
+    self.hatch_range_on: RangeInt = RangeInt(5, 25)
+    self.hatch_range_off: RangeInt = RangeInt(1, 2)
 
 
 class _Wave:
@@ -156,11 +159,29 @@ def draw_wave(params:VerticalWaveParams, group:Group = None):
   if params.draw:
     for col in range(0, len(final_points)):
       column = final_points[col]
-      first = column[0]
-      path = f"M{first.x} {first.y}"
-      for row in range(1, len(column) - 1, 2):
-        control = column[row]
-        point = column[row + 1]
-        path += f"Q{control.x} {control.y} {point.x} {point.y}"
-      draw_path(path)
+
+      if not params.hatch:
+        first = column[0]
+        path = f"M{first.x} {first.y}"
+        for row in range(1, len(column) - 1, 2):
+          control = column[row]
+          point = column[row + 1]
+          path += f"Q{control.x} {control.y} {point.x} {point.y}"
+        draw_path(path)
+      else:
+        hatch_params = HatchParams(params.hatch_range_on, params.hatch_range_off)
+
+        all_points: List[Point] = []
+        # Collect all the subdivided curves into a single point array
+        p0 = column[0]
+        for row in range(1, len(column) - 1, 2):
+          control = column[row]
+          p1 = column[row + 1]
+          subdivide_quadratic(p0, p1, control, 5, all_points)
+          p0 = p1
+
+        # draw_point_path(all_points)
+        draw_point_path_hatched(all_points, hatch_params, group)
+
+
 

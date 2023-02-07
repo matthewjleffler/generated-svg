@@ -101,13 +101,40 @@ def _add_points_along_line(p0:Point, p1:Point, size:float, next_size:float, step
 
   add_nondup_position(p1.x, p1.y, next_size, positions)
 
-
-def _add_points_along_curve(p0:Point, p1:Point, control:Point, size:float, next_size:float, step_dist:float, positions:List[Position]):
-  # Calculate rough distance
+def bezier_length_simple(p0:Point, p1:Point, control:Point) -> float:
   vector = p1.subtract_copy(control)
   length = vector.length()
   vector = control.subtract_copy(p0)
   length += vector.length()
+  return length
+
+def bezier_length_fine(p0:Point, p1:Point, control:Point) -> float:
+  length = 0
+  last = p0
+  subd = 10
+  for i in range(1, subd + 1):
+    t = i / subd
+    point = _step_along_quadratic(p0, p1, control, t)
+    delta = point.subtract_copy(last)
+    length += delta.length()
+    last = point
+  return length
+
+def subdivide_quadratic(p0:Point, p1:Point, control:Point, step_dist:float, result:List[Point]):
+  length = bezier_length_fine(p0, p1, control)
+  steps = floor(length / step_dist)
+
+  for i in range(0, steps + 1):
+    t = i / steps
+    point = _step_along_quadratic(p0, p1, control, t)
+    result.append(point)
+
+  clean_duplicates(result)
+
+
+def _add_points_along_curve(p0:Point, p1:Point, control:Point, size:float, next_size:float, step_dist:float, positions:List[Position]):
+  # Calculate rough distance
+  length = bezier_length_simple(p0, p1, control)
   steps = floor(length / step_dist)
 
   for i in range(0, steps):
@@ -140,46 +167,51 @@ class HatchParams:
     return self.off_range.rand()
 
 
+class HatchState:
+  def __init__(self) -> None:
+    self.current = 0
+    self.on = True
+
+  def set_on_state(self, on:bool, params:HatchParams):
+    self.on = on
+    if on:
+      self.current = params.on_range.rand()
+    else:
+      self.current = params.off_range.rand()
+
 def draw_point_path_hatched(points:List[Point], params:HatchParams, group:Group = None):
+  hatch = HatchState()
+  hatch.set_on_state(True, params)
+
   last = points[0]
+  last_m = Point(last.x, last.y)
+  path = ""
   for i in range(1, len(points)):
     next = points[i]
-    _hatch_line(last, next, params, group)
-    last = next
+    delta = next.subtract_copy(last)
+    segment_len = delta.length()
+    delta.normalize()
+    current_point = last.copy()
 
+    while segment_len > 0:
+      step_len = min(segment_len, hatch.current)
 
-def _hatch_line(p0:Point, p1:Point, params:HatchParams, group:Group = None):
-  delta = p1.subtract_copy(p0)
-  total_len = delta.length()
-  cur_len = 0
-  delta.normalize()
-  last = p0
-  path = ""
-  while cur_len < total_len:
-    # On
-    on = params.on()
-    cur_len += on
-    on_delta = delta.multiply_copy(on)
-    next = last.add_copy(on_delta)
-    if cur_len >= total_len:
-      next = p1
-    path += "M{} {}L{} {}".format(
-      round(last.x, _size_digits),
-      round(last.y, _size_digits),
-      round(next.x, _size_digits),
-      round(next.y, _size_digits)
-    )
-    if cur_len >= total_len:
-      # Done
-      break
-    # Off
-    off = params.off()
-    cur_len += off
-    off_delta = delta.multiply_copy(off)
-    next = next.add_copy(off_delta)
-    if cur_len >= total_len:
-      # Done
-      break
+      change_point = delta.multiply_copy(step_len)
+      current_point = current_point.add_copy(change_point)
+
+      if hatch.on:
+        if last_m is not None:
+          path += f"M{round(last_m.x, _size_digits)} {round(last_m.y, _size_digits)}"
+          last_m = None
+        path += f"L{round(current_point.x, _size_digits)} {round(current_point.y, _size_digits)}"
+      else:
+        last_m = Point(current_point.x, current_point.y)
+
+      segment_len -= step_len
+      hatch.current -= step_len
+      if hatch.current <= 0:
+        hatch.set_on_state(not hatch.on, params)
+
     last = next
   draw_path(path, group)
 

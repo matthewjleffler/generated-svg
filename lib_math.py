@@ -29,6 +29,9 @@ class Point:
     self.x /= self_len
     self.y /= self_len
 
+  def copy(self):
+    return Point(self.x, self.y)
+
   def multiply(self, scale:float):
     self.x *= scale
     self.y *= scale
