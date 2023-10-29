@@ -20,6 +20,11 @@ class Position:
   def point(self) -> Point:
     return Point(self.x, self.y)
 
+def offest_point_path(original:List[Point], offset:Point) -> List[Point]:
+  result: List[Point] = []
+  for val in original:
+    result.append(Point(val.x + offset.x, val.y + offset.y))
+  return result
 
 def subdivide_point_path(rough:List[Point], sub_count:RangeInt, ignored_indexes: List[int] = []) -> List[Point]:
   last = rough[0]

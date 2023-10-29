@@ -1,4 +1,5 @@
 from math import *
+from lib_rand import *
 
 ###
 ### Math Helpers
@@ -41,6 +42,10 @@ class Point:
     result.multiply(scale)
     return result
 
+  def add(self, other):
+    self.x += other.x
+    self.y += other.y
+
   def add_copy(self, other):
     return Point(self.x + other.x, self.y + other.y)
 
@@ -67,10 +72,12 @@ class Point:
 
 
 class Line:
-  def __init__(self, p1:Point, p2:Point) -> None:
-    self.a = (p1.y - p2.y)
-    self.b = (p2.x - p1.x)
-    self.c = -(p1.x*p2.y - p2.x*p1.y)
+  def __init__(self, p0:Point, p1:Point) -> None:
+    self.p0 = p0.copy()
+    self.p1 = p1.copy()
+    self.a = (p0.y - p1.y)
+    self.b = (p1.x - p0.x)
+    self.c = -(p0.x*p1.y - p1.x*p0.y)
 
 
 class Rect:
@@ -79,6 +86,8 @@ class Rect:
     self.y = y
     self.w = w
     self.h = h
+    self.range_x = RangeInt(self.x, self.x + self.w)
+    self.range_y = RangeInt(self.y, self.y + self.h)
 
   def __repr__(self) -> str:
     return f"[Rect] x:{self.x} y:{self.y} w:{self.w} h:{self.h} cx:{self.center_x()} cy:{self.center_y()} r:{self.right()} b:{self.bottom()}"
