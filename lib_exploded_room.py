@@ -1,6 +1,7 @@
 from lib import *
 from lib_math import *
 from lib_path import *
+from lib_poly import *
 from typing import List
 
 ###
@@ -13,12 +14,13 @@ class ExplodedRoomParams:
     self.slope: int = 100
     self.perspective_skew: RangeFloat = RangeFloat(0.1, 0.3)
     self.height: RangeFloat = RangeFloat(0.5, 0.8)
-    self.wall_width: RangeFloat = RangeFloat(0.1, 0.6)
-    self.wall_inset: RangeFloat = RangeFloat(0.01, 0.4)
+    self.wall_width: RangeFloat = RangeFloat(0.1, 0.8)
+    self.wall_inset_left: RangeFloat = RangeFloat(0.01, 0.1)
+    self.wall_inset_right: RangeFloat = RangeFloat(0.01, 0.2)
     self.wall_bottom_inset: RangeFloat = RangeFloat(0.01, 0.4)
-    self.row: RangeInt = RangeInt(1, 20)
-    self.col: RangeInt = RangeInt(1, 30)
-    self.split_pad = 10
+    self.row: RangeInt = RangeInt(1, 30)
+    self.col: RangeInt = RangeInt(1, 40)
+    self.split_pad: RangeInt = RangeInt(5, 10)
 
 
 def _offset_skew(skew:int, offset:Point, params: ExplodedRoomParams) -> Line:
@@ -82,8 +84,8 @@ def _draw_room(skew:int, common_height:float, rect:Rect, params:ExplodedRoomPara
   # Create inset points
   wall_left_len = bot_out_bl_point.subtract_copy(bot_out_tl_point).length()
   wall_right_len = bot_out_bl_point.subtract_copy(bot_out_br_point).length()
-  wall_inset_left = wall_left_len * params.wall_inset.rand()
-  wall_inset_right = wall_right_len * params.wall_inset.rand()
+  wall_inset_left = wall_left_len * params.wall_inset_left.rand()
+  wall_inset_right = wall_right_len * params.wall_inset_right.rand()
   top_left_inset_line = _horizontal_line(top_in_path[0].y + wall_inset_left)
   top_left_inset_in = _skew_intersect(skew, top_in_path[0], top_left_inset_line, params)
   top_left_inset_out = _skew_intersect(skew, top_out_path[0], top_left_inset_line, params)
@@ -100,37 +102,38 @@ def _draw_room(skew:int, common_height:float, rect:Rect, params:ExplodedRoomPara
   mid_right_inset_in = mid_in_path[2].add_copy(Point(-wall_inset_right, 0))
   mid_right_inset_out = _skew_intersect(skew, mid_right_inset_in, mid_right_inset_line, params)
 
-  # Create back clip points
-  inset_left_line = Line(top_left_inset_in, mid_left_inset_in)
-  back_left_clip_inset = line_intersection(inset_left_line, bot_in_back_line)
-  back_left_clip_inset_slope = _skew_intersect(skew, mid_left_inset_in, bot_in_back_line, params)
-  if back_left_clip_inset.x > back_left_clip_inset_slope.x:
-    back_left_clip = back_left_clip_inset
-  else:
-    back_left_clip = back_left_clip_inset_slope
+  # Outer rim
+  rim = to_polygon([
+    top_out_path[0],
+    top_out_path[1],
+    top_out_path[2],
+    bot_out_path[2],
+    bot_out_path[3],
+    bot_out_path[0],
+  ],[[
+    top_in_path[0],
+    top_in_path[1],
+    top_in_path[2],
+    top_right_inset_in,
+    mid_right_inset_in,
+    mid_in_path[3],
+    mid_left_inset_in,
+    top_left_inset_in,
+  ]])
 
-  inset_right_line = Line(top_right_inset_in, mid_right_inset_in)
-  back_right_clip_corner = bot_in_path[1]
-  back_right_clip_wall = line_intersection(bot_in_back_line, inset_right_line)
-  if back_right_clip_corner.x < back_right_clip_wall.x:
-    back_right_clip = back_right_clip_corner
-  else:
-    back_right_clip = back_right_clip_wall
-
-  top_inner_line = _horizontal_line(top_in_path[2].y)
-  back_corner_line = Line(top_in_path[1], bot_in_path[1])
-  back_corner_clip_corner = bot_in_path[1]
-  back_corner_clip_wall = line_intersection(back_corner_line, top_inner_line)
-  if back_corner_clip_corner.x < top_right_inset_in.x:
-    back_corner_clip = back_corner_clip_corner
-  else:
-    back_corner_clip = back_corner_clip_wall
-
-  inner_clip_right = _skew_intersect(skew, bot_in_tr_point, inset_right_line, params)
-  inset_bottom_line = _horizontal_line(mid_in_path[2].y)
-  inner_clip_right_inset_bottom = _skew_intersect(skew, bot_in_tr_point, inset_bottom_line, params)
-  if inner_clip_right_inset_bottom.y < inner_clip_right.y:
-    inner_clip_right = inner_clip_right_inset_bottom
+  # Clip corners
+  try:
+    back_corner = poly_diff(top_in_path[1], bot_in_path[1], rim)
+    left_corner = poly_diff(bot_in_path[0], bot_in_path[1], rim)
+    right_corner = poly_diff(bot_in_path[2], bot_in_path[1], rim)
+  except:
+    back_corner = []
+    left_corner = []
+    right_corner = []
+    print("Failed")
+    print(wall_inset_left)
+    print(wall_left_len)
+    draw_circ_point(bot_center, 5, group)
 
   # Draw result
   if params.draw:
@@ -188,25 +191,13 @@ def _draw_room(skew:int, common_height:float, rect:Rect, params:ExplodedRoomPara
       top_right_inset_in,
     ], group)
 
-    # Back corner
-    draw_point_path([
-      top_in_path[1],
-      back_corner_clip,
-    ], group)
-
-    # Right back wall
-    if top_in_path[1].x < top_right_inset_in.x:
-      draw_point_path([
-        inner_clip_right,
-        bot_in_path[1],
-      ], group)
-
-    # Left back wall
-    if back_left_clip.y < mid_in_path[2].y:
-      draw_point_path([
-        back_right_clip,
-        back_left_clip,
-      ], group)
+    # Back corners
+    if len(back_corner) > 0:
+      draw_point_path(back_corner, group)
+    if len(left_corner) > 0:
+      draw_point_path(left_corner, group)
+    if len(right_corner) > 0:
+      draw_point_path(right_corner, group)
 
     # Front edge
     draw_point_path([
@@ -222,13 +213,13 @@ def draw_exploded_room(params: ExplodedRoomParams, group:Group = None):
   row = params.row.rand()
   col = params.col.rand()
 
-  width = (safe.w - (col - 1) * params.split_pad) / col
-  height = (safe.h - (row - 1) * params.split_pad) / row
+  split_pad = params.split_pad.rand()
+  width = (safe.w - (col - 1) * split_pad) / col
+  height = (safe.h - (row - 1) * split_pad) / row
   skew = params.perspective_skew.rand() * width
   common_height = params.height.rand()
 
   for r in range(0 ,row):
     for c in range(0, col):
-      rect = Rect(safe.x + (width + params.split_pad) * c, safe.y + (height + params.split_pad) * r, width, height)
+      rect = Rect(safe.x + (width + split_pad) * c, safe.y + (height + split_pad) * r, width, height)
       _draw_room(skew, common_height, rect, params, group)
-
