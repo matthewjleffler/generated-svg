@@ -110,6 +110,9 @@ class Rect:
   def contains_point(self, point:Point) -> bool:
     return self.contains(point.x, point.y)
 
+  def copy(self):
+    return Rect(self.x, self.y, self.w, self.h)
+
   def shrink_xy_copy(self, amount_x:float, amount_y:float):
     return Rect(self.x + amount_x, self.y + amount_y, self.w - amount_x * 2, self.h - amount_y * 2)
 
