@@ -13,13 +13,13 @@ class ExplodedRoomParams:
     self.draw: bool = True
     self.slope: int = 100
     self.skew_height: RangeFloat = RangeFloat(0.1, 0.3)
-    self.perspective_skew: RangeFloat = RangeFloat(0.1, 0.3)
+    self.perspective_skew: RangeFloat = RangeFloat(0.2, 0.5)
     self.wall_width: RangeFloat = RangeFloat(0.1, 0.8)
     self.wall_inset_left: RangeFloat = RangeFloat(0.01, 0.1)
     self.wall_inset_right: RangeFloat = RangeFloat(0.01, 0.2)
     self.wall_bottom_inset: RangeFloat = RangeFloat(0.01, 0.4)
-    self.row: RangeInt = RangeInt(1, 30)
-    self.col: RangeInt = RangeInt(1, 40)
+    self.row: RangeInt = RangeInt(1, 20)
+    self.col: RangeInt = RangeInt(1, 30)
     self.height_adjust: RangeFloat = RangeFloat(-.2, .1)
     self.split_pad_x: RangeFloat = RangeFloat(-.05, .2)
     self.split_pad_y: RangeFloat = RangeInt(-10, 10)
@@ -40,12 +40,20 @@ def _draw_clip_line(
     clip:List[shapely.geometry.Polygon],
     group: Group
 ):
+  extra: List[Point] = []
   line = [p0, p1]
   for poly in clip:
-    line = poly_diff(line[0], line[1], poly)
+    diff = poly_diff(line[0], line[1], poly)
+    line = diff[0]
+    for i in range(1, len(diff)):
+      extra.append(diff[i])
     if len(line) < 1:
-      return
-  draw_point_path(line, group)
+      break
+  if len(line) > 0:
+    clamp_point_list(1, line)
+    draw_point_path(line, group)
+  for ext in extra:
+    _draw_clip_line(ext[0], ext[1], clip, group)
 
 def _draw_clip_path(path: List[Point], clip:List[shapely.geometry.Polygon], group: Group):
   for i in range(0, len(path) - 1):
@@ -237,7 +245,9 @@ def draw_exploded_room(params: ExplodedRoomParams, group:Group = None):
 
   orig_width = pad.w / col
 
-  split_pad_x = max(orig_width * params.split_pad_x.rand(), 10)
+  split_pad_x = orig_width * params.split_pad_x.rand()
+  if split_pad_x > 0:
+    split_pad_x = max(split_pad_x, 10)
   split_pad_y = params.split_pad_y.rand()
   width = (pad.w - (col - 1) * split_pad_x) / col
   height = (pad.h - (row - 1) * split_pad_y) / row
