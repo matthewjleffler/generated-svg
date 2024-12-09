@@ -73,12 +73,20 @@ def shuffle_points(range_x:float, range_y:float, points:List[Point]):
     point.y += change_y
 
 
-def add_nondup_position(x:float, y:float, size:float, array:List[Position]):
+def add_nondup_position(
+    x:float,
+    y:float,
+    size:float,
+    array:List[Position],
+    deltaRange:int = 1
+  ):
   x = round(x, _round_digits)
   y = round(y, _round_digits)
   size = round(size, _size_digits)
   for item in array:
-    if item.x == x and item.y == y and item.size == size:
+    delta = item.point().subtract_floats(x, y).length()
+    # print(deltaRange, delta)
+    if delta < deltaRange and item.size == size:
       return
   array.append(Position(x, y, size))
 
@@ -89,7 +97,15 @@ def _step_along_quadratic(start:float, end:float, control:Point, t:float) -> Poi
   return Point(x, y)
 
 
-def _add_points_along_line(p0:Point, p1:Point, size:float, next_size:float, step_dist:float, positions:List[Position]):
+def _add_points_along_line(
+    p0:Point,
+    p1:Point,
+    size:float,
+    next_size:float,
+    step_dist:float,
+    positions:List[Position],
+    deltaRange:int
+  ):
   vector = p1.subtract_copy(p0)
   length = vector.length()
   vector.normalize()
@@ -98,13 +114,11 @@ def _add_points_along_line(p0:Point, p1:Point, size:float, next_size:float, step
   copy_len = copy.length()
   while copy_len < length:
     step_size = ease_in_out_quad(copy_len, size, next_size - size, length)
-    # step_size = lerp(size, next_size, copy_len / length)
-
-    add_nondup_position(p0.x + copy.x, p0.y + copy.y, step_size, positions)
+    add_nondup_position(p0.x + copy.x, p0.y + copy.y, step_size, positions, deltaRange)
     copy = vector.multiply_copy(copy_len + step_dist)
     copy_len = copy.length()
 
-  add_nondup_position(p1.x, p1.y, next_size, positions)
+  add_nondup_position(p1.x, p1.y, next_size, positions, deltaRange)
 
 def bezier_length_simple(p0:Point, p1:Point, control:Point) -> float:
   vector = p1.subtract_copy(control)
@@ -137,7 +151,16 @@ def subdivide_quadratic(p0:Point, p1:Point, control:Point, step_dist:float, resu
   clean_duplicates(result)
 
 
-def _add_points_along_curve(p0:Point, p1:Point, control:Point, size:float, next_size:float, step_dist:float, positions:List[Position]):
+def _add_points_along_curve(
+    p0:Point,
+    p1:Point,
+    control:Point,
+    size:float,
+    next_size:float,
+    step_dist:float,
+    positions:List[Position],
+    deltaRange:int
+  ):
   # Calculate rough distance
   length = bezier_length_simple(p0, p1, control)
   steps = floor(length / step_dist)
@@ -145,14 +168,11 @@ def _add_points_along_curve(p0:Point, p1:Point, control:Point, size:float, next_
   for i in range(0, steps):
     t = i / steps
     point = _step_along_quadratic(p0, p1, control, t)
-
     step_size = ease_in_out_quad(t, size, next_size - size, 1)
-    # step_size = lerp(size, next_size, t)
-
-    add_nondup_position(point.x, point.y, step_size, positions)
+    add_nondup_position(point.x, point.y, step_size, positions, deltaRange)
 
   # Finish with final point
-  add_nondup_position(p1.x, p1.y, next_size, positions)
+  add_nondup_position(p1.x, p1.y, next_size, positions, deltaRange)
 
 
 def draw_point_circles(points:List[Point], group:Group = None):
@@ -271,11 +291,11 @@ def generate_centerpoints(points:List[Point]) -> List[Point]:
   return centers
 
 
-def generate_final_positions(points: List[Point], centers: List[Point], size_end:float, size_range:RangeInt, step_dist:float) -> List[Position]:
+def generate_final_positions(points: List[Point], centers: List[Point], size_end:float, size_range:RangeInt, step_dist:float, deltaRange:int = 1) -> List[Position]:
   positions: List[Position] = []
 
   # Start point
-  add_nondup_position(points[0].x, points[0].y, size_end, positions)
+  add_nondup_position(points[0].x, points[0].y, size_end, positions, deltaRange)
   size = size_end
   next_size = 0
 
@@ -289,20 +309,33 @@ def generate_final_positions(points: List[Point], centers: List[Point], size_end
       # Draw straight line in beginning
       p0 = points[i - 1]
       p1 = centers[i - 1]
-      _add_points_along_line(p0, p1, size, next_size, step_dist, positions)
+      _add_points_along_line(p0, p1, size, next_size, step_dist, positions, deltaRange)
     elif i == len(points):
       # Draw straight line at end
       p0 = centers[i - 2]
       p1 = points[i - 1]
-      _add_points_along_line(p0, p1, size, next_size, step_dist, positions)
+      _add_points_along_line(p0, p1, size, next_size, step_dist, positions, deltaRange)
     else:
       # Draw along quadratic bezier curve for each other step
       p0 = centers[i - 2]
       p1 = centers[i - 1]
       control = points[i - 1]
-      _add_points_along_curve(p0, p1, control, size, next_size, step_dist, positions)
+      _add_points_along_curve(p0, p1, control, size, next_size, step_dist, positions, deltaRange)
 
     size = next_size
 
   return positions
 
+# TODOML switch this to be first
+def generate_final_points(
+    points: List[Point],
+    centers: List[Point],
+    step_dist:float,
+    deltaRange:int = 1
+  ) -> List[Point]:
+  size_range = RangeInt(1, 1)
+  positions = generate_final_positions(points, centers, 1, size_range, step_dist, deltaRange)
+  result: List[Point] = []
+  for pos in positions:
+    result.append(pos.point())
+  return result
