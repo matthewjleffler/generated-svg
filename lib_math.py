@@ -1,5 +1,6 @@
 from math import *
 from lib_rand import *
+from typing import List
 
 ###
 ### Math Helpers
@@ -28,7 +29,7 @@ class Point:
   def normalize(self) -> 'Point':
     self_len = self.length()
     if self_len <= 0:
-      return
+      return Point(0, 0)
     self.x /= self_len
     self.y /= self_len
     return self
@@ -111,6 +112,18 @@ class Line:
     dx = self.p1.x - self.p0.x
     dy = self.p1.y - self.p0.y
     return Point(dy, -dx).normalize()
+
+  def points(self) -> List[Point]:
+    return [self.p0, self.p1]
+
+  def vec(self) -> Point:
+    return self.p1.subtract_copy(self.p0).normalize()
+
+  def length(self) -> float:
+    return self.p1.subtract_copy(self.p0).length()
+
+  def dot(self, other: 'Line') -> float:
+    return self.vec().dot(other.vec())
 
 
 class Rect:
