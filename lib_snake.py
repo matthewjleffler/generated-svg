@@ -31,6 +31,8 @@ class SnakeParams:
     self.spine_shuffle: float = .1
     self.smoothing_steps: int = 10
     self.smoothing_range: int = 3
+    self.draw_ribs: bool = True
+    self.draw_spine: bool = True
 
 
 class SnakeNode:
@@ -328,10 +330,11 @@ def draw_snake(params: SnakeParams, group: Group = None):
 
   # Draw Result
   for snake in final.list:
-    draw_curved_path(snake.points, snake.centers, group)
-    if params.draw_head:
-      head_point = snake.points[0]
-      draw_circ(head_point.x, head_point.y, 20, group)
+    if params.draw_spine:
+      draw_curved_path(snake.points, snake.centers, group)
+      if params.draw_head:
+        head_point = snake.points[0]
+        draw_circ(head_point.x, head_point.y, 20, group)
 
     for node in snake.list:
       for ribline in node.lines:
@@ -352,4 +355,5 @@ def draw_snake(params: SnakeParams, group: Group = None):
           ribs_subdivide[i].subtract(shuffle)
 
         ribs_subdivide_centers = generate_centerpoints(ribs_subdivide)
-        draw_curved_path(ribs_subdivide, ribs_subdivide_centers, group)
+        if params.draw_ribs:
+          draw_curved_path(ribs_subdivide, ribs_subdivide_centers, group)
