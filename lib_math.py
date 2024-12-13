@@ -103,6 +103,9 @@ class Line:
     self.b = (p1.x - p0.x)
     self.c = -(p0.x*p1.y - p1.x*p0.y)
 
+  def __repr__(self) -> str:
+    return f"[Line] x0:{self.p0.x} y0:{self.p0.y} x1:{self.p1.x} y1:{self.p1.y}"
+
   def normal(self) -> Point:
     dx = self.p1.x - self.p0.x
     dy = self.p1.y - self.p0.y
@@ -124,6 +127,18 @@ class Line:
 
   def dot(self, other: 'Line') -> float:
     return self.vec().dot(other.vec())
+
+  def add(self, delta: Point) -> 'Line':
+    self.p0.add(delta)
+    self.p1.add(delta)
+    return self
+
+  def multiply(self, scale: Point) -> 'Line':
+    self.p0.x *= scale.x
+    self.p1.x *= scale.x
+    self.p0.y *= scale.y
+    self.p1.y *= scale.y
+    return self
 
 
 class Rect:

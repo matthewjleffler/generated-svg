@@ -11,21 +11,22 @@ from typing import List
 class SnakeParams:
   def __init__(self) -> None:
     self.draw: bool = True
+    self.pad: int = 50
+    self.full: bool = False # TODOML hook up
     self.draw_head: bool = True
-    self.row: RangeInt = RangeInt(3, 10)
-    self.diff: RangeInt = RangeInt(0, 10)
+    self.row: RangeInt = RangeInt(2, 5)
+    self.diff: RangeInt = RangeInt(0, 3)
     self.shuffle: RangeFloat = RangeFloat(.001, .5)
     self.do_shuffle: bool = True
     self.min_len: int = 3
-    self.step_dist: int = 10
+    self.step_dist: int = 5
     self.size_start: int = 5
     self.size_increase: int = 5
     self.dot_threshhold: float = -.5
     self.delta_threshold: float = 20
     self.index_range: int = 40
-    self.falloff: float = .1
+    self.falloff: float = .01
     self.min_falloff: int = 0
-    self.final_step_dist: int = 5
     self.spine_count: RangeInt = RangeInt(5, 5)
     self.do_spine_shuffle: bool = True
     self.spine_shuffle: float = .1
@@ -77,10 +78,18 @@ class SnakeList:
     return snake
 
 
-def _x_y_to_index(x, y, w):
+class Connect:
+  def __init__(self) -> None:
+    self.right = False
+    self.left = False
+    self.up = False
+    self.down = False
+
+
+def _x_y_to_index(x: int, y: int, w: int) -> int:
   return y * w + x
 
-def _index_to_x_y(index, w):
+def _index_to_x_y(index: int, w: int) -> tuple[int, int]:
   return (int(index % w), int(index / w))
 
 def _pick_remaining(available: List[bool], w: int) -> Point:
@@ -178,68 +187,162 @@ def check_other_points(
   return True
 
 
+def visit(index: int, row: int, col: int, grid: List[bool], edges: List[tuple[int, int]]) -> None:
+  grid[index] = True
+  (x, y) = _index_to_x_y(index, col)
+  neighbors: List[int] = []
+  if x > 0:
+    neighbors.append(_x_y_to_index(x - 1, y, col))
+  if y > 0:
+    neighbors.append(_x_y_to_index(x, y - 1, col))
+  if x < col - 1:
+    neighbors.append(_x_y_to_index(x + 1, y, col))
+  if y < row - 1:
+    neighbors.append(_x_y_to_index(x, y + 1, col))
+  order = []
+  while len(neighbors) > 0:
+    n = RangeInt(0, len(neighbors) - 1).rand()
+    neighbor = neighbors.pop(n)
+    order.append(neighbor)
+    if grid[neighbor]:
+      continue
+    edges.append((index, neighbor))
+    visit(neighbor, row, col, grid, edges)
+
+
+def spanning_tree(row: int, col: int, total: int) -> List[tuple[int, int]]:
+  grid = [False] * total
+  edges: List[tuple[int, int]] = []
+  start = RangeInt(0, total - 1).rand()
+  visit(start, row, col, grid, edges)
+  return edges
+
+def _index2(i: int, dcol: int, drow: int, w: int, w2: int) -> int:
+  [x, y] = _index_to_x_y(i, w)
+  return (y * 2 + drow) * w2 + x * 2 + dcol
+
+def hamiltonian_from_spanning_tree(col: int, col2: int, total2: int, connect: List[Connect]) -> List[int]:
+  edges2: List[tuple[int, int]] = []
+  for i in range(0, len(connect)):
+    cell = connect[i]
+    if cell.right:
+      edges2.append((_index2(i, 1, 0, col, col2), _index2(i, 2, 0, col, col2)))
+      edges2.append((_index2(i, 1, 1, col, col2), _index2(i, 2, 1, col, col2)))
+    else:
+      edges2.append((_index2(i, 1, 0, col, col2), _index2(i, 1, 1, col, col2)))
+    if not cell.left:
+      edges2.append((_index2(i, 0, 0, col, col2), _index2(i, 0, 1, col, col2)))
+    if cell.down:
+      edges2.append((_index2(i, 0, 1, col, col2), _index2(i, 0, 2, col, col2)))
+      edges2.append((_index2(i, 1, 1, col, col2), _index2(i, 1, 2, col, col2)))
+    else:
+      edges2.append((_index2(i, 0, 1, col, col2), _index2(i, 1, 1, col, col2)))
+    if not cell.up:
+      edges2.append((_index2(i, 0, 0, col, col2), _index2(i, 1, 0, col, col2)))
+  link: List[List[int]] = []
+  visited: List[int] = []
+  for i in range(total2):
+    link.append([])
+    visited.append(False)
+  for (i, j) in edges2:
+    link[i].append(j)
+    link[j].append(i)
+  j = 0
+  path: List[int] = []
+  for _ in range(0, len(edges2)):
+    path.append(j)
+    visited[j] = True
+    if visited[link[j][0]]:
+      j = link[j][1]
+    else:
+      j = link[j][0]
+  return path
+
 def draw_snake(params: SnakeParams, group: Group = None):
   # draw_border(group)
 
-  pad = svg_safe().copy()
+  max_pad = svg_safe().copy()
+  pad = svg_safe().shrink_copy(params.pad)
+
+  # draw_rect(pad.x, pad.y, pad.w, pad.h, group)
+
   row = params.row.rand()
+  row2 = row * 2
   diff = params.diff.rand()
   col = row + diff
+  col2 = col * 2
   total = row * col
-  remaining = total
+  total2 = row2 * col2
 
-  node_w = pad.w / (row)
-  node_h = pad.h / (col)
+  # print(col, row)
+
+  node_w = pad.w / (col2)
+  node_h = pad.h / (row2)
   half_w = node_w / 2
   half_h = node_h / 2
-  min_w = min(half_w, half_h)
 
-  # Create nodes
-  available: List[bool] = [True] * total
-  lines: List[List[Point]] = []
-  while remaining > 0:
-    next = _pick_remaining(available, row) # pick randomly from remaining
-    available[_x_y_to_index(next.x, next.y, row)] = False
-    remaining -= 1
-    line: List[Point] = [next]
-    lines.append(line)
-    while True:
-      near = _find_near(next.x, next.y, available, row, col) # Check available nearby and add to this list
-      if len(near) < 1:
-        break
-      next = near[rand_int(0, len(near) - 1)] # Pick random nearby
-      available[_x_y_to_index(next.x, next.y, row)] = False
-      remaining -= 1
-      line.append(next)
+  edges = spanning_tree(row, col, total)
+
+  connect: List[Connect] = []
+  for i in range(0, total):
+    connect.append(Connect())
+
+  for (i0, i1) in edges:
+    f0 = i0
+    f1 = i1
+    if i0 > i1:
+      f0 = i1
+      f1 = i0
+    y0 = _index_to_x_y(f0, col)[1]
+    y1 = _index_to_x_y(f1, col)[1]
+    if y0 == y1:
+      connect[f0].right = connect[f1].left = True
+    else:
+      connect[f0].down = connect[f1].up = True
+
+  # for (i0, i1) in edges:
+  #   (x0, y0) = _index_to_x_y(i0, col)
+  #   (x1, y1) = _index_to_x_y(i1, col)
+  #   line = Line(Point(x0, y0), Point(x1, y1))
+  #   draw_point_path(line.multiply(Point(node_w, node_h)).add(Point(pad.x, pad.y)).points(), group)
+  # return
+
+  path = hamiltonian_from_spanning_tree(col, col2, total2, connect)
+
+  # Offset the path randomly
+  offsetPath: List[int] = []
+  pathlen = len(path)
+  offset = RangeInt(0, pathlen - 1).rand()
+  for i in range(0, pathlen):
+    index = (offset + i) % pathlen
+    offsetPath.append(path[index])
+
+  # Scale and shuffle the points
+  line: List[Point] = []
+  for i in offsetPath:
+    (x, y) = _index_to_x_y(i, col2)
+    point = Point(x, y)
+    point.x *= node_w
+    point.y *= node_h
+    point.x += pad.x + half_w
+    point.y += pad.y + half_h
+    if params.do_shuffle:
+      point.x += params.shuffle.rand() * half_w
+      point.y += params.shuffle.rand() * half_h
+    line.append(point)
+
+  # draw_point_path(line)
+  # return
+
+  lines: List[List[Point]] = [line]
 
   if len(lines) < 1:
     print("No lines generated")
     return
 
-  # Scale from checkerboard into image space
-  scaled_lines: List[List[Point]] = []
-  for line in lines:
-    # Not long enough
-    if len(line) < params.min_len:
-      continue
-
-    # Add the padding and scale the point
-    for p in line:
-      s_x = params.shuffle.rand() * half_w
-      s_y = params.shuffle.rand() * half_h
-      if not params.do_shuffle:
-        s_x = 0
-        s_y = 0
-
-      p.x = s_x + pad.x + half_w + p.x * node_w
-      p.y = s_y + pad.y + half_h + p.y * node_h
-
-    # Record the updated line
-    scaled_lines.append(line)
-
   # Generate flowing lines
   final = SnakeList()
-  for line in scaled_lines:
+  for line in lines:
     ribs_subdivide_centers = generate_centerpoints(line)
     points = generate_final_points(line, ribs_subdivide_centers, params.step_dist, 3)
     snake = final.add(line, ribs_subdivide_centers)
@@ -269,17 +372,17 @@ def draw_snake(params: SnakeParams, group: Group = None):
         right = point.x + new_size
 
         # Check against border
-        if top < pad.y:
-          node.end_point = Point(point.x, pad.y)
+        if top < max_pad.y:
+          node.end_point = Point(point.x, max_pad.y)
           continue
-        elif bottom > pad.bottom():
-          node.end_point = Point(point.x, pad.bottom())
+        elif bottom > max_pad.bottom():
+          node.end_point = Point(point.x, max_pad.bottom())
           continue
-        elif left < pad.x:
-          node.end_point = Point(pad.x, point.y)
+        elif left < max_pad.x:
+          node.end_point = Point(max_pad.x, point.y)
           continue
-        elif right > pad.right():
-          node.end_point = Point(pad.right(), point.y)
+        elif right > max_pad.right():
+          node.end_point = Point(max_pad.right(), point.y)
           continue
 
         madeChange = check_other_points(final, snake, node, new_size, params) or madeChange

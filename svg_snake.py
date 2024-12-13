@@ -23,9 +23,10 @@ class SnakeRunner(Runner):
     return params
 
   def run(self, test:bool, seed:int, size:SvgSize) -> int:
-    mainseed = main(self.dir, "combined", test, seed, size, self.loop_main)
-    main(self.dir, "spine", test, mainseed, size, self.loop_spine)
-    main(self.dir, "ribs", test, mainseed, size, self.loop_ribs)
+    mainseed = main(self.dir, "main", test, seed, size, self.loop_main)
+    # mainseed = main(self.dir, "combined", test, seed, size, self.loop_main)
+    # main(self.dir, "spine", test, mainseed, size, self.loop_spine)
+    # main(self.dir, "ribs", test, mainseed, size, self.loop_ribs)
     return mainseed
 
 
