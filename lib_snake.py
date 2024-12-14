@@ -29,7 +29,7 @@ class SnakeParams:
     self.do_spine_shuffle: bool = True
     self.spine_shuffle: float = .1
     self.smoothing_steps: int = 3 # 10
-    self.smoothing_range: int = floor(50 / self.step_dist)
+    self.smoothing_range: int = floor(30 / self.step_dist)
     self.draw_ribs: bool = True
     self.draw_spine: bool = True
 
