@@ -12,26 +12,24 @@ class SnakeParams:
   def __init__(self) -> None:
     self.draw: bool = True
     self.pad: int = 50
-    self.full: bool = False # TODOML hook up
     self.draw_head: bool = True
     self.row: RangeInt = RangeInt(2, 5)
     self.diff: RangeInt = RangeInt(0, 3)
     self.shuffle: RangeFloat = RangeFloat(.001, .5)
     self.do_shuffle: bool = True
-    self.min_len: int = 3
-    self.step_dist: int = 5
+    self.step_dist: int = 2
+    self.min_dist: int = 1
     self.size_start: int = 5
     self.size_increase: int = 5
-    self.dot_threshhold: float = -.5
-    self.delta_threshold: float = 20
-    self.index_range: int = 40
+    self.dot_threshhold: float = 0
+    self.index_range: int = 1000 / self.step_dist
     self.falloff: float = .01
     self.min_falloff: int = 0
     self.spine_count: RangeInt = RangeInt(5, 5)
     self.do_spine_shuffle: bool = True
     self.spine_shuffle: float = .1
-    self.smoothing_steps: int = 10
-    self.smoothing_range: int = 3
+    self.smoothing_steps: int = 3 # 10
+    self.smoothing_range: int = floor(50 / self.step_dist)
     self.draw_ribs: bool = True
     self.draw_spine: bool = True
 
@@ -42,7 +40,6 @@ class SnakeNode:
     self.index = index
     self.size = params.size_start
     self.next: SnakeNode = None
-    self.end_point: Point = None
     self.final_vec: Point = Point(0, 0)
     self.lines: List[Line] = []
 
@@ -179,7 +176,6 @@ def check_other_points(
 
       # Blocked
       delta.normalize().multiply(node.size)
-      node.end_point = node.point.add_copy(delta)
       return False
 
   # Not blocked
@@ -264,7 +260,8 @@ def draw_snake(params: SnakeParams, group: Group = None):
   max_pad = svg_safe().copy()
   pad = svg_safe().shrink_copy(params.pad)
 
-  # draw_rect(pad.x, pad.y, pad.w, pad.h, group)
+  # draw_rect_rect(pad, group)
+  # draw_rect_rect(svg_full())
 
   row = params.row.rand()
   row2 = row * 2
@@ -342,14 +339,19 @@ def draw_snake(params: SnakeParams, group: Group = None):
 
   # Generate flowing lines
   final = SnakeList()
+  sum = 0
   for line in lines:
     ribs_subdivide_centers = generate_centerpoints(line)
-    points = generate_final_points(line, ribs_subdivide_centers, params.step_dist, 3)
+    points = generate_final_points(line, ribs_subdivide_centers, params.step_dist, params.min_dist)
     snake = final.add(line, ribs_subdivide_centers)
-    for i in range(0, len(points)):
+    point_len = len(points)
+    sum += point_len
+    for i in range(0, point_len):
       node = snake.add(points[i], params)
       if i > 0:
         snake.list[i-1].set_next(node)
+
+  print("Nodes:", sum)
 
   # Iterate through each point, increase size until it's out of bounds
   # or no further changes can be made
@@ -359,6 +361,8 @@ def draw_snake(params: SnakeParams, group: Group = None):
   while (madeChange):
     madeChange = False
     iterations += 1
+    if iterations % 5 == 0:
+      print("Running iteration", iterations, "...")
 
     for snake in final.list:
       for node in snake.list:
@@ -373,19 +377,17 @@ def draw_snake(params: SnakeParams, group: Group = None):
 
         # Check against border
         if top < max_pad.y:
-          node.end_point = Point(point.x, max_pad.y)
           continue
         elif bottom > max_pad.bottom():
-          node.end_point = Point(point.x, max_pad.bottom())
           continue
         elif left < max_pad.x:
-          node.end_point = Point(max_pad.x, point.y)
           continue
         elif right > max_pad.right():
-          node.end_point = Point(max_pad.right(), point.y)
           continue
 
         madeChange = check_other_points(final, snake, node, new_size, params) or madeChange
+
+  print("Ran", iterations, "iterations")
 
   # Shrink ends
   for snake in final.list:
