@@ -13,17 +13,17 @@ class SnakeParams:
     self.draw: bool = True
     self.pad: int = 50
     self.draw_head: bool = True
-    self.row: RangeInt = RangeInt(2, 5)
+    self.row: RangeInt = RangeInt(3, 5)
     self.diff: RangeInt = RangeInt(0, 3)
     self.shuffle: RangeFloat = RangeFloat(.001, .5)
     self.do_shuffle: bool = True
-    self.step_dist: int = 2
+    self.step_dist: int = 2 # 2
     self.min_dist: int = 1
     self.size_start: int = 5
     self.size_increase: int = 5
     self.dot_threshhold: float = 0
     self.index_range: int = 1000 / self.step_dist
-    self.falloff: float = .01
+    self.falloff: float = .02
     self.min_falloff: int = 0
     self.spine_count: RangeInt = RangeInt(5, 5)
     self.do_spine_shuffle: bool = True
@@ -42,6 +42,7 @@ class SnakeNode:
     self.next: SnakeNode = None
     self.final_vec: Point = Point(0, 0)
     self.lines: List[Line] = []
+    self.done = False
 
   def set_next(self, next: 'SnakeNode') -> None:
     self.next = next
@@ -65,16 +66,6 @@ class Snake:
     return node
 
 
-class SnakeList:
-  def __init__(self) -> None:
-    self.list: List[Snake] = []
-
-  def add(self, points: List[Point], centers: List[Point]) -> Snake:
-    snake = Snake(points, centers)
-    self.list.append(snake)
-    return snake
-
-
 class Connect:
   def __init__(self) -> None:
     self.right = False
@@ -89,94 +80,31 @@ def _x_y_to_index(x: int, y: int, w: int) -> int:
 def _index_to_x_y(index: int, w: int) -> tuple[int, int]:
   return (int(index % w), int(index / w))
 
-def _pick_remaining(available: List[bool], w: int) -> Point:
-  possible: List[Point] = []
-  for i in range(0, len(available)):
-    if available[i] == False:
-      continue
-    (x, y) = _index_to_x_y(i, w)
-    possible.append(Point(x, y))
-  return possible[rand_int(0, len(possible) - 1)]
 
-def _find_near(x, y, available, w, h):
-  result: List[Point] = []
-  if y > 0 and available[_x_y_to_index(x, y - 1, w)]:
-    result.append(Point(x, y - 1))
-  if x > 0 and available[_x_y_to_index(x - 1, y, w)]:
-    result.append(Point(x - 1, y))
-  if y < h - 1 and available[_x_y_to_index(x, y + 1, w)]:
-    result.append(Point(x, y + 1))
-  if x < w - 1 and available[_x_y_to_index(x + 1, y, w)]:
-    result.append(Point(x + 1, y))
-  return result
-
-
-def find_intersections(line: Line, index: int, other_snake: Snake) -> Point:
-  length = line.length()
-  shortest = length
-  intersection = None
-  for other_node in other_snake.list:
-    other_line = other_node.lines[index]
-    if other_line == line:
-      # Don't compare same line
-      continue
-    new_intersection = line_intersection(line, other_line)
-    if new_intersection is None:
-      continue
-    delta = Line(other_line.p0, new_intersection).length()
-    if delta > other_line.length():
-      continue
-    int_line = Line(line.p0, new_intersection)
-    if int_line.dot(line) < 1:
-      continue
-    delta = int_line.length()
-    if delta > length:
-      continue
-    if delta >= shortest:
-      continue
-    intersection = new_intersection
-    shortest = delta
-
-  return intersection
-
-
-def clamp_sizes(final: SnakeList) -> None:
-  # Check all lines for intersections with each other
-  for snake in final.list:
-    for node in snake.list:
-      for i in range(0, 2):
-        line = node.lines[i]
-        intersection = find_intersections(line, i, snake)
-        if intersection is not None:
-          line.p1 = intersection
-
-
-def check_other_points(
-    final: SnakeList,
+def _check_other_points(
     snake: Snake,
     node: SnakeNode,
     new_size: int,
     params: SnakeParams
   ) -> bool:
-  for snake_other in final.list:
-    for node_other in snake_other.list:
-      if snake == snake_other and node == node_other:
-        # Same node
-        continue
+  for node_other in snake.list:
+    if node == node_other:
+      # Same node
+      continue
 
-      delta = node_other.point.subtract_copy(node.point)
-      if delta.length() > new_size + node_other.size:
-        # Not too close
-        continue
+    delta = node_other.point.subtract_copy(node.point)
+    if delta.length() > new_size + node_other.size:
+      # Not too close
+      continue
 
-      dot = node.vec().dot(node_other.vec())
-      if snake == snake_other and dot >= params.dot_threshhold and abs(node.index - node_other.index) < params.index_range:
-        # Allowed, close enough and part of the same line
-        continue
+    dot = node.vec().dot(node_other.vec())
+    if dot >= params.dot_threshhold and abs(node.index - node_other.index) < params.index_range:
+      # Allowed, close enough and part of the same line
+      continue
 
-      # Blocked
-      delta.normalize().multiply(node.size)
-      return False
+    # Blocked
+    node.done = True
+    return False
 
   # Not blocked
   node.size = new_size
@@ -331,27 +259,17 @@ def draw_snake(params: SnakeParams, group: Group = None):
   # draw_point_path(line)
   # return
 
-  lines: List[List[Point]] = [line]
-
-  if len(lines) < 1:
-    print("No lines generated")
-    return
-
   # Generate flowing lines
-  final = SnakeList()
-  sum = 0
-  for line in lines:
-    ribs_subdivide_centers = generate_centerpoints(line)
-    points = generate_final_points(line, ribs_subdivide_centers, params.step_dist, params.min_dist)
-    snake = final.add(line, ribs_subdivide_centers)
-    point_len = len(points)
-    sum += point_len
-    for i in range(0, point_len):
-      node = snake.add(points[i], params)
-      if i > 0:
-        snake.list[i-1].set_next(node)
+  ribs_subdivide_centers = generate_centerpoints(line)
+  points = generate_final_points(
+    line, ribs_subdivide_centers, params.step_dist, params.min_dist)
+  snake = Snake(points, ribs_subdivide_centers)
+  for i in range(0, len(points)):
+    node = snake.add(points[i], params)
+    if i > 0:
+      snake.list[i-1].set_next(node)
 
-  print("Nodes:", sum)
+  print("Nodes:", len(points))
 
   # Iterate through each point, increase size until it's out of bounds
   # or no further changes can be made
@@ -364,101 +282,102 @@ def draw_snake(params: SnakeParams, group: Group = None):
     if iterations % 5 == 0:
       print("Running iteration", iterations, "...")
 
-    for snake in final.list:
-      for node in snake.list:
-        # Try to increase size
-        point = node.point
-        new_size = node.size + params.size_increase
+    for node in snake.list:
+      if node.done:
+        continue
 
-        top = point.y - new_size
-        bottom = point.y + new_size
-        left = point.x - new_size
-        right = point.x + new_size
+      # Try to increase size
+      point = node.point
+      new_size = node.size + params.size_increase
 
-        # Check against border
-        if top < max_pad.y:
-          continue
-        elif bottom > max_pad.bottom():
-          continue
-        elif left < max_pad.x:
-          continue
-        elif right > max_pad.right():
-          continue
+      top = point.y - new_size
+      bottom = point.y + new_size
+      left = point.x - new_size
+      right = point.x + new_size
 
-        madeChange = check_other_points(final, snake, node, new_size, params) or madeChange
+      # Check against border
+      if top < max_pad.y:
+        node.done = True
+        continue
+      elif bottom > max_pad.bottom():
+        node.done = True
+        continue
+      elif left < max_pad.x:
+        node.done = True
+        continue
+      elif right > max_pad.right():
+        node.done = True
+        continue
+
+      madeChange = _check_other_points(snake, node, new_size, params) or madeChange
 
   print("Ran", iterations, "iterations")
 
   # Shrink ends
-  for snake in final.list:
-    length = len(snake.list)
-    falloff = max(length * params.falloff, params.min_falloff)
-    for node in snake.list:
-      percent_bot = node.index / falloff
-      percent_end = (length - 1 - node.index) / falloff
-      percent = min(percent_bot, percent_end)
-      percent = min(percent, 1)
-      node.size = ease_in_out_quad(percent, params.size_start, node.size - params.size_start, 1)
+  length = len(snake.list)
+  falloff = floor(max(length * params.falloff, params.min_falloff))
+  for node in snake.list:
+    percent_bot = node.index / falloff
+    percent_end = (length - 1 - node.index) / falloff
+    percent = min(percent_bot, percent_end)
+    percent = min(percent, 1)
+    node.size = ease_in_out_quad(percent, 0, node.size, 1)
 
   # Average Sizes
-  for snake in final.list:
-    for iterations in range(0, params.smoothing_steps):
-      snake_len = len(snake.list)
-      for i in range(0, snake_len):
-        from_end = min(i, snake_len - 1 - i)
-        steps = min(from_end, params.smoothing_range)
-        if steps == 0:
-          continue
-        current = snake.list[i]
-        avg_size = 0
-        avg_vec = Point(0, 0)
-        total_steps = steps * 2 + 1
-        for j in range(-steps, steps + 1):
-          node = snake.list[i + j]
-          avg_size += node.size
-          avg_vec.add(node.final_vec)
-        current.size = avg_size / total_steps
-        current.final_vec = avg_vec.divide(total_steps)
+  for iterations in range(0, params.smoothing_steps):
+    snake_len = len(snake.list)
+    for i in range(0, snake_len):
+      from_end = min(i, snake_len - 1 - i)
+      steps = min(from_end, params.smoothing_range)
+      if steps == 0:
+        continue
+      current = snake.list[i]
+      avg_size = 0
+      avg_vec = Point(0, 0)
+      total_steps = steps * 2 + 1
+      for j in range(-steps, steps + 1):
+        node = snake.list[i + j]
+        avg_size += node.size
+        avg_vec.add(node.final_vec)
+      current.size = avg_size / total_steps
+      current.final_vec = avg_vec.divide(total_steps)
 
   # Create lines
-  for snake in final.list:
-    for node in snake.list:
-      point = node.point
-      size = node.size
-      perpendicular = node.final_vec.perpendicular_copy()
-      node.lines.append(Line(point, point.add_copy(perpendicular.multiply_copy(size))))
-      node.lines.append(Line(point, point.add_copy(perpendicular.multiply_copy(-size))))
-
-  # clamp_sizes(final)
+  for node in snake.list:
+    point = node.point
+    size = node.size
+    perpendicular = node.final_vec.perpendicular_copy()
+    node.lines.append(Line(point, point.add_copy(perpendicular.multiply_copy(size))))
+    node.lines.append(Line(point, point.add_copy(perpendicular.multiply_copy(-size))))
 
   forward_indices = [1, 5]
   backward_indices = [2, 3]
   count = params.spine_count.rand() + 1
 
   # Draw Result
-  for snake in final.list:
-    if params.draw_spine:
-      if params.draw_head:
-        head_point = snake.points[0]
-        draw_circ(head_point.x, head_point.y, 20, group)
-      draw_curved_path(snake.points, snake.centers, group)
+  if params.draw_spine:
+    if params.draw_head:
+      head_point = snake.points[0]
+      draw_circ(head_point.x, head_point.y, 20, group)
+    draw_point_path(snake.points, group)
 
-    for node in snake.list:
-      for ribline in node.lines:
-        ribs_subdivide = subdivide_point_path(ribline.points(), params.spine_count)
-        if len(ribs_subdivide) < count:
-          break
+  for node in snake.list:
+    for ribline in node.lines:
+      ribs_subdivide = subdivide_point_path(
+        ribline.points(), params.spine_count, [], 0)
+      if len(ribs_subdivide) < count:
+        break
 
-        shuffle_amount = params.spine_shuffle * ribline.length()
-        if not params.do_spine_shuffle:
-          shuffle_amount = 0
-        shuffle = node.final_vec.multiply_copy(shuffle_amount)
+      shuffle_amount = params.spine_shuffle * ribline.length()
+      if not params.do_spine_shuffle:
+        shuffle_amount = 0
+      shuffle = node.final_vec.multiply_copy(shuffle_amount)
 
-        for i in forward_indices:
-          ribs_subdivide[i].add(shuffle)
-        for i in backward_indices:
-          ribs_subdivide[i].subtract(shuffle)
+      for i in forward_indices:
+        ribs_subdivide[i].add(shuffle)
+      for i in backward_indices:
+        ribs_subdivide[i].subtract(shuffle)
 
-        ribs_subdivide_centers = generate_centerpoints(ribs_subdivide)
-        if params.draw_ribs:
-          draw_curved_path(ribs_subdivide, ribs_subdivide_centers, group)
+      ribs_subdivide_centers = generate_centerpoints(ribs_subdivide)
+      if params.draw_ribs:
+        draw_curved_path(ribs_subdivide, ribs_subdivide_centers, group)

@@ -7,8 +7,6 @@ from typing import List
 ### Path Drawing
 ###
 
-
-_round_digits = 0 # How many digits to round positions to
 _size_digits = 2 # How many digits to round the radius size to
 
 class Position:
@@ -26,7 +24,12 @@ def offest_point_path(original:List[Point], offset:Point) -> List[Point]:
     result.append(Point(val.x + offset.x, val.y + offset.y))
   return result
 
-def subdivide_point_path(rough:List[Point], sub_count:RangeInt, ignored_indexes: List[int] = []) -> List[Point]:
+def subdivide_point_path(
+    rough:List[Point],
+    sub_count:RangeInt,
+    ignored_indexes: List[int] = [],
+    deltaRange: int = 1
+  ) -> List[Point]:
   last = rough[0]
   points: List[Point] = []
   points.append(rough[0])
@@ -49,7 +52,7 @@ def subdivide_point_path(rough:List[Point], sub_count:RangeInt, ignored_indexes:
     for _ in range(0, subdivisions):
       x += vector.x
       y += vector.y
-      add_nondup_floats(x, y, points)
+      add_nondup_floats(x, y, points, deltaRange)
     last = point
 
   return points
@@ -80,12 +83,10 @@ def add_nondup_position(
     array:List[Position],
     deltaRange:int = 1
   ):
-  x = round(x, _round_digits)
-  y = round(y, _round_digits)
   size = round(size, _size_digits)
-  for item in array:
+  if len(array) > 0 and deltaRange > 0:
+    item = array[-1]
     delta = item.point().subtract_floats(x, y).length()
-    # print(deltaRange, delta)
     if delta < deltaRange and item.size == size:
       return
   array.append(Position(x, y, size))
