@@ -17,7 +17,7 @@ class SnakeParams:
     self.diff: RangeInt = RangeInt(0, 3)
     self.shuffle: RangeFloat = RangeFloat(.001, .5)
     self.do_shuffle: bool = True
-    self.step_dist: int = 2 # 2
+    self.step_dist: int = 10 # 2
     self.min_dist: int = 1
     self.size_start: int = 5
     self.size_increase: int = 5
@@ -343,16 +343,24 @@ def draw_snake(params: SnakeParams, group: Group = None):
       current.final_vec = avg_vec.divide(total_steps)
 
   # Create lines
+  rib_index = 0
   for node in snake.list:
+    rib_index += 1
     point = node.point
     size = node.size
     perpendicular = node.final_vec.perpendicular_copy()
-    node.lines.append(Line(point, point.add_copy(perpendicular.multiply_copy(size))))
-    node.lines.append(Line(point, point.add_copy(perpendicular.multiply_copy(-size))))
+    line0 = Line(point, point.add_copy(perpendicular.multiply_copy(size)))
+    line1 = Line(point, point.add_copy(perpendicular.multiply_copy(-size)))
+    # Alternate direction so pen can travel smoothly
+    if rib_index % 2 == 0:
+      node.lines.append(line0)
+      node.lines.append(line1)
+    else:
+      node.lines.append(line1)
+      node.lines.append(line0)
 
   forward_indices = [1, 5]
   backward_indices = [2, 3]
-  count = params.spine_count.rand() + 1
 
   # Draw Result
   if params.draw_spine:
@@ -361,12 +369,10 @@ def draw_snake(params: SnakeParams, group: Group = None):
       draw_circ(head_point.x, head_point.y, 20, group)
     draw_point_path(snake.points, group)
 
+  rib_index = 0
   for node in snake.list:
     for ribline in node.lines:
-      ribs_subdivide = subdivide_point_path(
-        ribline.points(), params.spine_count, [], 0)
-      if len(ribs_subdivide) < count:
-        break
+      ribs_subdivide = subdivide_point_path(ribline.points(), params.spine_count, [], 0)
 
       shuffle_amount = params.spine_shuffle * ribline.length()
       if not params.do_spine_shuffle:
@@ -377,6 +383,11 @@ def draw_snake(params: SnakeParams, group: Group = None):
         ribs_subdivide[i].add(shuffle)
       for i in backward_indices:
         ribs_subdivide[i].subtract(shuffle)
+
+      # Reverse them so the pen can travel smoothly
+      if rib_index % 2 == 0:
+        ribs_subdivide.reverse()
+      rib_index += 1
 
       ribs_subdivide_centers = generate_centerpoints(ribs_subdivide)
       if params.draw_ribs:
