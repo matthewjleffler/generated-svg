@@ -7,7 +7,7 @@ from typing import List
 ### Path Drawing
 ###
 
-_size_digits = 2 # How many digits to round the radius size to
+_round_digits = 2 # How many digits to round to
 
 class Position:
   def __init__(self, x, y, size) -> None:
@@ -83,7 +83,7 @@ def add_nondup_position(
     array:List[Position],
     deltaRange:int = 1
   ):
-  size = round(size, _size_digits)
+  size = round(size, _round_digits)
   if len(array) > 0 and deltaRange > 0:
     item = array[-1]
     delta = item.point().subtract_floats(x, y).length()
@@ -227,9 +227,9 @@ def draw_point_path_hatched(points:List[Point], params:HatchParams, group:Group 
 
       if hatch.on:
         if last_m is not None:
-          path += f"M{round(last_m.x, _size_digits)} {round(last_m.y, _size_digits)}"
+          path += f"M{round(last_m.x, _round_digits)} {round(last_m.y, _round_digits)}"
           last_m = None
-        path += f"L{round(current_point.x, _size_digits)} {round(current_point.y, _size_digits)}"
+        path += f"L{round(current_point.x, _round_digits)} {round(current_point.y, _round_digits)}"
       else:
         last_m = Point(current_point.x, current_point.y)
 
@@ -243,26 +243,45 @@ def draw_point_path_hatched(points:List[Point], params:HatchParams, group:Group 
 
 def draw_point_path(points:List[Point], group:Group = None):
   last = points[0]
-  path = "M{} {}".format(last.x, last.y)
+  path = "M{} {}".format(
+    round(last.x, _round_digits),
+    round(last.y, _round_digits)
+  )
   for i in range(1, len(points)):
     point = points[i]
-    path += " L{} {}".format(point.x, point.y)
+    path += " L{} {}".format(
+      round(point.x, _round_digits),
+      round(point.y, _round_digits)
+    )
   draw_path(path, group)
 
 
 def draw_curved_path(points:List[Point], centers:List[Point], group:Group = None):
   point = centers[0]
-  path = "M{} {} L{} {}".format(points[0].x, points[0].y, point.x, point.y)
+  path = "M{} {} L{} {}".format(
+    round(points[0].x, _round_digits),
+    round(points[0].y, _round_digits),
+    round(point.x, _round_digits),
+    round(point.y, _round_digits),
+  )
 
   for i in range(1, len(centers)):
     if i == len(points) -1:
       break
     point = centers[i]
     control = points[i]
-    path += " Q{} {} {} {}".format(control.x, control.y, point.x, point.y)
+    path += " Q{} {} {} {}".format(
+      round(control.x, _round_digits),
+      round(control.y, _round_digits),
+      round(point.x, _round_digits),
+      round(point.y, _round_digits),
+    )
 
   final = points[len(points) - 1]
-  path += " L{} {}".format(final.x, final.y)
+  path += " L{} {}".format(
+    round(final.x, _round_digits),
+    round(final.y, _round_digits),
+  )
 
   draw_path(path, group)
 

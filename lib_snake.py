@@ -17,7 +17,7 @@ class SnakeParams:
     self.diff: RangeInt = RangeInt(0, 5)
     self.shuffle: RangeFloat = RangeFloat(.001, .5)
     self.do_shuffle: bool = True
-    self.step_dist: int = 2 # 2
+    self.step_dist: int = 3 # 3
     self.min_dist: int = 1
     self.size_start: int = 5
     self.size_increase: float = .25

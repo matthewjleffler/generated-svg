@@ -47,28 +47,28 @@ def _poll_after_sleep(key:KeyPoller) -> _Result:
       return _Result.Quit
   return _Result.Continue
 
-def _run_step(runner:Runner, wait:float, key:KeyPoller, current:Defaults, defaults:Defaults):
+def _run_step(
+    runner:Runner,
+    wait:float,
+    key:KeyPoller,
+    current:Defaults,
+    defaults:Defaults
+  ) -> tuple[Defaults, bool]:
   lastseed = runner.run(current.test, current.seed, current.size)
   if wait <= 0:
     result = _wait_on_input(key)
-    if result == _Result.Save:
-      print("Saving last output...")
-      return (Defaults(False, lastseed, current.size), False)
-    elif result == _Result.Quit:
-      return (defaults, True)
-    else:
-      return (defaults, False)
   else:
     print("") # Empty line between runs
     time.sleep(wait)
     result = _poll_after_sleep(key)
-    if result == _Result.Save:
-      print("Saving last output...")
-      return (Defaults(False, lastseed, current.size), False)
-    elif result == _Result.Quit:
-      return (defaults, True)
-    else:
-      return (defaults, False)
+
+  if result == _Result.Save:
+    print("Saving last output...")
+    return (Defaults(False, lastseed, current.size), False)
+  elif result == _Result.Quit:
+    return (defaults, True)
+  else:
+    return (defaults, False)
 
 def run():
   args = Args()
@@ -89,9 +89,7 @@ def run():
   with KeyPoller() as key:
     current = defaults
     while True:
-      result = _run_step(module.runner, wait, key, current, defaults)
-      current = result[0]
-      quit = result[1]
+      (current, quit) = _run_step(module.runner, wait, key, current, defaults)
       if quit:
         print("Escape pressed.")
         return

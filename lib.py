@@ -1,4 +1,7 @@
 import random
+import shutil
+import time
+from datetime import timedelta
 from sys import maxsize, argv
 import os
 from re import compile
@@ -73,6 +76,7 @@ _font_styles = dict()
 _root_group = Group(None, "stroke=\"black\" fill=\"none\"")
 _current_group = _root_group
 _pixel_per_inch = 95.8
+_round_digits = 2
 
 
 def init():
@@ -215,17 +219,49 @@ def close_text_indent(line:str):
   add_text_line(line)
 
 
-def write_file(path:str, name:str, number:int):
+def write_file(path:str, dir:str, name:str, number:int):
   if number > 0:
     svg_name = "{}_{}.svg".format(name, number)
   else:
     svg_name = "{}.svg".format(name)
 
-  f = open(f"{path}/{svg_name}", "w")
+  final_path = f"{path}/{svg_name}"
+  f = open(final_path, "w")
   f.write(_text_content)
   f.close()
-  print(f"Wrote file: {path}/{svg_name}")
+  print(f"Wrote file: {final_path}")
 
+  # Try to copy to output folder
+  export_path = "./dir.txt"
+  if number <= 0 or not os.path.exists(export_path):
+    # Have not been provided a path
+    return
+  f = open(export_path, "r")
+  export_path = f.readline()
+  f.close()
+  if not os.path.exists(export_path):
+    # Target doesn't exist, or no data
+    return
+  # Ensure directories exist
+  export_path = f"{export_path}/{dir}"
+  if not os.path.exists(export_path):
+    os.makedirs(export_path)
+  export_path = f"{export_path}/{name}"
+  if not os.path.exists(export_path):
+    os.makedirs(export_path)
+  if not os.path.exists(export_path):
+    print("Making output failed:", export_path)
+    return
+
+  file_copy_path = f"{export_path}/{svg_name}"
+  if os.path.exists(file_copy_path):
+    print("Output file exists, appending random value")
+    rand = RangeInt(12000, 80000).rand()
+    file_copy_path = f"{export_path}/{name}_{number}_{rand}.svg"
+
+  # Copy file to target
+  shutil.copyfile(final_path, file_copy_path)
+  print(f"Copied to: {final_path}")
 
 # SVG Management
 
@@ -287,10 +323,10 @@ def close_group():
 def draw_rect(x:float, y:float, w:float, h:float, group:Group = None):
   if not group:
     group = _current_group
-  x = round(x, 2)
-  y = round(y, 2)
-  w = round(w, 2)
-  h = round(h, 2)
+  x = round(x, _round_digits)
+  y = round(y, _round_digits)
+  w = round(w, _round_digits)
+  h = round(h, _round_digits)
   group.children.append(f"<rect x=\"{x}\" y=\"{y}\" width=\"{w}\" height=\"{h}\"/>")
 
 def draw_rect_rect(rect: Rect, group: Group = None):
@@ -299,9 +335,9 @@ def draw_rect_rect(rect: Rect, group: Group = None):
 def draw_circ(x:float, y:float, r:float, group:Group = None):
   if not group:
     group = _current_group
-  x = round(x, 2)
-  y = round(y, 2)
-  r = round(r, 2)
+  x = round(x, _round_digits)
+  y = round(y, _round_digits)
+  r = round(r, _round_digits)
   group.children.append(f"<circle cx=\"{x}\" cy=\"{y}\" r=\"{r}\"/>")
 
 def draw_circ_point(point: Point, r:float, group:Group = None):
@@ -312,12 +348,10 @@ def draw_path(value:str, group:Group = None):
     group = _current_group
   group.children.append(f"<path d=\"{value}\"/>")
 
-
 def draw_border(group:Group = None):
   open_group("stroke=\"red\"", group)
   draw_rect(_svg_safe.x, _svg_safe.y, _svg_safe.w, _svg_safe.h)
   close_group()
-
 
 def draw_sunburst(bursts:int, c_x:float, c_y:float, start_rad:float, ray_len:float, group:Group = None):
   sunburst_points = bursts
@@ -325,15 +359,20 @@ def draw_sunburst(bursts:int, c_x:float, c_y:float, start_rad:float, ray_len:flo
     t = i / sunburst_points
     rad = t * pi * 2
 
-    x = round(c_x + sin(rad) * (start_rad), 2)
-    y = round(c_y + cos(rad) * (start_rad), 2)
+    x = c_x + sin(rad) * (start_rad)
+    y = c_y + cos(rad) * (start_rad)
 
     vec = Point(x, y)
     vec = vec.subtract_copy(Point(c_x, c_y))
     vec.normalize()
     vec.multiply(ray_len)
-    draw_path("M{} {} L{} {}".format(x, y, round(x + vec.x, 2), round(y + vec.y, 2)), group)
-
+    draw_path("M{} {} L{} {}".format(
+      round(x, _round_digits),
+      round(y, _round_digits),
+      round(x + vec.x, _round_digits),
+      round(y + vec.y, _round_digits)),
+      group
+    )
 
 def draw_ring_of_circles(number:int, c_x:float, c_y:float, center_rad:float, circle_rad:float, group:Group = None):
   for i in range(0, number):
@@ -347,6 +386,7 @@ def draw_ring_of_circles(number:int, c_x:float, c_y:float, center_rad:float, cir
 # Main
 
 def main(dir:str, layer: str, test: bool, seed:int, size:tuple[int, int], loop:callable) -> int:
+  start = time.time()
   init()
   setup_size(size)
 
@@ -367,7 +407,7 @@ def main(dir:str, layer: str, test: bool, seed:int, size:tuple[int, int], loop:c
   # Write content
   if test:
     # Only overwrite test content
-    write_file(fullpath, layer, 0)
+    write_file(fullpath, dir, layer, 0)
   else:
     # Write numbered content
     # Consume existing file names
@@ -391,7 +431,10 @@ def main(dir:str, layer: str, test: bool, seed:int, size:tuple[int, int], loop:c
     # Pick the next number in sequence, including missing numbers
     min_available_number = max_number + 1
 
-    write_file(fullpath, layer, min_available_number)
+    write_file(fullpath, dir, layer, min_available_number)
+
+  total_time = time.time() - start
+  print("Elapsed:", timedelta(seconds=total_time))
 
   return seed
 
