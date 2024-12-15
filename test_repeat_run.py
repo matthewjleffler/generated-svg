@@ -1,6 +1,6 @@
 import importlib
 import time
-from lib import SvgSize, Args, Defaults, Runner
+from lib import Args, Defaults, Runner
 from lib_input import *
 from enum import Enum
 
@@ -83,7 +83,7 @@ def run():
   if not module:
     print(f"Couldn't load module: {module_path}")
 
-  defaults = args.get_defaults(True, 0, SvgSize.Size9x12)
+  defaults = args.get_defaults(True, 0, (9, 12))
   wait = args.get_float("wait", 0)
 
   with KeyPoller() as key:

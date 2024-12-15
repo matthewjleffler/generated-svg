@@ -22,7 +22,7 @@ class SnakeRunner(Runner):
     draw_snake(params)
     return params
 
-  def run(self, test:bool, seed:int, size:SvgSize) -> int:
+  def run(self, test:bool, seed:int, size:tuple[int, int]) -> int:
     mainseed = main(self.dir, "main", test, seed, size, self.loop_main)
     # mainseed = main(self.dir, "combined", test, seed, size, self.loop_main)
     # main(self.dir, "spine", test, mainseed, size, self.loop_spine)
@@ -37,7 +37,7 @@ if __name__ == "__main__":
   defaults = args.get_defaults(
     test = True,
     seed = 0,
-    size = SvgSize.Size9x12
+    size = (9, 12)
   )
   runner.run(defaults.test, defaults.seed, defaults.size)
 

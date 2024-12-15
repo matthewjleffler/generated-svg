@@ -72,6 +72,7 @@ _text_content = ""
 _font_styles = dict()
 _root_group = Group(None, "stroke=\"black\" fill=\"none\"")
 _current_group = _root_group
+_pixel_per_inch = 95.8
 
 
 def init():
@@ -89,29 +90,12 @@ def init():
 
 # Sizes
 
-class SvgSize(Enum):
-  Size11x17 = 1,
-  Size9x12 = 2,
-
-  @staticmethod
-  def from_str(val:str):
-    val = val.lower()
-    if val == "size9x12" or val == "9x12":
-      return SvgSize.Size9x12
-    if val == "size11x17" or val == "11x17":
-      return SvgSize.Size11x17
-    print(f"Unhandled SvgSize: {val}")
-    return SvgSize.Size9x12
-
-
-def setup_size(size:SvgSize):
+def setup_size(size:tuple[int, int]):
   global _svg_full, _svg_safe
-
-  if size is SvgSize.Size11x17:
-    _svg_full = Rect(0, 0, 1630, 1060)
-  elif size is SvgSize.Size9x12:
-    _svg_full = Rect(0, 0, 1150, 870)
-
+  (x, y) = size
+  w = max(x, y)
+  h = min(x, y)
+  _svg_full = Rect(0, 0, floor(w * _pixel_per_inch), floor(h * _pixel_per_inch))
   _svg_safe = Rect(_svg_border, _svg_border, _svg_full.w - _svg_border * 2, _svg_full.h - _svg_border * 2)
 
 def svg_safe() -> Rect:
@@ -126,15 +110,15 @@ class Runner:
   def __init__(self, dir:str) -> None:
     self.dir = dir
 
-  def run(self, test:bool, seed:int, size:SvgSize) -> int:
+  def run(self, test:bool, seed:int, size:tuple[int, int]) -> int:
     return 0
 
 
 class Defaults:
-  def __init__(self, test:bool, seed:int, size:SvgSize) -> None:
+  def __init__(self, test:bool, seed:int, size:tuple[int, int]) -> None:
     self.test:bool = test
     self.seed:int = seed
-    self.size:SvgSize = size
+    self.size:tuple[int, int] = size
 
 
 class Args:
@@ -189,12 +173,18 @@ class Args:
       return default
     return float(self.__args[key])
 
-  def get_svg_size(self, key:str, default:SvgSize) -> SvgSize:
+  def get_svg_size(self, key:str, default:tuple[int, int]) -> tuple[int, int]:
     if key not in self.__args:
       return default
-    return SvgSize.from_str(self.__args[key])
+    stringSize: str = self.__args[key]
+    split: List[str] = stringSize.split('x')
+    if len(split) != 2:
+      print(f"Need size in format [w]x[h]")
+      return default
+    [strx, stry] = split
+    return (int(strx), int(stry))
 
-  def get_defaults(self, test:bool, seed:int, size:SvgSize) -> Defaults:
+  def get_defaults(self, test:bool, seed:int, size:tuple[int, int]) -> Defaults:
     test = self.get_bool("test", test)
     seed = self.get_int("seed", seed)
     size = self.get_svg_size("size", size)
@@ -239,10 +229,11 @@ def write_file(path:str, name:str, number:int):
 
 # SVG Management
 
-def commit(seed:int, size:SvgSize, params:any):
+def commit(seed:int, size:tuple[int, int], params:any):
+  (x, y) = size
   open_text_indent("<svg version=\"1.1\" width=\"{}\" height=\"{}\" xmlns=\"http://www.w3.org/2000/svg\">".format(_svg_full.w, _svg_full.h))
   add_text_line(f"<!-- Seed: {seed} -->")
-  add_text_line(f"<!-- Size: {size} -->")
+  add_text_line(f"<!-- Size: {x}x{y} -->")
   if params is not None:
     list_params = vars(params)
     open_text_indent("<!-- Params:")
@@ -355,7 +346,7 @@ def draw_ring_of_circles(number:int, c_x:float, c_y:float, center_rad:float, cir
 
 # Main
 
-def main(dir:str, layer: str, test: bool, seed:int, size:SvgSize, loop:callable) -> int:
+def main(dir:str, layer: str, test: bool, seed:int, size:tuple[int, int], loop:callable) -> int:
   init()
   setup_size(size)
 

@@ -13,14 +13,14 @@ class SnakeParams:
     self.draw: bool = True
     self.pad: int = 50
     self.draw_head: bool = True
-    self.row: RangeInt = RangeInt(3, 5)
-    self.diff: RangeInt = RangeInt(0, 3)
+    self.row: RangeInt = RangeInt(3, 10)
+    self.diff: RangeInt = RangeInt(0, 5)
     self.shuffle: RangeFloat = RangeFloat(.001, .5)
     self.do_shuffle: bool = True
-    self.step_dist: int = 10 # 2
+    self.step_dist: int = 3 # 2
     self.min_dist: int = 1
     self.size_start: int = 5
-    self.size_increase: int = 5
+    self.size_increase: float = .25
     self.dot_threshhold: float = 0
     self.index_range: int = 1000 / self.step_dist
     self.falloff: float = .02
@@ -28,7 +28,7 @@ class SnakeParams:
     self.spine_count: RangeInt = RangeInt(5, 5)
     self.do_spine_shuffle: bool = True
     self.spine_shuffle: float = .1
-    self.smoothing_steps: int = 3 # 10
+    self.smoothing_steps: int = 4 # 10
     self.smoothing_range: int = floor(30 / self.step_dist)
     self.draw_ribs: bool = True
     self.draw_spine: bool = True
@@ -205,6 +205,8 @@ def draw_snake(params: SnakeParams, group: Group = None):
   node_h = pad.h / (row2)
   half_w = node_w / 2
   half_h = node_h / 2
+  min_size = min(half_w, half_h)
+  size_increase = params.size_increase * min_size
 
   edges = spanning_tree(row, col, total)
 
@@ -288,7 +290,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
 
       # Try to increase size
       point = node.point
-      new_size = node.size + params.size_increase
+      new_size = node.size + size_increase
 
       top = point.y - new_size
       bottom = point.y + new_size
