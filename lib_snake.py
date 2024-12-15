@@ -17,7 +17,7 @@ class SnakeParams:
     self.diff: RangeInt = RangeInt(0, 5)
     self.shuffle: RangeFloat = RangeFloat(.001, .5)
     self.do_shuffle: bool = True
-    self.step_dist: int = 3 # 2
+    self.step_dist: int = 2 # 2
     self.min_dist: int = 1
     self.size_start: int = 5
     self.size_increase: float = .25
@@ -32,6 +32,7 @@ class SnakeParams:
     self.smoothing_range: int = floor(30 / self.step_dist)
     self.draw_ribs: bool = True
     self.draw_spine: bool = True
+    self.draw_reverse: bool = False
 
 
 class SnakeNode:
@@ -354,7 +355,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
     line0 = Line(point, point.add_copy(perpendicular.multiply_copy(size)))
     line1 = Line(point, point.add_copy(perpendicular.multiply_copy(-size)))
     # Alternate direction so pen can travel smoothly
-    if rib_index % 2 == 0:
+    if rib_index % 2 == 0 or not params.draw_reverse:
       node.lines.append(line0)
       node.lines.append(line1)
     else:
@@ -387,7 +388,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
         ribs_subdivide[i].subtract(shuffle)
 
       # Reverse them so the pen can travel smoothly
-      if rib_index % 2 == 0:
+      if params.draw_reverse and rib_index % 2 == 0:
         ribs_subdivide.reverse()
       rib_index += 1
 
