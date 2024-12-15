@@ -261,7 +261,7 @@ def write_file(path:str, dir:str, name:str, number:int):
 
   # Copy file to target
   shutil.copyfile(final_path, file_copy_path)
-  print(f"Copied to: {final_path}")
+  print(f"Copied to: {file_copy_path}")
 
 # SVG Management
 

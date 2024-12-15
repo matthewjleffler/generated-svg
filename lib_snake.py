@@ -189,6 +189,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
   max_pad = svg_safe().copy()
   pad = svg_safe().shrink_copy(params.pad)
 
+  # Draw safety border and page border
   # draw_rect_rect(pad, group)
   # draw_rect_rect(svg_full())
 
@@ -199,8 +200,6 @@ def draw_snake(params: SnakeParams, group: Group = None):
   col2 = col * 2
   total = row * col
   total2 = row2 * col2
-
-  # print(col, row)
 
   node_w = pad.w / (col2)
   node_h = pad.h / (row2)
@@ -228,6 +227,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
     else:
       connect[f0].down = connect[f1].up = True
 
+  # Debug drawing the initial maze lines
   # for (i0, i1) in edges:
   #   (x0, y0) = _index_to_x_y(i0, col)
   #   (x1, y1) = _index_to_x_y(i1, col)
@@ -259,6 +259,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
       point.y += params.shuffle.rand() * half_h
     line.append(point)
 
+  # Debug draw the line
   # draw_point_path(line)
   # return
 
