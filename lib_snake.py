@@ -18,8 +18,10 @@ class SnakeParams:
     self.draw: bool = True
     self.pad: int = 50
     self.draw_head: bool = True
-    self.row: RangeInt = RangeInt(3, 10)
-    self.diff: RangeInt = RangeInt(0, 5)
+    self.draw_ribs: bool = True
+    self.draw_spine: bool = True
+    self.draw_reverse: bool = False # Messes up drawing angles
+    self.cell_size: RangeInt = RangeInt(50, 300) # Min 50
     self.shuffle: RangeFloat = RangeFloat(.001, .5)
     self.do_shuffle: bool = True
     self.step_dist: int = 3 # 3
@@ -35,9 +37,6 @@ class SnakeParams:
     self.spine_shuffle: float = .1
     self.smoothing_steps: int = 4 # 10
     self.smoothing_range: int = floor(30 / self.step_dist)
-    self.draw_ribs: bool = True
-    self.draw_spine: bool = True
-    self.draw_reverse: bool = False
 
 
 class SnakeNode:
@@ -109,6 +108,7 @@ def _check_other_points(
       continue
 
     # Blocked
+    # node.size = delta.length() - node_other.size # Max size
     node.done = True
     return False
 
@@ -198,16 +198,17 @@ def draw_snake(params: SnakeParams, group: Group = None):
   # draw_rect_rect(pad, group)
   # draw_rect_rect(svg_full())
 
-  row = params.row.rand()
+  cell = params.cell_size.rand()
+
+  row = floor(pad.h / cell)
+  col = floor(pad.w / cell)
   row2 = row * 2
-  diff = params.diff.rand()
-  col = row + diff
   col2 = col * 2
   total = row * col
   total2 = row2 * col2
 
-  node_w = pad.w / (col2)
-  node_h = pad.h / (row2)
+  node_w = pad.w / col2
+  node_h = pad.h / row2
   half_w = node_w / 2
   half_h = node_h / 2
   min_size = min(half_w, half_h)
@@ -352,11 +353,13 @@ def draw_snake(params: SnakeParams, group: Group = None):
 
   # Create lines
   rib_index = 0
+  max_size = 0
   for node in snake.list:
     rib_index += 1
     point = node.point
     size = node.size
     perpendicular = node.final_vec.perpendicular_copy()
+    max_size = max(max_size, size)
     line0 = Line(point, point.add_copy(perpendicular.multiply_copy(size)))
     line1 = Line(point, point.add_copy(perpendicular.multiply_copy(-size)))
     # Alternate direction so pen can travel smoothly
@@ -367,6 +370,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
       node.lines.append(line1)
       node.lines.append(line0)
 
+  print(max_size)
   forward_indices = [1, 5]
   backward_indices = [2, 3]
 
