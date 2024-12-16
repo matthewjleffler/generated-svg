@@ -18,30 +18,11 @@ from lib_rand import *
 
 # Helper functions
 
-def add_nondup_floats(
-    x:float,
-    y:float,
-    points:List[Point],
-    deltaRange: int = 1
-  ):
-  if len(points) > 0 and deltaRange > 0:
-    item = points[-1]
-    delta = item.subtract_floats_copy(x, y).length()
-    if delta < deltaRange:
-      return
+def add_nondup_floats(x:float, y:float, points:List[Point]):
   points.append(Point(x, y))
 
 
-def add_nondup_point(
-    point:Point,
-    points:List[Point],
-    deltaRange: int = 1
-  ):
-  if len(points) > 0 and deltaRange > 0:
-    item = points[-1]
-    delta = item.subtract_copy(point).length()
-    if delta < deltaRange:
-      return
+def add_nondup_point(point:Point, points:List[Point]):
   points.append(point.copy())
 
 

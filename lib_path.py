@@ -52,7 +52,7 @@ def subdivide_point_path(
     for _ in range(0, subdivisions):
       x += vector.x
       y += vector.y
-      add_nondup_floats(x, y, points, deltaRange)
+      add_nondup_floats(x, y, points)
     last = point
 
   return points
@@ -346,16 +346,58 @@ def generate_final_positions(points: List[Point], centers: List[Point], size_end
 
   return positions
 
-# TODOML switch this to be first
+
+def _step_along_subdivided(subdivided: List[Point], step_size: float, final: List[Point]):
+  final.append(subdivided[0])
+  current_step = 0
+  for i in range(1, len(subdivided)):
+    p0 = subdivided[i-1]
+    p1 = subdivided[i]
+    vec = p1.subtract_copy(p0)
+    vec_length = vec.length()
+    vec.normalize()
+    orig_length = vec_length
+
+    current_step -= vec_length
+    while current_step <= 0:
+      final.append(vec.multiply_copy(current_step + step_size).add(p0))
+      current_step += step_size
+
+
+def _subdivide_bezier(p0: Point, p1: Point, control: Point, subdivisions: int, result: List[Point]):
+  for i in range(0, subdivisions):
+    t =  i / subdivisions
+    point = _step_along_quadratic(p0, p1, control, t)
+    result.append(point)
+
+
 def generate_final_points(
     points: List[Point],
     centers: List[Point],
-    step_dist:float,
-    deltaRange:int = 1
+    step_dist:float
   ) -> List[Point]:
-  size_range = RangeInt(1, 1)
-  positions = generate_final_positions(points, centers, 1, size_range, step_dist, deltaRange)
-  result: List[Point] = []
-  for pos in positions:
-    result.append(pos.point())
-  return result
+  # Turn into line segments
+  subdivisions_per = 100
+  subdivided: List[Point] = []
+  for i in range(1, len(points) + 1):
+    if i == 1:
+      # Draw straight line in beginning
+      p0 = points[i - 1]
+      p1 = centers[i - 1]
+      _subdivide_bezier(p0, p1, p0, subdivisions_per, subdivided)
+    elif i == len(points):
+      # Draw straight line at end
+      p0 = centers[i - 2]
+      p1 = points[i - 1]
+      _subdivide_bezier(p0, p1, p1, subdivisions_per, subdivided)
+    else:
+      # Draw along quadratic bezier curve for each other step
+      p0 = centers[i - 2]
+      p1 = centers[i - 1]
+      control = points[i - 1]
+      _subdivide_bezier(p0, p1, control, subdivisions_per, subdivided)
+
+  # Step through segments
+  final: List[Point] = []
+  _step_along_subdivided(subdivided, step_dist, final)
+  return final

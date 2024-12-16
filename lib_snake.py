@@ -8,6 +8,11 @@ from typing import List
 ### Snake Bones
 ###
 
+###
+### Space filling curve algorithm based on:
+### https://observablehq.com/@esperanc/random-space-filling-curves
+###
+
 class SnakeParams:
   def __init__(self) -> None:
     self.draw: bool = True
@@ -265,8 +270,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
 
   # Generate flowing lines
   ribs_subdivide_centers = generate_centerpoints(line)
-  points = generate_final_points(
-    line, ribs_subdivide_centers, params.step_dist, params.min_dist)
+  points = generate_final_points(line, ribs_subdivide_centers, params.step_dist)
   snake = Snake(points, ribs_subdivide_centers)
   for i in range(0, len(points)):
     node = snake.add(points[i], params)
@@ -376,7 +380,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
   rib_index = 0
   for node in snake.list:
     for ribline in node.lines:
-      ribs_subdivide = subdivide_point_path(ribline.points(), params.spine_count, [], 0)
+      ribs_subdivide = subdivide_point_path(ribline.points(), params.spine_count)
 
       shuffle_amount = params.spine_shuffle * ribline.length()
       if not params.do_spine_shuffle:
