@@ -21,22 +21,24 @@ class SnakeParams:
     self.draw_ribs: bool = True
     self.draw_spine: bool = True
     self.draw_reverse: bool = False # Messes up drawing angles
-    self.cell_size: RangeInt = RangeInt(50, 300) # Min 50
-    self.shuffle: RangeFloat = RangeFloat(.001, .5)
+    self.cell_size: RangeInt = RangeInt(100, 300) # Min 50
     self.do_shuffle: bool = True
-    self.step_dist: int = 3 # 3
+    self.shuffle: RangeFloat = RangeFloat(.001, .5)
+    self.step_dist: int = 2 # 3
     self.min_dist: int = 1
     self.size_start: int = 5
     self.size_increase: float = .25
-    self.dot_threshhold: float = 0
-    self.index_range: int = 1000 / self.step_dist
+    self.dot_threshhold: float = -.9
+    self.index_range: int = 2000 / self.step_dist
     self.falloff: float = .02
     self.min_falloff: int = 0
     self.spine_count: RangeInt = RangeInt(5, 5)
     self.do_spine_shuffle: bool = True
     self.spine_shuffle: float = .1
-    self.smoothing_steps: int = 4 # 10
-    self.smoothing_range: int = floor(30 / self.step_dist)
+    self.smoothing_steps: int = 3 # 10
+    self.smoothing_range: int = floor(60 / self.step_dist)
+    self.close_path: bool = True
+    self.do_max_width: bool = True
 
 
 class SnakeNode:
@@ -108,7 +110,8 @@ def _check_other_points(
       continue
 
     # Blocked
-    # node.size = delta.length() - node_other.size # Max size
+    if params.do_max_width:
+      node.size = delta.length() - node_other.size # Max size
     node.done = True
     return False
 
@@ -188,6 +191,13 @@ def hamiltonian_from_spanning_tree(col: int, col2: int, total2: int, connect: Li
       j = link[j][0]
   return path
 
+def _shuffle_index(params: SnakeParams, index: int, length: int) -> bool:
+  if not params.do_shuffle:
+    return False
+  if params.close_path and (index <= 1 or index >= length - 2):
+    return False
+  return True
+
 def draw_snake(params: SnakeParams, group: Group = None):
   # draw_border(group)
 
@@ -199,6 +209,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
   # draw_rect_rect(svg_full())
 
   cell = params.cell_size.rand()
+  print("Cell size:", cell)
 
   row = floor(pad.h / cell)
   col = floor(pad.w / cell)
@@ -250,17 +261,21 @@ def draw_snake(params: SnakeParams, group: Group = None):
   for i in range(0, pathlen):
     index = (offset + i) % pathlen
     offsetPath.append(path[index])
+  if params.close_path:
+    offsetPath.append(path[offset])
 
   # Scale and shuffle the points
   line: List[Point] = []
-  for i in offsetPath:
-    (x, y) = _index_to_x_y(i, col2)
+  offsetPathLen = len(offsetPath)
+  for i in range(0, offsetPathLen):
+    index = offsetPath[i]
+    (x, y) = _index_to_x_y(index, col2)
     point = Point(x, y)
     point.x *= node_w
     point.y *= node_h
     point.x += pad.x + half_w
     point.y += pad.y + half_h
-    if params.do_shuffle:
+    if _shuffle_index(params, i, offsetPathLen):
       point.x += params.shuffle.rand() * half_w
       point.y += params.shuffle.rand() * half_h
     line.append(point)
@@ -353,13 +368,11 @@ def draw_snake(params: SnakeParams, group: Group = None):
 
   # Create lines
   rib_index = 0
-  max_size = 0
   for node in snake.list:
     rib_index += 1
     point = node.point
     size = node.size
     perpendicular = node.final_vec.perpendicular_copy()
-    max_size = max(max_size, size)
     line0 = Line(point, point.add_copy(perpendicular.multiply_copy(size)))
     line1 = Line(point, point.add_copy(perpendicular.multiply_copy(-size)))
     # Alternate direction so pen can travel smoothly
@@ -370,7 +383,6 @@ def draw_snake(params: SnakeParams, group: Group = None):
       node.lines.append(line1)
       node.lines.append(line0)
 
-  print(max_size)
   forward_indices = [1, 5]
   backward_indices = [2, 3]
 
