@@ -24,10 +24,10 @@ class SnakeParams:
     self.cell_size: RangeInt = RangeInt(100, 300) # Min 50
     self.do_shuffle: bool = True
     self.shuffle: RangeFloat = RangeFloat(.001, .5)
-    self.step_dist: int = 2 # 3
+    self.step_dist: int = 1 # 3
     self.min_dist: int = 1
-    self.size_start: int = 5
-    self.size_increase: float = .25
+    self.size_base: RangeFloat = RangeFloat(.5, .8)
+    self.size_range: RangeFloat = RangeFloat(.5, 1.2)
     self.dot_threshhold: float = -.9
     self.index_range: int = 2000 / self.step_dist
     self.falloff: float = .02
@@ -37,15 +37,14 @@ class SnakeParams:
     self.spine_shuffle: float = .1
     self.smoothing_steps: int = 3 # 10
     self.smoothing_range: int = floor(60 / self.step_dist)
-    self.close_path: bool = True
-    self.do_max_width: bool = True
+    self.close_path: bool = False
 
 
 class SnakeNode:
-  def __init__(self, point: Point, index: int, params: SnakeParams) -> None:
+  def __init__(self, point: Point, index: int, width: float, params: SnakeParams) -> None:
     self.point = point
     self.index = index
-    self.size = params.size_start
+    self.size = width * params.size_range.rand()
     self.next: SnakeNode = None
     self.final_vec: Point = Point(0, 0)
     self.lines: List[Line] = []
@@ -67,8 +66,8 @@ class Snake:
     self.points = points
     self.centers = centers
 
-  def add(self, point: Point, params: SnakeParams) -> SnakeNode:
-    node = SnakeNode(point, len(self.list), params)
+  def add(self, point: Point, width: float, params: SnakeParams) -> SnakeNode:
+    node = SnakeNode(point, len(self.list), width, params)
     self.list.append(node)
     return node
 
@@ -86,38 +85,6 @@ def _x_y_to_index(x: int, y: int, w: int) -> int:
 
 def _index_to_x_y(index: int, w: int) -> tuple[int, int]:
   return (int(index % w), int(index / w))
-
-
-def _check_other_points(
-    snake: Snake,
-    node: SnakeNode,
-    new_size: int,
-    params: SnakeParams
-  ) -> bool:
-  for node_other in snake.list:
-    if node == node_other:
-      # Same node
-      continue
-
-    delta = node_other.point.subtract_copy(node.point)
-    if delta.length() > new_size + node_other.size:
-      # Not too close
-      continue
-
-    dot = node.vec().dot(node_other.vec())
-    if dot >= params.dot_threshhold and abs(node.index - node_other.index) < params.index_range:
-      # Allowed, close enough and part of the same line
-      continue
-
-    # Blocked
-    if params.do_max_width:
-      node.size = delta.length() - node_other.size # Max size
-    node.done = True
-    return False
-
-  # Not blocked
-  node.size = new_size
-  return True
 
 
 def visit(index: int, row: int, col: int, grid: List[bool], edges: List[tuple[int, int]]) -> None:
@@ -222,8 +189,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
   node_h = pad.h / row2
   half_w = node_w / 2
   half_h = node_h / 2
-  min_size = min(half_w, half_h)
-  size_increase = params.size_increase * min_size
+  max_size = max(node_w, node_h) * params.size_base.rand()
 
   edges = spanning_tree(row, col, total)
 
@@ -289,53 +255,11 @@ def draw_snake(params: SnakeParams, group: Group = None):
   points = generate_final_points(line, ribs_subdivide_centers, params.step_dist)
   snake = Snake(points, ribs_subdivide_centers)
   for i in range(0, len(points)):
-    node = snake.add(points[i], params)
+    node = snake.add(points[i], max_size, params)
     if i > 0:
       snake.list[i-1].set_next(node)
 
   print("Nodes:", len(points))
-
-  # Iterate through each point, increase size until it's out of bounds
-  # or no further changes can be made
-  # TODOML wildly inefficient
-  iterations = 0
-  madeChange = True
-  while (madeChange):
-    madeChange = False
-    iterations += 1
-    if iterations % 5 == 0:
-      print("Running iteration", iterations, "...")
-
-    for node in snake.list:
-      if node.done:
-        continue
-
-      # Try to increase size
-      point = node.point
-      new_size = node.size + size_increase
-
-      top = point.y - new_size
-      bottom = point.y + new_size
-      left = point.x - new_size
-      right = point.x + new_size
-
-      # Check against border
-      if top < max_pad.y:
-        node.done = True
-        continue
-      elif bottom > max_pad.bottom():
-        node.done = True
-        continue
-      elif left < max_pad.x:
-        node.done = True
-        continue
-      elif right > max_pad.right():
-        node.done = True
-        continue
-
-      madeChange = _check_other_points(snake, node, new_size, params) or madeChange
-
-  print("Ran", iterations, "iterations")
 
   # Shrink ends
   length = len(snake.list)

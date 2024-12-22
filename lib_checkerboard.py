@@ -209,11 +209,11 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
   count_vert = floor(svg_safe().h / size) * 2
   count = max(count_horiz, count_vert)
 
-  # shift_x_range = RangeFloat(-30, 30) # TODO move to params
-  # shift_x = shift_x_range.rand()
+  shift_x_range = RangeFloat(-30, 30) # TODO move to params
+  shift_x = shift_x_range.rand()
 
-  # shift_y_range = RangeFloat(-30, 30) # TODO params
-  # shift_y = shift_y_range.rand()
+  shift_y_range = RangeFloat(-30, 30) # TODO params
+  shift_y = shift_y_range.rand()
 
   # print(shift_x, shift_y)
 

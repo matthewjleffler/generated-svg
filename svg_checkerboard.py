@@ -46,7 +46,7 @@ class CheckerboardRunner(Runner):
     draw_checkerboard(params)
     return params
 
-  def run(self, test:bool, seed:int, size:SvgSize) -> int:
+  def run(self, test:bool, seed:int, size:tuple[int, int]) -> int:
     mainseed = main(self.dir, "combined", test, seed, size, self.loop_combined)
     main(self.dir, "main", test, mainseed, size, self.loop_main)
     main(self.dir, "vert", test, mainseed, size, self.loop_vert)
@@ -62,7 +62,7 @@ if __name__ == "__main__":
   defaults = args.get_defaults(
     test = True,
     seed = 0,
-    size = SvgSize.Size9x12
+    size = (9, 12)
   )
   runner.run(defaults.test, defaults.seed, defaults.size)
 
