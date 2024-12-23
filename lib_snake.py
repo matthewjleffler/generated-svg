@@ -21,30 +21,32 @@ class SnakeParams:
     self.draw_ribs: bool = True
     self.draw_spine: bool = True
     self.draw_reverse: bool = False # Messes up drawing angles
-    self.cell_size: RangeInt = RangeInt(100, 300) # Min 50
+    self.cell_size: RangeInt = RangeInt(100, 175) # Min 50
     self.do_shuffle: bool = True
-    self.shuffle: RangeFloat = RangeFloat(.001, .5)
-    self.step_dist: int = 1 # 3
+    self.shuffle: RangeFloat = RangeFloat(.1, .5)
+    self.step_dist: int = 3 # 3
     self.min_dist: int = 1
-    self.size_base: RangeFloat = RangeFloat(.5, .8)
-    self.size_range: RangeFloat = RangeFloat(.5, 1.2)
+    self.size_base: RangeFloat = RangeFloat(1, 1.25)
+    self.size_range: RangeFloat = RangeFloat(.75, 1.8)
+    self.size_divisions: RangeInt = RangeInt(10, 100)
     self.dot_threshhold: float = -.9
-    self.index_range: int = 2000 / self.step_dist
     self.falloff: float = .02
     self.min_falloff: int = 0
     self.spine_count: RangeInt = RangeInt(5, 5)
     self.do_spine_shuffle: bool = True
     self.spine_shuffle: float = .1
+    self.smoothing_range: int = 60
     self.smoothing_steps: int = 3 # 10
-    self.smoothing_range: int = floor(60 / self.step_dist)
     self.close_path: bool = False
+    self.draw_boundary_debug: bool = False
+    self.do_average: bool = True
 
 
 class SnakeNode:
-  def __init__(self, point: Point, index: int, width: float, params: SnakeParams) -> None:
+  def __init__(self, point: Point, index: int, width: float) -> None:
     self.point = point
     self.index = index
-    self.size = width * params.size_range.rand()
+    self.size = width
     self.next: SnakeNode = None
     self.final_vec: Point = Point(0, 0)
     self.lines: List[Line] = []
@@ -66,8 +68,8 @@ class Snake:
     self.points = points
     self.centers = centers
 
-  def add(self, point: Point, width: float, params: SnakeParams) -> SnakeNode:
-    node = SnakeNode(point, len(self.list), width, params)
+  def add(self, point: Point, width: float) -> SnakeNode:
+    node = SnakeNode(point, len(self.list), width)
     self.list.append(node)
     return node
 
@@ -166,14 +168,14 @@ def _shuffle_index(params: SnakeParams, index: int, length: int) -> bool:
   return True
 
 def draw_snake(params: SnakeParams, group: Group = None):
-  # draw_border(group)
-
   max_pad = svg_safe().copy()
   pad = svg_safe().shrink_copy(params.pad)
 
   # Draw safety border and page border
-  # draw_rect_rect(pad, group)
-  # draw_rect_rect(svg_full())
+  if params.draw_boundary_debug:
+    draw_border(group)
+    draw_rect_rect(pad, group)
+    draw_rect_rect(svg_full())
 
   cell = params.cell_size.rand()
   print("Cell size:", cell)
@@ -189,7 +191,11 @@ def draw_snake(params: SnakeParams, group: Group = None):
   node_h = pad.h / row2
   half_w = node_w / 2
   half_h = node_h / 2
-  max_size = max(node_w, node_h) * params.size_base.rand()
+  max_size = min(half_w, half_h) * params.size_base.rand()
+  num_divisions = params.size_divisions.rand()
+  division_size: List[float] = []
+  for i in range(0, num_divisions + 1):
+    division_size.append(max_size * params.size_range.rand())
 
   edges = spanning_tree(row, col, total)
 
@@ -230,6 +236,8 @@ def draw_snake(params: SnakeParams, group: Group = None):
   if params.close_path:
     offsetPath.append(path[offset])
 
+  # TODOML full scale curve across X / Y using beziers
+
   # Scale and shuffle the points
   line: List[Point] = []
   offsetPathLen = len(offsetPath)
@@ -254,12 +262,15 @@ def draw_snake(params: SnakeParams, group: Group = None):
   ribs_subdivide_centers = generate_centerpoints(line)
   points = generate_final_points(line, ribs_subdivide_centers, params.step_dist)
   snake = Snake(points, ribs_subdivide_centers)
-  for i in range(0, len(points)):
-    node = snake.add(points[i], max_size, params)
+  len_points = len(points)
+  print("Nodes:", len_points)
+  division_points = len_points / num_divisions
+  for i in range(0, len_points):
+    division = division_size[floor(i / division_points)]
+    node = snake.add(points[i], division)
     if i > 0:
       snake.list[i-1].set_next(node)
 
-  print("Nodes:", len(points))
 
   # Shrink ends
   length = len(snake.list)
@@ -272,23 +283,41 @@ def draw_snake(params: SnakeParams, group: Group = None):
     node.size = ease_in_out_quad(percent, 0, node.size, 1)
 
   # Average Sizes
-  for iterations in range(0, params.smoothing_steps):
-    snake_len = len(snake.list)
-    for i in range(0, snake_len):
-      from_end = min(i, snake_len - 1 - i)
-      steps = min(from_end, params.smoothing_range)
-      if steps == 0:
-        continue
-      current = snake.list[i]
-      avg_size = 0
-      avg_vec = Point(0, 0)
-      total_steps = steps * 2 + 1
-      for j in range(-steps, steps + 1):
-        node = snake.list[i + j]
-        avg_size += node.size
-        avg_vec.add(node.final_vec)
-      current.size = avg_size / total_steps
-      current.final_vec = avg_vec.divide(total_steps)
+  smoothing_range: int = floor(params.smoothing_range / params.step_dist)
+  if params.do_average:
+    for iterations in range(0, params.smoothing_steps):
+      snake_len = len(snake.list)
+      for i in range(0, snake_len):
+        from_end = min(i, snake_len - 1 - i)
+        steps = min(from_end, smoothing_range)
+        if steps == 0:
+          continue
+        current = snake.list[i]
+        avg_size = 0
+        avg_vec = Point(0, 0)
+        total_steps = steps * 2 + 1
+        for j in range(-steps, steps + 1):
+          node = snake.list[i + j]
+          avg_size += node.size
+          avg_vec.add(node.final_vec)
+        current.size = avg_size / total_steps
+        current.final_vec = avg_vec.divide(total_steps)
+
+  # Clamp sizes
+  for node in snake.list:
+    n_top = node.point.y - node.size
+    n_bottom = node.point.y + node.size
+    n_right = node.point.x + node.size
+    n_left = node.point.x - node.size
+
+    if n_left < max_pad.x:
+      node.size = min(abs(max_pad.x - node.point.x), node.size)
+    if n_right > max_pad.right():
+      node.size = min(abs(max_pad.right() - node.point.x), node.size)
+    if n_top < max_pad.y:
+      node.size = min(abs(max_pad.y - node.point.y), node.size)
+    if n_bottom > max_pad.bottom():
+      node.size = min(abs(max_pad.bottom() - node.point.y), node.size)
 
   # Create lines
   rib_index = 0
