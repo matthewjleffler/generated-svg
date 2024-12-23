@@ -1,4 +1,4 @@
-from lib_strings import *
+from impl_strings import *
 
 
 class StringsRunner(Runner):

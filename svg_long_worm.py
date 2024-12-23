@@ -1,4 +1,4 @@
-from lib_worm import *
+from impl_worm import *
 
 
 class LongWormRunner(Runner):

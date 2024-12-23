@@ -1,4 +1,4 @@
-from lib_exploded_room import *
+from impl_exploded_room import *
 
 
 class ExplodedRoomRunner(Runner):

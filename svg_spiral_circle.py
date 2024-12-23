@@ -1,4 +1,4 @@
-from lib_spiral_circle import *
+from impl_spiral_circle import *
 
 
 class SpiralCircleRunner(Runner):

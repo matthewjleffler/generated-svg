@@ -1,4 +1,4 @@
-from lib_vertical_lines import *
+from impl_vertical_lines import *
 
 
 class VerticalLineRunner(Runner):

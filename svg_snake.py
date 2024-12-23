@@ -1,4 +1,4 @@
-from lib_snake import *
+from impl_snake import *
 
 
 class SnakeRunner(Runner):

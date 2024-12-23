@@ -1,4 +1,4 @@
-from lib_radial_circle import *
+from impl_radial_circle import *
 
 
 class RadialCirclesRunner(Runner):

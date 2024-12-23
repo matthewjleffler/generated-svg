@@ -1,4 +1,4 @@
-from lib_wave import *
+from impl_wave import *
 
 
 class VerticalWaveRunner(Runner):

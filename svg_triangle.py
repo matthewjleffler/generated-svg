@@ -1,4 +1,4 @@
-from lib_triangle import *
+from impl_triangle import *
 
 class TriangleRunner(Runner):
   def __init__(self) -> None:

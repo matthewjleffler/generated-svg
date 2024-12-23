@@ -1,4 +1,4 @@
-from lib_stack import *
+from impl_stack import *
 
 
 class CircleStackRunner(Runner):

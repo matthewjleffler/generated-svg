@@ -1,4 +1,4 @@
-from lib_checkerboard import *
+from impl_checkerboard import *
 
 
 class CheckerboardRunner(Runner):
