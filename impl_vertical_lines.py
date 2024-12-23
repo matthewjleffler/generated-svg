@@ -41,7 +41,7 @@ def _create_highlight(line:List[Point], left:float, final:float, params:Vertical
   available: List[int] = []
   claimed: List[int] = []
 
-  open_group("stroke=\"blue\"", group)
+  open_group(GroupSettings(stroke=GroupColor.blue), group)
 
   # Variables
   strike = params.strike_range.rand()

@@ -38,9 +38,9 @@ class SnakeParams(BaseParams):
     self.spine_shuffle: float = .1
     self.smoothing_range: int = 60
     self.smoothing_steps: int = 3 # 10
-    self.close_path: bool = False
+    self.close_path: bool = True
     self.do_average: bool = True
-    self.do_wave: bool = True
+    self.do_wave: bool = False
     self.wave_segments: RangeInt = RangeInt(1, 5)
     self.wave_offset: RangeFloat = RangeFloat(-.5, .5)
 
@@ -329,7 +329,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
   # Average Sizes
   smoothing_range: int = floor(params.smoothing_range / params.step_dist)
   if params.do_average:
-    for iterations in range(0, params.smoothing_steps):
+    for _ in range(0, params.smoothing_steps):
       snake_len = len(snake.list)
       for i in range(0, snake_len):
         from_end = min(i, snake_len - 1 - i)

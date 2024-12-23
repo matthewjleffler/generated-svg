@@ -14,11 +14,11 @@ class TestTextRunner(Runner):
     draw_text(100, 400, 10, "0123456789 ;:'\"éÉ`~")
     draw_text(100, 500, 10, "!@#$%^&*()-_+={}[]\|,./<>?")
 
-    open_group("transform=\"translate(100,600) scale(0.5,0.5)\"")
+    open_group(GroupSettings(translate=(100, 600), scale=0.5))
     draw_text(0, 0, 10, "Test Small Text too")
     close_group()
 
-    open_group("transform=\"translate(100, 700) rotate(10)\"")
+    open_group(GroupSettings(translate=(100, 700), rotate=10))
     draw_text(0, 0, 10, "TEST ROTATED TEXT")
     close_group()
 

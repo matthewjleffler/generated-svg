@@ -134,7 +134,7 @@ def draw_radial_circles(params:RadialParams, group:Group = None):
   offset_y = (svg_safe().h - size / 2 - (row_max * size_d * .85)) / 2
 
   # Calculate circles and draw borders
-  open_group("stroke=\"blue\"", group)
+  open_group(GroupSettings(stroke=GroupColor.blue), group)
   for row in range(0, row_max):
     y = offset_y + pad_rect.y + size + (size_d * .85) * row
     for col in range(0, col_max):

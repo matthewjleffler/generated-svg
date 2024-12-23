@@ -230,7 +230,7 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
   for i in range(0, len(corners)):
     point = corners[i]
     draw_circ(point.x, point.y, 5)
-    # open_group(f"transform=\"translate({point.x},{point.y}) scale(0.5,0.5)\"")
+    # open_group(GroupSettings(translatePoint=point, scale=0.5))
     # draw_text(0, 0, 5, str(i))
     # close_group()
 
@@ -253,9 +253,9 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
 
   # Skew Rads
   vert_degs = params.skew_vert_degs.rand()
-  vert_rads = vert_degs * _deg_to_rad
+  vert_rads = vert_degs * deg_to_rad
   horiz_degs = params.skew_horiz_degs.rand()
-  horiz_rads = horiz_degs * _deg_to_rad
+  horiz_rads = horiz_degs * deg_to_rad
 
   # Checkerboard vectors
   vert_vec = Point(0, 1)
@@ -344,13 +344,13 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
 
   # Draw interior aligned lines
   if params.draw_aligned_vertical:
-    open_group("stroke=\"red\"")
+    open_group(GroupSettings(stroke=GroupColor.red))
     path = _create_point_path_alternating(fill_vert)
     draw_path(path)
     close_group()
 
   if params.draw_aligned_horizontal:
-    open_group("stroke=\"blue\"")
+    open_group(GroupSettings(stroke=GroupColor.blue))
     path = _create_point_path_alternating(fill_horiz)
     draw_path(path)
     close_group()
@@ -393,7 +393,7 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
   #   center = checker.center
   #   draw_circ(center.x, center.y, 5, group)
   #   scale = 0.3
-  #   open_group(f"transform=\"translate({center.x}, {center.y}) scale({scale}, {scale})\"")
+  #   open_group(GroupSettings(translatePoint=center, scale=scale))
   #   draw_text(0, 0, 5, str(i))
   #   close_group()
 
@@ -404,7 +404,7 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
     _create_fill(fill_vec, pad_rect, checker, top_bottom, checker_fill, params)
 
   if params.draw_filled_checkers:
-    open_group("stroke=\"green\"", group)
+    open_group(GroupSettings(stroke=GroupColor.green), group)
     path = _create_point_path_alternating(checker_fill)
     draw_path(path)
     close_group()
@@ -424,6 +424,6 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
     corner = corners[i]
     draw_circ(corner.x, corner.y, 5, group)
     scale = 0.3
-    open_group(f"transform=\"translate({corner.x}, {corner.y}) scale({scale}, {scale})\"")
+    open_group(GroupSettings(translate=(corner.x, corner.y), scale=scale))
     draw_text(0, 0, 5, str(i))
     close_group()

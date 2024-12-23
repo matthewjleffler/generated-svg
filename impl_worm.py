@@ -71,12 +71,12 @@ def _draw_worm_layer(params:WormParams, fixed_size:float, group:Group = None):
   offset_x = round((svg_safe().w - (max_col * worm_size)) / 2, 2)
   offset_y = round((svg_safe().h - (max_row * worm_row_size)) / 2, 2)
 
-  open_group(f"transform=\"translate({offset_x},{offset_y})\"", group)
+  open_group(GroupSettings(translate=(offset_x, offset_y)), group)
   _draw_worm_set(max_row, max_col, worm_size, fixed_size, params)
   close_group()
   translate_x = svg_full().w - offset_x + worm_size * .1
   translate_y = offset_y + worm_size * .75
-  open_group(f"transform=\"translate({translate_x},{translate_y}) scale(-1,1)\"", group)
+  open_group(GroupSettings(translate=(translate_x, translate_y), scaleXY=(-1, 1)), group)
   _draw_worm_set(max_row, max_col, worm_size, fixed_size, params)
   close_group()
 
@@ -87,7 +87,7 @@ def draw_worm(params:WormParams, group:Group = None):
     _draw_worm_layer(params, 0, group)
 
   if params.draw_innards:
-    open_group("stroke=\"blue\"", group)
+    open_group(GroupSettings(stroke=GroupColor.blue), group)
     _draw_worm_layer(params, params.fixed_size)
     close_group()
 
@@ -176,7 +176,7 @@ def _pick_valid_highlight(available_highlights:List[int], consumed_highlights:Li
       return None
 
 def _draw_worm_highlights(positions:List[Position], params:LongWormParams, group:Group = None):
-  open_group("stroke=\"blue\"", group)
+  open_group(GroupSettings(stroke=GroupColor.blue), group)
 
   start = positions[0]
   end = positions[-1]
@@ -234,7 +234,7 @@ def _draw_worm_highlights(positions:List[Position], params:LongWormParams, group
         draw_sunburst(20, point.x, point.y, highlight_size + params.highlight_spacing, params.highlight_spacing)
 
       if num > 0:
-        open_group(f"transform=\"translate({point.x + highlight_size * 1.5},{point.y}) scale(0.5,0.5)\"")
+        open_group(GroupSettings(translate=(point.x + highlight_size * 1.5, point.y), scale=0.5))
         draw_text(0, 0, 10, str(num))
         close_group()
 
@@ -451,11 +451,11 @@ def draw_spiral_worm(params:SprialWormParams, group:Group = None):
     for pos in positions:
       draw_circ(pos.x, pos.y, pos.size, group)
 
-  open_group("stroke=\"blue\"", group)
+  open_group(GroupSettings(stroke=GroupColor.blue), group)
   _spiral_worm_highlight(pad_rect.h, pad_rect.center_x(), pad_rect.center_y(), params)
   close_group()
 
-  open_group("stroke=\"red\"", group)
+  open_group(GroupSettings(stroke=GroupColor.red), group)
   _highlight_2(pad_rect.w, pad_rect.h, pad_rect.center_x(), pad_rect.center_y(), positions, params)
   close_group()
 

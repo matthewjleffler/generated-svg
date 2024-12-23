@@ -6,7 +6,7 @@ import os
 from re import compile
 from math import *
 from lib_math import *
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import List
 from lib_rand import *
 
@@ -30,11 +30,63 @@ def clamp_point_list(clamp_val:int, points:List[Point]):
     point.x = round(point.x / clamp_val, 0) * clamp_val
     point.y = round(point.y / clamp_val, 0) * clamp_val
 
+class GroupColor(StrEnum):
+  black = 'black'
+  blue = 'blue'
+  red = 'red'
+  green = 'green'
+  none = 'none'
+
+
+class GroupSettings:
+  def __init__(
+      self,
+      stroke: str = None,
+      fill: str = None,
+      translate: tuple[float, float] = None,
+      translatePoint: Point = None,
+      scale: float = None,
+      scaleXY: tuple[float, float] = None,
+      scalePoint: Point = None,
+      rotate: float = None,
+  ):
+    settings: List[str] = []
+
+    if stroke is not None:
+      settings.append(f"stroke=\"{stroke}\"")
+
+    if fill is not None:
+      settings.append(f"fill=\"{fill}\"")
+
+    transforms: List[str] = []
+
+    if translate is not None:
+      transforms.append(f"translate({translate[0]}, {translate[1]})")
+    elif translatePoint is not None:
+      transforms.append(f"translate({translatePoint.x}, {translatePoint.y})")
+
+    if scale is not None:
+      transforms.append(f"scale({scale}, {scale})")
+    elif scaleXY is not None:
+      transforms.append(f"scale({scaleXY[0]}, {scaleXY[1]})")
+    elif scalePoint is not None:
+      transforms.append(f"scale({scalePoint.x}, {scalePoint.y})")
+
+    if rotate is not None:
+      transforms.append(f"rotate({rotate})")
+
+    if len(transforms) > 0:
+      settings.append(f"transform=\"{' '.join(transforms)}\"")
+
+    self.settings = ""
+    if len(settings) > 0:
+      self.settings = ' '.join(settings)
+
 
 class Group:
-  def __init__(self, parent, settings):
+  def __init__(self, parent: 'Group', settings: GroupSettings):
     self.parent = parent
-    self.settings = settings
+    self.settings = settings.settings
     self.groups = []
     self.children = []
 
@@ -53,7 +105,7 @@ _svg_border = 50
 _text_indent = 0
 _text_content = ""
 _font_styles = dict()
-_root_group = Group(None, "stroke=\"black\" fill=\"none\"")
+_root_group = Group(None, GroupSettings(stroke=GroupColor.black, fill=GroupColor.none))
 _current_group = _root_group
 _pixel_per_inch = 95.8
 _round_digits = 2
@@ -68,7 +120,7 @@ def init():
   _text_indent = 0
   _text_content = ""
   _font_styles = dict()
-  _root_group = Group(None, "stroke=\"black\" fill=\"none\"")
+  _root_group = Group(None, GroupSettings(stroke=GroupColor.black, fill=GroupColor.none))
   _current_group = _root_group
 
 
@@ -314,7 +366,7 @@ def commit_group(group:Group):
   close_text_indent("</g>")
 
 
-def open_group(settings, parent:Group = None) -> Group:
+def open_group(settings: GroupSettings, parent:Group = None) -> Group:
   global _current_group
 
   if not parent:
@@ -367,7 +419,7 @@ def draw_path(value:str, group:Group = None):
   group.children.append(f"<path d=\"{value}\"/>")
 
 def draw_border(group:Group = None):
-  open_group("stroke=\"red\"", group)
+  open_group(GroupSettings(stroke=GroupColor.red), group)
   draw_rect(_svg_safe.x, _svg_safe.y, _svg_safe.w, _svg_safe.h)
   close_group()
 
