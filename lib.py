@@ -1,5 +1,4 @@
 import random
-import shutil
 import time
 from datetime import timedelta
 from sys import maxsize, argv
@@ -212,38 +211,6 @@ def write_file(path:str, dir:str, name:str, number:int):
   f.close()
   print(f"Wrote file: {final_path}")
 
-  # Try to copy to output folder
-  export_path = "./dir.txt"
-  if number <= 0 or not os.path.exists(export_path):
-    # Have not been provided a path
-    return
-  f = open(export_path, "r")
-  export_path = f.readline()
-  f.close()
-  if not os.path.exists(export_path):
-    # Target doesn't exist, or no data
-    return
-  # Ensure directories exist
-  export_path = f"{export_path}/{dir}"
-  if not os.path.exists(export_path):
-    os.makedirs(export_path)
-  export_path = f"{export_path}/{name}"
-  if not os.path.exists(export_path):
-    os.makedirs(export_path)
-  if not os.path.exists(export_path):
-    print("Making output failed:", export_path)
-    return
-
-  file_copy_path = f"{export_path}/{svg_name}"
-  if os.path.exists(file_copy_path):
-    print("Output file exists, appending random value")
-    rand = RangeInt(12000, 80000).rand()
-    file_copy_path = f"{export_path}/{name}_{number}_{rand}.svg"
-
-  # Copy file to target
-  shutil.copyfile(final_path, file_copy_path)
-  print(f"Copied to: {file_copy_path}")
-
 # SVG Management
 
 def commit(seed:int, size:tuple[int, int], params:any):
@@ -380,8 +347,21 @@ def main(dir:str, layer: str, test: bool, seed:int, size:tuple[int, int], loop:c
   commit(seed, size, params)
   # print(text_content)
 
-  # Make directory if necessary
+  export_path_file = "./dir.txt"
+  if not test and not os.path.exists(export_path_file):
+    print("Please specify output path in dir.txt")
+    return
+
+  # Default directory
   fullpath = f"./output/{dir}/{layer}"
+
+  # Replace fullpath with real path if saving
+  if not test:
+    f = open(export_path_file, "r")
+    fullpath = f"{f.readline()}/{dir}/{layer}"
+    f.close()
+
+  # Make directory if necessary
   if not os.path.exists(fullpath):
     os.makedirs(fullpath)
 

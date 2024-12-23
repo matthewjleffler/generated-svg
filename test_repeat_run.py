@@ -8,7 +8,7 @@ from enum import Enum
 ### Test run a given script repeatedly
 ###
 
-#TODO test PC
+#TODOML add support for passing params on args
 
 _esc_code = 27
 
@@ -79,6 +79,8 @@ def run():
   module_path = args.positional_str(0)
   if module_path.endswith(".py"):
     module_path = _remove_suffix(module_path, ".py")
+  if module_path.startswith(".\\"):
+    module_path = module_path[2:len(module_path)]
   module = importlib.import_module(module_path)
   if not module:
     print(f"Couldn't load module: {module_path}")

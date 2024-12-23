@@ -52,13 +52,19 @@ class Point:
     result.multiply(scale)
     return result
 
-  def add(self, other: 'Point') -> "Point":
-    self.x += other.x
-    self.y += other.y
+  def add(self, other: 'Point') -> 'Point':
+    return self.add_floats(other.x, other.y)
+
+  def add_floats(self, x: float, y: float) -> 'Point':
+    self.x += x
+    self.y += y
     return self
 
   def add_copy(self, other: 'Point') -> 'Point':
     return Point(self.x + other.x, self.y + other.y)
+
+  def add_floats_copy(self, x: float, y: float) -> 'Point':
+    return Point(self.x + x, self.y + y)
 
   def subtract(self, other: 'Point') -> 'Point':
     self.x -= other.x
