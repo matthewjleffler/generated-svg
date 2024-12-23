@@ -236,7 +236,8 @@ def draw_snake(params: SnakeParams, group: Group = None):
   if params.close_path:
     offsetPath.append(path[offset])
 
-  # TODOML full scale curve across X / Y using beziers
+  #TODOML full scale curve across X / Y using beziers to add a "wave"
+  #TODOML make number count only save in dropbox
 
   # Scale and shuffle the points
   line: List[Point] = []
