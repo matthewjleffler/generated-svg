@@ -32,7 +32,7 @@ class RadialParams(BaseParams):
     self.size_pad = 20
     self.origin_shuffle_range = 0
 
-    self._apply_params(defaults)
+    super().__init__(defaults)
 
 
 def _point(center_x:float, center_y:float, rad:float, dist:float) -> Point:
@@ -106,7 +106,7 @@ def _add_border(x:float, y:float, size_h:float, params:RadialParams):
 
   ring_buffer = params.ring_pad + params.ring_pad * (ring_count + 1)
 
-  border = rand_weight(params.border_weights)
+  border = BorderType(rand_weight(params.border_weights))
   if border == BorderType.Empty or not params.draw_border:
     return
   elif border == BorderType.Circles:

@@ -22,7 +22,7 @@ class VerticalWaveParams(BaseParams):
     self.hatch_range_on: RangeInt = RangeInt(5, 25)
     self.hatch_range_off: RangeInt = RangeInt(1, 2)
 
-    self._apply_params(defaults)
+    super().__init__(defaults)
 
 
 class _Wave:

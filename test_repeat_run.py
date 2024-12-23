@@ -74,6 +74,22 @@ def run():
   if args.positional_count() < 1:
     print("Please supply a script")
     return
+
+  if args.positional_str(0).endswith('?'):
+    print('\nUsage: python test_repeat_run.py [script_name.py]')
+    print('  Args:')
+    print('    size:       --size=[w]x[h]')
+    print('    seed:       --seed=[seed]')
+    print('    test:       --test=[true/t]')
+    print('  Params:')
+    print('    int/float:  ++[param name]=[val]')
+    print('    bool:       ++[param name]=[t/true/f/false]')
+    print('    RangeInt:   ++[param name]=ri:[min]:[max]')
+    print('    RangeFloat: ++[param name]=rf:[min]:[max]')
+    print('    weight:     ++[param name]=w:[val,weight]:[val,weight]:...')
+    print('')
+    return
+
   module_path = args.positional_str(0)
   if module_path.endswith(".py"):
     module_path = _remove_suffix(module_path, ".py")

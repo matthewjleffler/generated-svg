@@ -1,4 +1,5 @@
 import random
+from typing import List
 
 ###
 ### Random Lib
@@ -43,16 +44,16 @@ def rand_float(min:float, max:float) -> float:
 def rand_int(min:int, max:int) -> int:
   return random.randint(min, max)
 
-def rand_weight(array) -> any:
+def rand_weight(array: List[tuple[any, float]]) -> any:
   if len(array) < 1:
     return None
   sum = 0
-  for item in array:
-    sum += item[1]
+  for (_, weight) in array:
+    sum += weight
   rand = random.random() * sum
-  for item in array:
-    rand -= item[1]
+  for (item, weight) in array:
+    rand -= weight
     if rand <= 0:
-      return item[0]
+      return item
   print("Error in weighted randomness")
   return None

@@ -34,7 +34,7 @@ class VerticalLineParams(BaseParams):
     self.mutate_range_y = 3
     self.mutate_max_range = 30
 
-    self._apply_params(defaults)
+    super().__init__(defaults)
 
 
 def _create_highlight(line:List[Point], left:float, final:float, params:VerticalLineParams, group:Group = None):

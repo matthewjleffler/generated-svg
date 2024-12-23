@@ -44,7 +44,7 @@ class SnakeParams(BaseParams):
     self.wave_segments: RangeInt = RangeInt(1, 5)
     self.wave_offset: RangeFloat = RangeFloat(-.5, .5)
 
-    self._apply_params(defaults)
+    super().__init__(defaults)
 
 
 class SnakeNode:

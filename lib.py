@@ -99,50 +99,67 @@ class Defaults:
 
 class BaseParams:
   def __init__(self, defaults: Defaults) -> None:
-    pass
+    self._apply_params(defaults)
 
   def _apply_params(self, defaults: Defaults) -> None:
-    #TODOML weights?
     for k, v in defaults.params.items():
-      val = self.__parse(k, v)
+      val = self.__parse(v)
       if val is not None:
         setattr(self, k, val)
         print('Applied:', k, val)
+      else:
+        print('Invalid param:', k, v)
 
   def __parse_number(self, v: str):
     try:
       # Float
-      float_res = float(v)
+      float_res = float(v.strip())
       if float_res.is_integer():
         # Int
         return int(float_res)
       return float_res
     except ValueError:
-      # Fall back to string
-      return v
+      return None
 
-  def __parse(self, k:str, v: str):
-    lower = v.lower()
+  def __parse(self, v: str):
+    lower = v.lower().strip()
     split = lower.split(":")
-    if len(split) == 1:
+    if split[0] == 'w' and len(split) > 1:
+      # Weights
+      result: List[tuple[int, float]] = []
+      for i in range(1, len(split)):
+        str_weight = split[i].split(',')
+        if len(str_weight) != 2:
+          return None
+        [str_val, str_weight] = str_weight
+        val = self.__parse_number(str_val)
+        weight = self.__parse_number(str_weight)
+        if val is None or weight is None:
+          return None
+        result.append([int(val), weight])
+      return result
+    elif len(split) == 1:
+      # Bools
       if lower == "true" or lower == "t":
         return True
       if lower == "false" or lower == "f":
         return False
+      # Number
       return self.__parse_number(v)
     elif len(split) == 3:
       [r_type, r_min, r_max] = split
       if r_type == 'ri':
         ri_min = self.__parse_number(r_min)
         ri_max = self.__parse_number(r_max)
-        if type(ri_min) is not str and type(ri_max) is not str:
-          return RangeInt(int(ri_min), int(ri_max))
+        if ri_min is None or ri_max is None:
+          return None
+        return RangeInt(int(ri_min), int(ri_max))
       elif r_type == 'rf':
         rf_min = self.__parse_number(r_min)
         rf_max = self.__parse_number(r_max)
-        if rf_min is not str and rf_max is not str:
-          return RangeFloat(rf_min, rf_max)
-    print('Invalid param:', k, v)
+        if rf_min is None or rf_max is None:
+          return None
+        return RangeFloat(rf_min, rf_max)
     return None
 
 class Runner:

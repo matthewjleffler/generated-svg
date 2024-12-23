@@ -22,7 +22,7 @@ class WormParams(BaseParams):
     self.stack_spread = 3
     self.fixed_size = 5
 
-    self._apply_params(defaults)
+    super().__init__(defaults)
 
 
 def _draw_worm_set(

@@ -18,7 +18,7 @@ class SpiralCircleParams(BaseParams):
     self.bump_range = RangeFloat(0, 0.1)
     self.bump_mult = RangeInt(2, 20)
 
-    self._apply_params(defaults)
+    super().__init__(defaults)
 
 
 def draw_spiral_circle(params:SpiralCircleParams, group:Group = None):

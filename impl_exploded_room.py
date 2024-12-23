@@ -24,7 +24,7 @@ class ExplodedRoomParams(BaseParams):
     self.split_pad_x: RangeFloat = RangeFloat(-.05, .2)
     self.split_pad_y: RangeFloat = RangeInt(-10, 10)
 
-    self._apply_params(defaults)
+    super().__init__(defaults)
 
 
 def _offset_skew(skew:int, offset:Point, params: ExplodedRoomParams) -> Line:

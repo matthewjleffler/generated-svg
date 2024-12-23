@@ -21,7 +21,7 @@ class CheckerboardParams(BaseParams):
     self.interior_space_filled = 5
     self.mutate_checkers = True
 
-    self._apply_params(defaults)
+    super().__init__(defaults)
 
 class Checker:
   def __init__(self, left:Line, right:Line, top:Line, bottom:Line) -> None:

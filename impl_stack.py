@@ -18,7 +18,7 @@ class CircleStackParams(BaseParams):
     self.min_size: int = 10
     self.max_size_range: RangeInt = RangeInt(50, 150)
 
-    self._apply_params(defaults)
+    super().__init__(defaults)
 
 
 def draw_circle_stack(params:CircleStackParams, group:Group = None):

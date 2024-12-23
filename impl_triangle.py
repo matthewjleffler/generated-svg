@@ -14,7 +14,7 @@ class TriangleParams(BaseParams):
     self.step_size = 5
     self.rotate_range = RangeFloat(0, 180)
 
-    self._apply_params(defaults)
+    super().__init__(defaults)
 
 
 def _create_adjusted_point(
