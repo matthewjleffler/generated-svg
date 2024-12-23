@@ -6,13 +6,15 @@ from lib_path import *
 ### Triangle Design
 ###
 
-class TriangleParams:
-  def __init__(self) -> None:
+class TriangleParams(BaseParams):
+  def __init__(self, defaults: Defaults) -> None:
     self.draw_triangles = True
     self.pad = 0
     self.point_range = 100
     self.step_size = 5
     self.rotate_range = RangeFloat(0, 180)
+
+    self._apply_params(defaults)
 
 
 def _create_adjusted_point(

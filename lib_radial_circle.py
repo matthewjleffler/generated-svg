@@ -15,8 +15,8 @@ class BorderType(IntEnum):
   Circles = 1
   Starburst = 2
 
-class RadialParams:
-  def __init__(self) -> None:
+class RadialParams(BaseParams):
+  def __init__(self, defaults: Defaults) -> None:
     self.draw_circles = True
     self.draw_border = True
     self.rotate_range = pi / 10
@@ -32,6 +32,7 @@ class RadialParams:
     self.size_pad = 20
     self.origin_shuffle_range = 0
 
+    self._apply_params(defaults)
 
 
 def _point(center_x:float, center_y:float, rad:float, dist:float) -> Point:

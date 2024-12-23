@@ -5,15 +5,15 @@ class VerticalMutateRunner(Runner):
   def __init__(self) -> None:
     super().__init__("vertical-mutate")
 
-  def loop_main(self):
-    params = VerticalLineParams()
+  def loop_main(self, defaults: Defaults):
+    params = VerticalLineParams(defaults)
     params.mutate = True
     params.draw_highlights = False
     draw_lines(params)
     return params
 
-  def run(self, test:bool, seed:int, size:tuple[int, int]) -> int:
-    mainseed = main(self.dir, "main", test, seed, size, self.loop_main)
+  def run(self, defaults: Defaults) -> int:
+    mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop_main)
     return mainseed
 
 
@@ -26,5 +26,5 @@ if __name__ == "__main__":
     seed = 0,
     size = (9, 12)
   )
-  runner.run(defaults.test, defaults.seed, defaults.size)
+  runner.run(defaults)
 

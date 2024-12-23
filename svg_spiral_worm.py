@@ -5,37 +5,37 @@ class SpiralWormRunner(Runner):
   def __init__(self) -> None:
     super().__init__("spiral-worm")
 
-  def loop_combined(self):
-    params = SprialWormParams()
+  def loop_combined(self, defaults: Defaults):
+    params = SprialWormParams(defaults)
     draw_spiral_worm(params)
     return params
 
-  def loop_main(self):
-    params = SprialWormParams()
+  def loop_main(self, defaults: Defaults):
+    params = SprialWormParams(defaults)
     params.draw_highlight = False
     params.draw_highlight2 = False
     draw_spiral_worm(params)
     return params
 
-  def loop_circle(self):
-    params = SprialWormParams()
+  def loop_circle(self, defaults: Defaults):
+    params = SprialWormParams(defaults)
     params.draw_worm = False
     params.draw_highlight2 = False
     draw_spiral_worm(params)
     return params
 
-  def loop_lines(self):
-    params = SprialWormParams()
+  def loop_lines(self, defaults: Defaults):
+    params = SprialWormParams(defaults)
     params.draw_worm = False
     params.draw_highlight = False
     draw_spiral_worm(params)
     return params
 
-  def run(self, test:bool, seed:int, size:tuple[int, int]) -> int:
-    mainseed = main(self.dir, "combined", test, seed, size, self.loop_combined)
-    main(self.dir, "main", test, mainseed, size, self.loop_main)
-    main(self.dir, "circle", test, mainseed, size, self.loop_circle)
-    main(self.dir, "lines", test, mainseed, size, self.loop_lines)
+  def run(self, defaults: Defaults) -> int:
+    mainseed = main(self.dir, "combined", defaults, defaults.seed, self.loop_combined)
+    main(self.dir, "main", defaults, mainseed, self.loop_main)
+    main(self.dir, "circle", defaults, mainseed, self.loop_circle)
+    main(self.dir, "lines", defaults, mainseed, self.loop_lines)
     return mainseed
 
 
@@ -48,5 +48,5 @@ if __name__ == "__main__":
     seed = 0,
     size = (9, 12)
   )
-  runner.run(defaults.test, defaults.seed, defaults.size)
+  runner.run(defaults)
 

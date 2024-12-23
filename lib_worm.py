@@ -12,8 +12,8 @@ from enum import IntEnum, Enum
 
 # Small Repeated Worm Pattern
 
-class WormParams:
-  def __init__(self) -> None:
+class WormParams(BaseParams):
+  def __init__(self, defaults: Defaults) -> None:
     self.draw_worm = True
     self.draw_innards = True
     self.padding = 50
@@ -21,6 +21,8 @@ class WormParams:
     self.size_range = RangeInt(5, 100)
     self.stack_spread = 3
     self.fixed_size = 5
+
+    self._apply_params(defaults)
 
 
 def _draw_worm_set(
@@ -93,8 +95,8 @@ def draw_worm(params:WormParams, group:Group = None):
 
 # Long Worm Random Winding
 
-class LongWormParams:
-  def __init__(self) -> None:
+class LongWormParams(BaseParams):
+  def __init__(self, defaults: Defaults) -> None:
     # Draw
     self.draw_worm = True
     self.draw_highlight = True
@@ -135,6 +137,8 @@ class LongWormParams:
     self.connect_highlight_weight = [
       (0, 1), (1, 3),
     ]
+
+    self._apply_params(defaults)
 
 class HighlightType(IntEnum):
   Circle = 0
@@ -307,8 +311,8 @@ class SpiralWormBorderType(Enum):
   Circles = 2
 
 
-class SprialWormParams:
-  def __init__(self) -> None:
+class SprialWormParams(BaseParams):
+  def __init__(self, defaults: Defaults) -> None:
     self.draw_worm = True
     self.draw_highlight = True
     self.draw_highlight2 = True
@@ -330,6 +334,8 @@ class SprialWormParams:
     self.position_range = RangeInt(1, 50)
     self.position_steps = 5
     self.ring_range = RangeInt(1, 4)
+
+    self._apply_params(defaults)
 
 
 def _spiral_worm_highlight(

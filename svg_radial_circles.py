@@ -5,27 +5,27 @@ class RadialCirclesRunner(Runner):
   def __init__(self) -> None:
     super().__init__("radial-circles")
 
-  def loop_combined(self):
-    params = RadialParams()
+  def loop_combined(self, defaults: Defaults):
+    params = RadialParams(defaults)
     draw_radial_circles(params)
     return params
 
-  def loop_main(self):
-    params = RadialParams()
+  def loop_main(self, defaults: Defaults):
+    params = RadialParams(defaults)
     params.draw_border = False
     draw_radial_circles(params)
     return params
 
-  def loop_highlights(self):
-    params = RadialParams()
+  def loop_highlights(self, defaults: Defaults):
+    params = RadialParams(defaults)
     params.draw_circles = False
     draw_radial_circles(params)
     return params
 
-  def run(self, test:bool, seed:int, size:tuple[int, int]) -> int:
-    mainseed = main(self.dir, "combined", test, seed, size, self.loop_combined)
-    main(self.dir, "main", test, mainseed, size, self.loop_main)
-    main(self.dir, "highlights", test, mainseed, size, self.loop_highlights)
+  def run(self, defaults: Defaults) -> int:
+    mainseed = main(self.dir, "combined", defaults, defaults.seed, self.loop_combined)
+    main(self.dir, "main", defaults, mainseed, self.loop_main)
+    main(self.dir, "highlights", defaults, mainseed, self.loop_highlights)
     return mainseed
 
 
@@ -38,5 +38,5 @@ if __name__ == "__main__":
     seed = 0,
     size = (9, 12)
   )
-  runner.run(defaults.test, defaults.seed, defaults.size)
+  runner.run(defaults)
 

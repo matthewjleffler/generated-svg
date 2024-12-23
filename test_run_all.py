@@ -35,7 +35,7 @@ def run():
         continue
       print(f"\nRunning {name}")
       count += 1
-      val.runner.run(defaults.test, defaults.seed, defaults.size)
+      val.runner.run(defaults)
 
   print(f"\nFinished running {count} script(s)")
 

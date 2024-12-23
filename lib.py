@@ -90,34 +90,87 @@ def svg_full() -> Rect:
 
 
 # Running
+class Defaults:
+  def __init__(self, test:bool, seed:int, size:tuple[int, int], params:dict[str] = dict()) -> None:
+    self.test:bool = test
+    self.seed:int = seed
+    self.size:tuple[int, int] = size
+    self.params:dict[str] = params
+
+class BaseParams:
+  def __init__(self, defaults: Defaults) -> None:
+    pass
+
+  def _apply_params(self, defaults: Defaults) -> None:
+    #TODOML weights?
+    for k, v in defaults.params.items():
+      val = self.__parse(k, v)
+      if val is not None:
+        setattr(self, k, val)
+        print('Applied:', k, val)
+
+  def __parse_number(self, v: str):
+    try:
+      # Float
+      float_res = float(v)
+      if float_res.is_integer():
+        # Int
+        return int(float_res)
+      return float_res
+    except ValueError:
+      # Fall back to string
+      return v
+
+  def __parse(self, k:str, v: str):
+    lower = v.lower()
+    split = lower.split(":")
+    if len(split) == 1:
+      if lower == "true" or lower == "t":
+        return True
+      if lower == "false" or lower == "f":
+        return False
+      return self.__parse_number(v)
+    elif len(split) == 3:
+      [r_type, r_min, r_max] = split
+      if r_type == 'ri':
+        ri_min = self.__parse_number(r_min)
+        ri_max = self.__parse_number(r_max)
+        if type(ri_min) is not str and type(ri_max) is not str:
+          return RangeInt(int(ri_min), int(ri_max))
+      elif r_type == 'rf':
+        rf_min = self.__parse_number(r_min)
+        rf_max = self.__parse_number(r_max)
+        if rf_min is not str and rf_max is not str:
+          return RangeFloat(rf_min, rf_max)
+    print('Invalid param:', k, v)
+    return None
+
 class Runner:
   def __init__(self, dir:str) -> None:
     self.dir = dir
 
-  def run(self, test:bool, seed:int, size:tuple[int, int]) -> int:
+  def run(self, defaults: Defaults) -> int:
     return 0
-
-
-class Defaults:
-  def __init__(self, test:bool, seed:int, size:tuple[int, int]) -> None:
-    self.test:bool = test
-    self.seed:int = seed
-    self.size:tuple[int, int] = size
 
 
 class Args:
   def __init__(self) -> None:
     self.__positional = []
-    self.__args = dict()
+    self.__args: dict[str] = dict()
+    self.__params: dict[str] = dict()
 
     parse = compile(r"""--(.*?)=(.*)""")
+    param_parse = compile(r"""\+\+(.*?)=(.*)""")
     for i in range(1, len(argv)):
       arg = argv[i]
       parsed = parse.match(arg)
-      if parsed is None:
+      params = param_parse.match(arg)
+      if parsed is None and params is None:
         self.__positional.append(arg)
-      else:
+      elif parsed is not None:
         self.__args[parsed.group(1)] = parsed.group(2)
+      elif params is not None:
+        self.__params[params.group(1)] = params.group(2)
 
   def _get_bool(self, val:str) -> bool:
     return val == "True" or val == "true" or val == "t"
@@ -172,7 +225,7 @@ class Args:
     test = self.get_bool("test", test)
     seed = self.get_int("seed", seed)
     size = self.get_svg_size("size", size)
-    return Defaults(test, seed, size)
+    return Defaults(test, seed, size, self.__params)
 
 
 # Text Writing
@@ -333,22 +386,22 @@ def draw_ring_of_circles(number:int, c_x:float, c_y:float, center_rad:float, cir
 
 # Main
 
-def main(dir:str, layer: str, test: bool, seed:int, size:tuple[int, int], loop:callable) -> int:
+def main(dir:str, layer: str, defaults: Defaults, seed: int, loop:callable) -> int:
   start = time.time()
   init()
-  setup_size(size)
+  setup_size(defaults.size)
 
   if seed == 0:
     seed = random.randrange(maxsize)
   random.seed(seed)
   print("Seed: {}".format(seed))
 
-  params = loop()
-  commit(seed, size, params)
+  params = loop(defaults)
+  commit(seed, defaults.size, params)
   # print(text_content)
 
   export_path_file = "./dir.txt"
-  if not test and not os.path.exists(export_path_file):
+  if not defaults.test and not os.path.exists(export_path_file):
     print("Please specify output path in dir.txt")
     return
 
@@ -356,7 +409,7 @@ def main(dir:str, layer: str, test: bool, seed:int, size:tuple[int, int], loop:c
   fullpath = f"./output/{dir}/{layer}"
 
   # Replace fullpath with real path if saving
-  if not test:
+  if not defaults.test:
     f = open(export_path_file, "r")
     fullpath = f"{f.readline()}/{dir}/{layer}"
     f.close()
@@ -366,7 +419,7 @@ def main(dir:str, layer: str, test: bool, seed:int, size:tuple[int, int], loop:c
     os.makedirs(fullpath)
 
   # Write content
-  if test:
+  if defaults.test:
     # Only overwrite test content
     write_file(fullpath, dir, layer, 0)
   else:

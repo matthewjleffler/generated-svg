@@ -8,8 +8,8 @@ from typing import List
 ### Vertical Wave Drawing
 ###
 
-class VerticalWaveParams:
-  def __init__(self) -> None:
+class VerticalWaveParams(BaseParams):
+  def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
     self.pad_x: int = 50
     self.pad_y: int = 0
@@ -21,6 +21,8 @@ class VerticalWaveParams:
     self.hatch: bool = True
     self.hatch_range_on: RangeInt = RangeInt(5, 25)
     self.hatch_range_off: RangeInt = RangeInt(1, 2)
+
+    self._apply_params(defaults)
 
 
 class _Wave:

@@ -8,8 +8,8 @@ from lib import *
 
 # Circle Stack Drawing
 
-class CircleStackParams:
-  def __init__(self) -> None:
+class CircleStackParams(BaseParams):
+  def __init__(self, defaults: Defaults) -> None:
     self.draw = True
     self.count: int = 20
     self.clamp_start: int = 50
@@ -17,6 +17,9 @@ class CircleStackParams:
     self.fixed_size: int = 0
     self.min_size: int = 10
     self.max_size_range: RangeInt = RangeInt(50, 150)
+
+    self._apply_params(defaults)
+
 
 def draw_circle_stack(params:CircleStackParams, group:Group = None):
   # draw_border(group)
@@ -60,8 +63,8 @@ def draw_circle_stack(params:CircleStackParams, group:Group = None):
 
 # Rectangle Stack Drawing
 
-class RectStackParams:
-  def __init__(self) -> None:
+class RectStackParams(BaseParams):
+  def __init__(self, defaults: Defaults) -> None:
     self.draw = True
     self.count = 20
     self.stack_count = 15
@@ -69,6 +72,9 @@ class RectStackParams:
     self.stack_range = 10
     self.size_range = RangeInt(100, 100)
     self.clamp_size = 10
+
+    self._apply_params(defaults)
+
 
 def draw_rect_stack(params:RectStackParams, group:Group = None):
   # draw_border(group)

@@ -6,7 +6,7 @@ class TestTextRunner(Runner):
   def __init__(self) -> None:
     super().__init__("test-text")
 
-  def loop(self):
+  def loop(self, defaults: Defaults):
     # draw_border()
 
     draw_text(100, 200, 10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -22,8 +22,8 @@ class TestTextRunner(Runner):
     draw_text(0, 0, 10, "TEST ROTATED TEXT")
     close_group()
 
-  def run(self, test:bool, seed:int, size:tuple[int, int]) -> int:
-    mainseed = main(self.dir, "main", test, seed, size, self.loop)
+  def run(self, defaults: Defaults) -> int:
+    mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)
     return mainseed
 
 
@@ -36,5 +36,5 @@ if __name__ == "__main__":
     seed = 1,
     size = (9, 12)
   )
-  runner.run(defaults.test, defaults.seed, defaults.size)
+  runner.run(defaults)
 

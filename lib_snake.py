@@ -13,8 +13,8 @@ from typing import List
 ### https://observablehq.com/@esperanc/random-space-filling-curves
 ###
 
-class SnakeParams:
-  def __init__(self) -> None:
+class SnakeParams(BaseParams):
+  def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
     self.pad: int = 50
     self.draw_boundary_debug: bool = False
@@ -43,6 +43,8 @@ class SnakeParams:
     self.do_wave: bool = True
     self.wave_segments: RangeInt = RangeInt(1, 5)
     self.wave_offset: RangeFloat = RangeFloat(-.5, .5)
+
+    self._apply_params(defaults)
 
 
 class SnakeNode:

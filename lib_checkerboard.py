@@ -7,8 +7,8 @@ from lib_text import *
 ### Checkerboard Design
 ###
 
-class CheckerboardParams:
-  def __init__(self) -> None:
+class CheckerboardParams(BaseParams):
+  def __init__(self, defaults: Defaults) -> None:
     self.draw_lines = True
     self.draw_aligned_vertical = True
     self.draw_aligned_horizontal = True
@@ -20,6 +20,8 @@ class CheckerboardParams:
     self.interior_space_aligned = 5
     self.interior_space_filled = 5
     self.mutate_checkers = True
+
+    self._apply_params(defaults)
 
 class Checker:
   def __init__(self, left:Line, right:Line, top:Line, bottom:Line) -> None:

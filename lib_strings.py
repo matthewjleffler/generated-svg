@@ -9,11 +9,13 @@ from typing import List
 ###
 
 
-class StringParams:
-  def __init__(self) -> None:
+class StringParams(BaseParams):
+  def __init__(self, defaults: Defaults) -> None:
     self.draw = True
     self.text_file_override = "" # Specific override text file
     self.line_count = RangeInt(5, 15)
+
+    self._apply_params(defaults)
 
 
 def draw_strings(params:StringParams, group:Group = None):

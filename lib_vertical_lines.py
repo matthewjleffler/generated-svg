@@ -9,8 +9,8 @@ from typing import List
 ###
 
 
-class VerticalLineParams:
-  def __init__(self) -> None:
+class VerticalLineParams(BaseParams):
+  def __init__(self, defaults: Defaults) -> None:
     self.draw_highlights = True
     self.draw_lines = True
 
@@ -33,6 +33,8 @@ class VerticalLineParams:
     self.mutate_range_x = 3
     self.mutate_range_y = 3
     self.mutate_max_range = 30
+
+    self._apply_params(defaults)
 
 
 def _create_highlight(line:List[Point], left:float, final:float, params:VerticalLineParams, group:Group = None):

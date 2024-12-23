@@ -4,13 +4,13 @@ class TriangleRunner(Runner):
   def __init__(self) -> None:
     super().__init__("triangle")
 
-  def loop(self):
-    params = TriangleParams()
+  def loop(self, defaults: Defaults):
+    params = TriangleParams(defaults)
     draw_triangle(params)
     return params
 
-  def run(self, test:bool, seed:int, size:tuple[int, int]) -> int:
-    mainseed = main(self.dir, "main", test, seed, size, self.loop)
+  def run(self, defaults: Defaults) -> int:
+    mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)
 
     return mainseed
 
@@ -24,5 +24,5 @@ if __name__ == "__main__":
     seed = 0,
     size = (9, 12)
   )
-  runner.run(defaults.test, defaults.seed, defaults.size)
+  runner.run(defaults)
 

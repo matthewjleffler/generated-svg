@@ -8,8 +8,6 @@ from enum import Enum
 ### Test run a given script repeatedly
 ###
 
-#TODOML add support for passing params on args
-
 _esc_code = 27
 
 class _Result(Enum):
@@ -54,7 +52,7 @@ def _run_step(
     current:Defaults,
     defaults:Defaults
   ) -> tuple[Defaults, bool]:
-  lastseed = runner.run(current.test, current.seed, current.size)
+  lastseed = runner.run(current)
   if wait <= 0:
     result = _wait_on_input(key)
   else:
@@ -64,7 +62,7 @@ def _run_step(
 
   if result == _Result.Save:
     print("Saving last output...")
-    return (Defaults(False, lastseed, current.size), False)
+    return (Defaults(False, lastseed, current.size, current.params), False)
   elif result == _Result.Quit:
     return (defaults, True)
   else:

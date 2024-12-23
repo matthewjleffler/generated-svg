@@ -5,27 +5,27 @@ class WormRunner(Runner):
   def __init__(self) -> None:
     super().__init__("worm")
 
-  def loop_combined(self):
-    params = WormParams()
+  def loop_combined(self, defaults: Defaults):
+    params = WormParams(defaults)
     draw_worm(params)
     return params
 
-  def loop_main(self):
-    params = WormParams()
+  def loop_main(self, defaults: Defaults):
+    params = WormParams(defaults)
     params.draw_innards = False
     draw_worm(params)
     return params
 
-  def loop_innards(self):
-    params = WormParams()
+  def loop_innards(self, defaults: Defaults):
+    params = WormParams(defaults)
     params.draw_worm = False
     draw_worm(params)
     return params
 
-  def run(self, test:bool, seed:int, size:tuple[int, int]) -> int:
-    mainseed = main(self.dir, "combined", test, seed, size, self.loop_combined)
-    main(self.dir, "main", test, mainseed, size, self.loop_main)
-    main(self.dir, "innards", test, mainseed, size, self.loop_innards)
+  def run(self, defaults: Defaults) -> int:
+    mainseed = main(self.dir, "combined", defaults, defaults.seed, self.loop_combined)
+    main(self.dir, "main", defaults, mainseed, self.loop_main)
+    main(self.dir, "innards", defaults, mainseed, self.loop_innards)
     return mainseed
 
 
@@ -38,5 +38,5 @@ if __name__ == "__main__":
     seed = 0,
     size = (9, 12)
   )
-  runner.run(defaults.test, defaults.seed, defaults.size)
+  runner.run(defaults)
 

@@ -8,8 +8,8 @@ from typing import List
 ### Exploded Room Drawing
 ###
 
-class ExplodedRoomParams:
-  def __init__(self) -> None:
+class ExplodedRoomParams(BaseParams):
+  def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
     self.slope: int = 100
     self.skew_height: RangeFloat = RangeFloat(0.1, 0.3)
@@ -23,6 +23,8 @@ class ExplodedRoomParams:
     self.height_adjust: RangeFloat = RangeFloat(-.2, .1)
     self.split_pad_x: RangeFloat = RangeFloat(-.05, .2)
     self.split_pad_y: RangeFloat = RangeInt(-10, 10)
+
+    self._apply_params(defaults)
 
 
 def _offset_skew(skew:int, offset:Point, params: ExplodedRoomParams) -> Line:
