@@ -321,11 +321,11 @@ def close_text_indent(line:str):
   add_text_line(line)
 
 
-def write_file(path:str, dir:str, name:str, number:int):
+def write_file(path:str, name:str, number:int):
   if number > 0:
-    svg_name = "{}_{}.svg".format(name, number)
+    svg_name = f"{name}_{number}.svg"
   else:
-    svg_name = "{}.svg".format(name)
+    svg_name = f"{name}.svg"
 
   final_path = f"{path}/{svg_name}"
   f = open(final_path, "w")
@@ -480,7 +480,10 @@ def main(dir:str, layer: str, defaults: Defaults, seed: int, loop:callable) -> i
   # Replace fullpath with real path if saving
   if not defaults.test:
     f = open(export_path_file, "r")
-    fullpath = f"{f.readline()}/{dir}/{layer}"
+    (x, y) = defaults.size
+    w = min(x, y)
+    h = max(x, y)
+    fullpath = f"{f.readline()}/{dir}/{layer}/{w}x{h}"
     f.close()
 
   # Make directory if necessary
@@ -490,15 +493,13 @@ def main(dir:str, layer: str, defaults: Defaults, seed: int, loop:callable) -> i
   # Write content
   if defaults.test:
     # Only overwrite test content
-    write_file(fullpath, dir, layer, 0)
+    write_file(fullpath, layer, 0)
   else:
     # Write numbered content
-    # Consume existing file names
-    max_number = 0
     existing = os.listdir(fullpath)
+    file_name_search = compile(r""".*?_(\d*).svg""")
 
-    file_name_search = compile(r"""^{}\D*(\d*).*svg$""".format(layer))
-
+    numbers: List[int] = []
     for file in existing:
       search = file_name_search.match(file)
       if search == None:
@@ -509,12 +510,18 @@ def main(dir:str, layer: str, defaults: Defaults, seed: int, loop:callable) -> i
       number = int(group)
       if not number:
         continue
-      max_number = max(max_number, number)
+      numbers.append(number)
 
-    # Pick the next number in sequence, including missing numbers
-    min_available_number = max_number + 1
+    # Pick the next number in sequence
+    numbers.sort()
+    valid_number = 1
+    for i in range(0, len(numbers)):
+      next_number = numbers[i]
+      if next_number > valid_number:
+        break
+      valid_number += 1
 
-    write_file(fullpath, dir, layer, min_available_number)
+    write_file(fullpath, layer, valid_number)
 
   total_time = time.time() - start
   print("Elapsed:", timedelta(seconds=total_time))
