@@ -40,9 +40,6 @@ class SnakeParams(BaseParams):
     self.smoothing_steps: int = 3 # 10
     self.close_path: bool = True
     self.do_average: bool = True
-    self.do_wave: bool = False
-    self.wave_segments: RangeInt = RangeInt(1, 5)
-    self.wave_offset: RangeFloat = RangeFloat(-.5, .5)
 
     super().__init__(defaults)
 
@@ -241,20 +238,6 @@ def draw_snake(params: SnakeParams, group: Group = None):
   if params.close_path:
     offsetPath.append(path[offset])
 
-  # Select wave sizes
-  wave_x = params.wave_segments.rand()
-  wave_y = params.wave_segments.rand()
-  wave_split_x = pad.w / wave_x
-  wave_split_y = pad.h / wave_y
-  wave_offset_x: List[float] = [0]
-  wave_offset_y: List[float] = [0]
-  for i in range(0, wave_x):
-    wave_offset_x.append(params.wave_offset.rand() * node_w)
-  for i in range(0, wave_y):
-    wave_offset_y.append(params.wave_offset.rand() * node_h)
-  wave_offset_x.append(0)
-  wave_offset_y.append(0)
-
   # Scale and shuffle the points
   line: List[Point] = []
   offsetPathLen = len(offsetPath)
@@ -266,31 +249,6 @@ def draw_snake(params: SnakeParams, group: Group = None):
     point.y *= node_h
     point.x += pad.x + half_w
     point.y += pad.y + half_h
-
-    # Shuffle the points based on "waves"
-    if params.do_wave:
-      # Determine which offset index we're between
-      wave_prev_x_index = floor(point.x / wave_split_x)
-      wave_next_x_index = ceil(point.x / wave_split_x)
-      wave_prev_y_index = floor(point.y / wave_split_y)
-      wave_next_y_index = ceil(point.y / wave_split_y)
-      # Find the start and end pixels of that index
-      wave_x_start = wave_prev_x_index * wave_split_x
-      wave_x_end = wave_next_x_index * wave_split_x
-      wave_y_start = wave_prev_y_index * wave_split_y
-      wave_y_end = wave_next_y_index * wave_split_y
-      # Find the progress between last to next pixels
-      progress_x = (point.x - wave_x_start) / (wave_x_end - wave_x_start)
-      progress_y = (point.y - wave_y_start) / (wave_y_end - wave_y_start)
-      # Find the last and next offset values to blend between
-      wave_x_last = wave_offset_x[wave_prev_x_index]
-      wave_x_next = wave_offset_x[wave_next_x_index]
-      wave_y_last = wave_offset_y[wave_prev_y_index]
-      wave_y_next = wave_offset_y[wave_next_y_index]
-      # Pick the final offset value and apply it
-      x_offset = ease_in_out_quad(progress_x, wave_x_last, wave_x_next - wave_x_last, 1)
-      y_offset = ease_in_out_quad(progress_y, wave_y_last, wave_y_next - wave_y_last, 1)
-      point.add_floats(x_offset, y_offset)
 
     # Shuffle the individual points
     if _shuffle_index(params, i, offsetPathLen):

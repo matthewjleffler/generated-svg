@@ -100,6 +100,17 @@ class Point:
   def dot(self, other: 'Point') -> float:
     return self.x * other.x + self.y * other.y
 
+  def clamp(self, rect: 'Rect') -> 'Point':
+    if self.x < rect.x:
+      self.x = rect.x
+    if self.x > rect.right():
+      self.x = rect.right()
+    if self.y < rect.y:
+      self.y = rect.y
+    if self.y > rect.bottom():
+      self.y = rect.bottom()
+    return self
+
 
 class Line:
   def __init__(self, p0:Point, p1:Point) -> None:
