@@ -126,7 +126,7 @@ def init():
 
 # Sizes
 
-def setup_size(size:tuple[int, int]):
+def setup_size(size:tuple[float, float]):
   global _svg_full, _svg_safe
   (x, y) = size
   w = max(x, y)
@@ -143,10 +143,10 @@ def svg_full() -> Rect:
 
 # Running
 class Defaults:
-  def __init__(self, test:bool, seed:int, size:tuple[int, int], params:dict[str] = dict()) -> None:
+  def __init__(self, test:bool, seed:int, size:tuple[float, float], params:dict[str] = dict()) -> None:
     self.test:bool = test
     self.seed:int = seed
-    self.size:tuple[int, int] = size
+    self.size:tuple[float, float] = size
     self.params:dict[str] = params
 
 class BaseParams:
@@ -279,7 +279,7 @@ class Args:
       return default
     return float(self.__args[key])
 
-  def get_svg_size(self, key:str, default:tuple[int, int]) -> tuple[int, int]:
+  def get_svg_size(self, key:str, default:tuple[float, float]) -> tuple[float, float]:
     if key not in self.__args:
       return default
     stringSize: str = self.__args[key]
@@ -288,9 +288,15 @@ class Args:
       print(f"Need size in format [w]x[h]")
       return default
     [strx, stry] = split
-    return (int(strx), int(stry))
+    x = float(strx)
+    y = float(stry)
+    if x.is_integer():
+      x = int(x)
+    if y.is_integer():
+      y = int(y)
+    return (x, y)
 
-  def get_defaults(self, test:bool, seed:int, size:tuple[int, int]) -> Defaults:
+  def get_defaults(self, test:bool, seed:int, size:tuple[float, float]) -> Defaults:
     test = self.get_bool("test", test)
     seed = self.get_int("seed", seed)
     size = self.get_svg_size("size", size)
@@ -335,7 +341,7 @@ def write_file(path:str, name:str, number:int):
 
 # SVG Management
 
-def commit(seed:int, size:tuple[int, int], params:any):
+def commit(seed:int, size:tuple[float, float], params:any):
   (x, y) = size
   open_text_indent("<svg version=\"1.1\" width=\"{}\" height=\"{}\" xmlns=\"http://www.w3.org/2000/svg\">".format(_svg_full.w, _svg_full.h))
   add_text_line(f"<!-- Seed: {seed} -->")
@@ -483,7 +489,8 @@ def main(dir:str, layer: str, defaults: Defaults, seed: int, loop:callable) -> i
     (x, y) = defaults.size
     w = min(x, y)
     h = max(x, y)
-    fullpath = f"{f.readline()}/{dir}/{layer}/{w}x{h}"
+    size_text = f"{w}x{h}"
+    fullpath = f"{f.readline()}/{dir}/{layer}/{size_text}"
     f.close()
 
   # Make directory if necessary
