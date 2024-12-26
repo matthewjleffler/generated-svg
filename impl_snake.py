@@ -23,9 +23,9 @@ class SnakeParams(BaseParams):
     self.draw_spine: bool = True
     self.draw_reverse: bool = False # Messes up drawing angles
     self.cell_size: RangeInt = RangeInt(100, 175) # Min 50
-    self.do_shuffle: bool = True
+    self.do_shuffle: bool = False
     self.shuffle: RangeFloat = RangeFloat(.1, .75)
-    self.step_dist: int = 3 # 3
+    self.step_dist: int = 2 # 3
     self.min_dist: int = 1
     self.size_base: RangeFloat = RangeFloat(1, 1.25)
     self.size_range: RangeFloat = RangeFloat(.75, 1.8)
@@ -40,6 +40,8 @@ class SnakeParams(BaseParams):
     self.smoothing_steps: int = 3 # 10
     self.close_path: bool = True
     self.do_average: bool = True
+    self.do_inflate_corners: bool = True
+    self.inflate_factor: float =  1.5
 
     super().__init__(defaults)
 
@@ -286,9 +288,9 @@ def draw_snake(params: SnakeParams, group: Group = None):
 
   # Average Sizes
   smoothing_range: int = floor(params.smoothing_range / params.step_dist)
+  snake_len = len(snake.list)
   if params.do_average:
     for _ in range(0, params.smoothing_steps):
-      snake_len = len(snake.list)
       for i in range(0, snake_len):
         from_end = min(i, snake_len - 1 - i)
         steps = min(from_end, smoothing_range)
@@ -304,6 +306,31 @@ def draw_snake(params: SnakeParams, group: Group = None):
           avg_vec.add(node.final_vec)
         current.size = avg_size / total_steps
         current.final_vec = avg_vec.divide(total_steps)
+
+  # Increase corner sizes
+  if params.do_inflate_corners:
+    for node in snake.list:
+      dot = node.vec().dot(node.final_vec)
+      dot = 1 - ((1 - dot) / params.inflate_factor)
+      if dot > 0:
+        dot_change = 1 / (dot)
+        node.size *= dot_change
+
+  # One more average
+  if params.do_average:
+    for _ in range(0, params.smoothing_steps):
+      for i in range(0, snake_len):
+        from_end = min(i, snake_len - 1 - i)
+        steps = min(from_end, smoothing_range)
+        if steps == 0:
+          continue
+        current = snake.list[i]
+        avg_size = 0
+        total_steps = steps * 2 + 1
+        for j in range(-steps, steps + 1):
+          node = snake.list[i + j]
+          avg_size += node.size
+        current.size = avg_size / total_steps
 
   # Clamp sizes
   for node in snake.list:
