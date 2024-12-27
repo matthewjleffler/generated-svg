@@ -2,6 +2,11 @@ from lib import *
 from lib_path import *
 from typing import List
 
+###
+### Space filling curve algorithm based on:
+### https://observablehq.com/@esperanc/random-space-filling-curves
+###
+
 class Connect:
   def __init__(self) -> None:
     self.right = False
