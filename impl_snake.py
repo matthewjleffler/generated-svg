@@ -41,7 +41,9 @@ class SnakeParams(BaseParams):
     self.close_path: bool = True
     self.do_average: bool = True
     self.do_inflate_corners: bool = True
-    self.inflate_factor: float =  1.5
+    self.inflate_factor: float = .5
+    self.do_final_average: bool = True
+    self.final_average_weight: int = 2
 
     super().__init__(defaults)
 
@@ -93,7 +95,13 @@ def _index_to_x_y(index: int, w: int) -> tuple[int, int]:
   return (int(index % w), int(index / w))
 
 
-def visit(index: int, row: int, col: int, grid: List[bool], edges: List[tuple[int, int]]) -> None:
+def visit(index: int, last: int, row: int, col: int, grid: List[bool], edges: List[tuple[int, int]]) -> List[int]:
+  if grid[index]:
+    return None
+
+  if last >= 0:
+    edges.append((last, index))
+
   grid[index] = True
   (x, y) = _index_to_x_y(index, col)
   neighbors: List[int] = []
@@ -109,18 +117,26 @@ def visit(index: int, row: int, col: int, grid: List[bool], edges: List[tuple[in
   while len(neighbors) > 0:
     n = RangeInt(0, len(neighbors) - 1).rand()
     neighbor = neighbors.pop(n)
-    order.append(neighbor)
     if grid[neighbor]:
       continue
-    edges.append((index, neighbor))
-    visit(neighbor, row, col, grid, edges)
+    order.append(neighbor)
 
+  return order
 
 def spanning_tree(row: int, col: int, total: int) -> List[tuple[int, int]]:
   grid = [False] * total
   edges: List[tuple[int, int]] = []
   start = RangeInt(0, total - 1).rand()
-  visit(start, row, col, grid, edges)
+  next_visit: List[tuple[int, List[int]]] = [(-1, [start])]
+  while (len(next_visit) > 0):
+    (last, next) = next_visit[0]
+    if len(next) <= 0:
+      next_visit.pop(0)
+      continue
+    index = next.pop(0)
+    new_visits = visit(index, last, row, col, grid, edges, )
+    if new_visits:
+      next_visit.insert(0, (index, new_visits))
   return edges
 
 def _index2(i: int, dcol: int, drow: int, w: int, w2: int) -> int:
@@ -260,6 +276,8 @@ def draw_snake(params: SnakeParams, group: Group = None):
 
   # Debug draw the line
   # draw_point_path(line)
+  # # centers = generate_centerpoints(line)
+  # # draw_curved_path(line, centers, group)
   # return
 
   # Generate flowing lines
@@ -305,18 +323,18 @@ def draw_snake(params: SnakeParams, group: Group = None):
           avg_size += node.size
           avg_vec.add(node.final_vec)
         current.size = avg_size / total_steps
-        current.final_vec = avg_vec.divide(total_steps)
+        # Don't average corners as much
+        avg_vec.add(current.final_vec)
+        avg_vec.add(current.final_vec)
+        current.final_vec = avg_vec.divide(total_steps + 2)
 
   # Increase corner sizes
   if params.do_inflate_corners:
     for node in snake.list:
-      dot = node.vec().dot(node.final_vec)
-      dot = 1 - ((1 - dot) / params.inflate_factor)
-      if dot > 0:
-        dot_change = 1 / (dot)
-        node.size *= dot_change
+      dot = 1 - abs(node.vec().dot(node.final_vec))
+      node.size *= (1 + (dot) * params.inflate_factor)
 
-  # One more average
+  # One more average, sizes only
   if params.do_average:
     for _ in range(0, params.smoothing_steps):
       for i in range(0, snake_len):
@@ -331,6 +349,14 @@ def draw_snake(params: SnakeParams, group: Group = None):
           node = snake.list[i + j]
           avg_size += node.size
         current.size = avg_size / total_steps
+
+  # Average vec back towards original
+  if params.do_final_average:
+    for node in snake.list:
+      avg_vec = node.vec()
+      for _ in range(0, params.final_average_weight):
+        avg_vec.add(node.final_vec)
+      node.final_vec = avg_vec.divide(params.final_average_weight + 1)
 
   # Clamp sizes
   for node in snake.list:
@@ -375,26 +401,26 @@ def draw_snake(params: SnakeParams, group: Group = None):
       draw_circ(head_point.x, head_point.y, 20, group)
     draw_point_path(snake.points, group)
 
-  rib_index = 0
-  for node in snake.list:
-    for ribline in node.lines:
-      ribs_subdivide = subdivide_point_path(ribline.points(), params.spine_count)
+  if params.draw_ribs:
+    rib_index = 0
+    for node in snake.list:
+      for ribline in node.lines:
+        ribs_subdivide = subdivide_point_path(ribline.points(), params.spine_count)
 
-      shuffle_amount = params.spine_shuffle * ribline.length()
-      if not params.do_spine_shuffle:
-        shuffle_amount = 0
-      shuffle = node.final_vec.multiply_copy(shuffle_amount)
+        shuffle_amount = params.spine_shuffle * ribline.length()
+        if not params.do_spine_shuffle:
+          shuffle_amount = 0
+        shuffle = node.final_vec.multiply_copy(shuffle_amount)
 
-      for i in forward_indices:
-        ribs_subdivide[i].add(shuffle)
-      for i in backward_indices:
-        ribs_subdivide[i].subtract(shuffle)
+        for i in forward_indices:
+          ribs_subdivide[i].add(shuffle)
+        for i in backward_indices:
+          ribs_subdivide[i].subtract(shuffle)
 
-      # Reverse them so the pen can travel smoothly
-      if params.draw_reverse and rib_index % 2 == 0:
-        ribs_subdivide.reverse()
-      rib_index += 1
+        # Reverse them so the pen can travel smoothly
+        if params.draw_reverse and rib_index % 2 == 0:
+          ribs_subdivide.reverse()
+        rib_index += 1
 
-      ribs_subdivide_centers = generate_centerpoints(ribs_subdivide)
-      if params.draw_ribs:
+        ribs_subdivide_centers = generate_centerpoints(ribs_subdivide)
         draw_curved_path(ribs_subdivide, ribs_subdivide_centers, group)
