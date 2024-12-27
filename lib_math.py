@@ -52,6 +52,11 @@ class Point:
     result.multiply(scale)
     return result
 
+  def multiply_floats(self, scale_x: float, scale_y: float) -> 'Point':
+    self.x *= scale_x
+    self.y *= scale_y
+    return self
+
   def add(self, other: 'Point') -> 'Point':
     return self.add_floats(other.x, other.y)
 
