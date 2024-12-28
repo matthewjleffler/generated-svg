@@ -119,19 +119,20 @@ def _hamiltonian_from_spanning_tree(col: int, col2: int, total2: int, connect: L
   return path
 
 
-def make_maze_line(
-    row: int,
-    col: int,
-    node_w: float,
-    node_h: float,
-    origin_x: float,
-    origin_y: float,
-    close_path: bool
-  ) -> List[Point]:
-  total = row * col
+def make_maze_line(cell_size: float, rect: Rect, close_path: bool) -> List[Point]:
+  row = floor(rect.h / cell_size)
   row2 = row * 2
+  col = floor(rect.w / cell_size)
   col2 = col * 2
+  total = row * col
   total2 = row2 * col2
+
+  node_w = rect.w / col2
+  node_h = rect.h / row2
+  node_scale = Point(node_w, node_h)
+  half_w = node_w / 2
+  half_h = node_h / 2
+  origin = Point(rect.x + half_w, rect.y + half_h)
 
   edges = _spanning_tree(row, col, total)
 
@@ -156,8 +157,8 @@ def make_maze_line(
   # for (i0, i1) in edges:
   #   (x0, y0) = _index_to_x_y(i0, col)
   #   (x1, y1) = _index_to_x_y(i1, col)
-  #   line = Line(Point(x0, y0), Point(x1, y1))
-  #   draw_point_path(line.multiply(Point(node_w, node_h)).add(Point(x, y)).points())
+  #   debug_line = Line(Point(x0, y0), Point(x1, y1))
+  #   draw_point_path(debug_line.multiply(node_scale).add(origin).points())
   # return []
 
   path = _hamiltonian_from_spanning_tree(col, col2, total2, connect)
@@ -178,6 +179,6 @@ def make_maze_line(
   for i in range(0, offsetPathLen):
     index = offsetPath[i]
     (x, y) = _index_to_x_y(index, col2)
-    line.append(Point(x, y).multiply_floats(node_w, node_h).add_floats(origin_x, origin_y))
+    line.append(Point(x, y).multiply_point(node_scale).add(origin))
 
   return line

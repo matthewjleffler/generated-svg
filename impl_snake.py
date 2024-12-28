@@ -57,11 +57,11 @@ def draw_snake(params: SnakeParams, group: Group = None):
     draw_rect_rect(pad, group)
     draw_rect_rect(svg_full())
 
-  cell = params.cell_size.rand()
-  print("Cell size:", cell)
+  cell_size = params.cell_size.rand()
+  print("Cell size:", cell_size)
 
-  row = floor(pad.h / cell)
-  col = floor(pad.w / cell)
+  row = floor(pad.h / cell_size)
+  col = floor(pad.w / cell_size)
   row2 = row * 2
   col2 = col * 2
 
@@ -92,15 +92,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
   )
 
   # Make maze
-  line: List[Point] = make_maze_line(
-    row,
-    col,
-    node_w,
-    node_h,
-    pad.x + half_w,
-    pad.y + half_h,
-    params.close_path
-  )
+  line: List[Point] = make_maze_line(cell_size, pad, params.close_path)
   if len(line) < 1:
     print('0 length maze')
     return

@@ -3,39 +3,45 @@ from lib_math import *
 from lib_path import *
 from lib_poly import *
 from lib_maze import *
+from enum import Enum
 from typing import List
 
 ###
 ### Infinite Maze
 ###
 
+class DrawType(Enum):
+  straight = 0
+  curved = 1
+  hatched = 2
+
+
 class MazeParams(BaseParams):
   def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
     self.draw_boundary_debug: bool = False
-    self.draw_curved: bool = True
+    self.draw_type: DrawType = DrawType.curved
     self.close_path: bool = True
-    self.cell_size: RangeInt = RangeInt(7, 7)
-    self.do_cap: bool = True
+    self.cell_size: int = 4
+    self.do_cap: bool = False
     self.cap_percent: RangeFloat = RangeFloat(.8, .99)
     self.do_push: bool = False
     self.debug_push: bool = False
-    self.allow_pull: bool = False
-    self.push_num: RangeInt = RangeInt(800, 1800)
-    self.push_range: RangeFloat = RangeFloat(100, 500)
-    self.push_strength: RangeFloat = RangeFloat(2, 5) # TODOML scale?
-    self.push_cap: float = 1
+    self.random_push: bool = False
+    self.push_num: RangeInt = RangeInt(800, 2000)
+    self.push_range: RangeFloat = RangeFloat(400, 800)
+    self.push_strength: RangeFloat = RangeFloat(0.5, 2.5) # TODOML scale?
+    self.push_line_cell_size: RangeFloat = RangeFloat(100, 200)
+    self.push_line_step_size = 10
 
     super().__init__(defaults)
 
 
 class Pusher:
-  def __init__(self, valid: Rect, params: MazeParams):
-    self.origin = Point(RangeFloat(valid.x, valid.right()).rand(), RangeFloat(valid.y, valid.bottom()).rand())
-    if RangeInt(0, 1).rand() == 0 and params.allow_pull:
-      self.scale = -1
-    else:
-      self.scale = 1
+  def __init__(self, origin: Point, valid: Rect, params: MazeParams):
+    self.origin = origin
+    if origin is None:
+      self.origin = Point(RangeFloat(valid.x, valid.right()).rand(), RangeFloat(valid.y, valid.bottom()).rand())
     self.range = params.push_range.rand()
     self.strength = params.push_strength.rand()
 
@@ -52,29 +58,11 @@ def draw_maze(params: MazeParams, group: Group = None):
   if params.draw_boundary_debug:
     draw_border(group)
 
-  cell = params.cell_size.rand()
-  print("Cell size:", cell)
-
-  row = floor(pad.h / cell)
-  col = floor(pad.w / cell)
-  row2 = row * 2
-  col2 = col * 2
-
-  node_w = pad.w / col2
-  node_h = pad.h / row2
-  half_w = node_w / 2
-  half_h = node_h / 2
+  cell_size = params.cell_size
+  print("Cell size:", cell_size)
 
   # Make maze
-  line: List[Point] = make_maze_line(
-    row,
-    col,
-    node_w,
-    node_h,
-    pad.x + half_w,
-    pad.y + half_h,
-    params.close_path
-  )
+  line = make_maze_line(cell_size, pad, params.close_path)
 
   if len(line) < 1:
     print('0 length maze')
@@ -84,14 +72,35 @@ def draw_maze(params: MazeParams, group: Group = None):
   if params.do_cap:
     del line[cap_index: len(line)]
 
-  # Do push randomization independent of draw
-  num_pushers = params.push_num.rand()
-  pushers: List[Pusher] = []
-  for _ in range(0, num_pushers):
-    pushers.append(Pusher(pad, params))
+  print("Points:", len(line))
 
+  # Do push randomization independent of draw
+  pushers: List[Pusher] = []
+  if params.random_push:
+    num_pushers = params.push_num.rand()
+    for _ in range(0, num_pushers):
+      pushers.append(Pusher(None, pad, params))
+  else:
+    push_cell = params.push_line_cell_size.rand()
+    push_line = make_maze_line(push_cell, pad, True)
+    push_center = generate_centerpoints(push_line)
+    push_divisions = generate_final_points(push_line, push_center, params.push_line_step_size)
+
+    # Draw debug
+    # new_group = open_group(GroupSettings(stroke=GroupColor.red), group)
+    # draw_point_circles(push_divisions, new_group)
+    # close_group()
+
+    for point in push_divisions:
+      pushers.append(Pusher(point, pad, params))
+
+  # Draw push
   if params.do_push:
+    push_index = 0
+    print('Pushing...')
     for push in pushers:
+      push_index += 1
+      print_overwrite(f"Running push {push_index} / {len(pushers)} ...")
       if params.debug_push:
         push.draw_debug()
       for point in line:
@@ -100,11 +109,8 @@ def draw_maze(params: MazeParams, group: Group = None):
         if delta_len > push.range:
           continue
         t = 1 - (delta_len / push.range)
-        t = min(t, params.push_cap)
-        push_amount = ease_in_out_quad(t, 0, push.strength, 1.5)
-        if push.scale < 0:
-          push_amount = min(push_amount, delta_len)
-        point.add(delta.normalize().multiply(push_amount * push.scale))
+        push_amount = ease_in_out_quad(t, 0, push.strength, 1)
+        point.add(delta.normalize().multiply(push_amount))
 
   # Scale output to fit safe area
   min_x = pad.right()
@@ -130,9 +136,13 @@ def draw_maze(params: MazeParams, group: Group = None):
   # Draw the line
   scaled = open_group(GroupSettings(translate=(offset_x, offset_y), scale=final_scale), group)
   if params.draw:
-    if params.draw_curved:
+    if params.draw_type == DrawType.curved:
       centers = generate_centerpoints(line)
       draw_curved_path(line, centers, scaled)
-    else:
+    if params.draw_type == DrawType.straight:
       draw_point_path(line, scaled)
+    if params.draw_type == DrawType.hatched:
+      centers = generate_centerpoints(line)
+      final = generate_final_points(line, centers, 1)
+      draw_point_path_hatched(final, HatchParams(RangeInt(3, 10), RangeInt(1, 3)))
   close_group()

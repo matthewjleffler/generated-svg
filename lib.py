@@ -1,12 +1,12 @@
 import random
 import time
 from datetime import timedelta
-from sys import maxsize, argv
+from sys import maxsize, argv, stdout
 import os
 from re import compile
 from math import *
 from lib_math import *
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import List
 from lib_rand import *
 
@@ -393,6 +393,10 @@ def close_group():
 
   _current_group = _current_group.parent
 
+def print_overwrite(string: str):
+  # TODOML test macos
+  stdout.write(f"\r{string}")
+  stdout.flush()
 
 # Drawing
 
