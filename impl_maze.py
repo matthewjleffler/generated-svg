@@ -18,12 +18,12 @@ class MazeParams(BaseParams):
     self.cell_size: RangeInt = RangeInt(7, 7)
     self.do_cap: bool = True
     self.cap_percent: RangeFloat = RangeFloat(.8, .99)
-    self.do_push: bool = True
+    self.do_push: bool = False
     self.debug_push: bool = False
     self.allow_pull: bool = False
-    self.push_num: RangeInt = RangeInt(1, 100)
-    self.push_range: RangeFloat = RangeFloat(500, 1000)
-    self.push_strength: RangeFloat = RangeFloat(5, 10) # TODOML scale?
+    self.push_num: RangeInt = RangeInt(800, 1800)
+    self.push_range: RangeFloat = RangeFloat(100, 500)
+    self.push_strength: RangeFloat = RangeFloat(2, 5) # TODOML scale?
     self.push_cap: float = 1
 
     super().__init__(defaults)
@@ -80,8 +80,8 @@ def draw_maze(params: MazeParams, group: Group = None):
     print('0 length maze')
     return
 
+  cap_index = floor(len(line) * params.cap_percent.rand())
   if params.do_cap:
-    cap_index = floor(len(line) * params.cap_percent.rand())
     del line[cap_index: len(line)]
 
   # Do push randomization independent of draw
