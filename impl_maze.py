@@ -22,12 +22,14 @@ class MazeParams(BaseParams):
     self.draw_boundary_debug: bool = False
     self.draw_type: DrawType = DrawType.curved
     self.close_path: bool = True
-    self.cell_size: int = 4
+    self.cell_size: int = 20
     self.do_cap: bool = False
     self.cap_percent: RangeFloat = RangeFloat(.8, .99)
-    self.do_push: bool = False
+    self.do_push: bool = True
     self.debug_push: bool = False
     self.random_push: bool = False
+    self.push_rect_pad_x: RangeFloat = RangeFloat(-100, 100)
+    self.push_rect_pad_y: RangeFloat = RangeFloat(-100, 100)
     self.push_num: RangeInt = RangeInt(800, 2000)
     self.push_range: RangeFloat = RangeFloat(400, 800)
     self.push_strength: RangeFloat = RangeFloat(0.5, 2.5) # TODOML scale?
@@ -76,13 +78,14 @@ def draw_maze(params: MazeParams, group: Group = None):
 
   # Do push randomization independent of draw
   pushers: List[Pusher] = []
+  push_rect = pad.shrink_xy_copy(params.push_rect_pad_x.rand(), params.push_rect_pad_y.rand())
   if params.random_push:
     num_pushers = params.push_num.rand()
     for _ in range(0, num_pushers):
-      pushers.append(Pusher(None, pad, params))
+      pushers.append(Pusher(None, push_rect, params))
   else:
     push_cell = params.push_line_cell_size.rand()
-    push_line = make_maze_line(push_cell, pad, True)
+    push_line = make_maze_line(push_cell, push_rect, True)
     push_center = generate_centerpoints(push_line)
     push_divisions = generate_final_points(push_line, push_center, params.push_line_step_size)
 
@@ -92,7 +95,7 @@ def draw_maze(params: MazeParams, group: Group = None):
     # close_group()
 
     for point in push_divisions:
-      pushers.append(Pusher(point, pad, params))
+      pushers.append(Pusher(point, push_rect, params))
 
   # Draw push
   if params.do_push:
@@ -113,28 +116,13 @@ def draw_maze(params: MazeParams, group: Group = None):
         point.add(delta.normalize().multiply(push_amount))
 
   # Scale output to fit safe area
-  min_x = pad.right()
-  min_y = pad.bottom()
-  max_x = 0
-  max_y = 0
+  expand = ExpandingVolume()
   for point in line:
-    min_x = min(point.x, min_x)
-    min_y = min(point.y, min_y)
-    max_x = max(point.x, max_x)
-    max_y = max(point.y, max_y)
-  real_w = max_x - min_x
-  real_h = max_y - min_y
-  scale_x = pad.w / real_w
-  scale_y = pad.h / real_h
-  final_scale = min(scale_x, scale_y)
-
-  final_w = real_w * final_scale
-  final_h = real_h * final_scale
-  offset_x = (pad.x - (min_x * scale_x) + (pad.w - final_w) / 2)
-  offset_y = (pad.y - (min_y * scale_y) + (pad.h - final_h) / 2)
+    expand.add(point)
+  (offset, final_scale) = scale_rect_to_fit(expand.to_rect(), pad)
 
   # Draw the line
-  scaled = open_group(GroupSettings(translate=(offset_x, offset_y), scale=final_scale), group)
+  scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
   if params.draw:
     if params.draw_type == DrawType.curved:
       centers = generate_centerpoints(line)

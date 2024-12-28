@@ -18,7 +18,6 @@ from typing import List
 class SnakeParams(BaseParams):
   def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
-    self.pad: int = 50
     self.draw_boundary_debug: bool = False
     self.draw_head: bool = True
     self.draw_ribs: bool = True
@@ -48,13 +47,11 @@ class SnakeParams(BaseParams):
 
 
 def draw_snake(params: SnakeParams, group: Group = None):
-  max_pad = svg_safe().copy()
-  pad = svg_safe().shrink_copy(params.pad)
+  pad = svg_safe().copy()
 
   # Draw safety border and page border
   if params.draw_boundary_debug:
     draw_border(group)
-    draw_rect_rect(pad, group)
     draw_rect_rect(svg_full())
 
   cell_size = params.cell_size.rand()
@@ -112,5 +109,5 @@ def draw_snake(params: SnakeParams, group: Group = None):
   # # draw_curved_path(line, centers, group)
   # return
 
-  draw_snake_from_points(line, snake_params, max_pad, group)
+  draw_snake_from_points(line, snake_params, pad, group)
 

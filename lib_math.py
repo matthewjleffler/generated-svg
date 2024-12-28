@@ -166,6 +166,23 @@ class Line:
     return self
 
 
+class ExpandingVolume:
+  def __init__(self):
+    self.min_x = float('inf')
+    self.min_y = float('inf')
+    self.max_x = float('-inf')
+    self.max_y = float('-inf')
+
+  def add(self, point: Point):
+    self.min_x = min(point.x, self.min_x)
+    self.min_y = min(point.y, self.min_y)
+    self.max_x = max(point.x, self.max_x)
+    self.max_y = max(point.y, self.max_y)
+
+  def to_rect(self) -> 'Rect':
+    return Rect.from_edges(self.min_x, self.min_y, self.max_x, self.max_y)
+
+
 class Rect:
   def __init__(self, x:float, y:float, w:float, h:float):
     self.x = x
@@ -174,6 +191,12 @@ class Rect:
     self.h = h
     self.range_x = RangeInt(self.x, self.x + self.w)
     self.range_y = RangeInt(self.y, self.y + self.h)
+
+  @staticmethod
+  def from_edges(x: float, y: float, r: float, b: float) -> 'Rect':
+    w = r - x
+    h = b - y
+    return Rect(x, y, w, h)
 
   def __repr__(self) -> str:
     return f"[Rect] x:{self.x} y:{self.y} w:{self.w} h:{self.h} cx:{self.center_x()} cy:{self.center_y()} r:{self.right()} b:{self.bottom()}"
@@ -224,3 +247,13 @@ def line_intersection(L1:Line, L2:Line) -> Point:
   else:
     return None
 
+def scale_rect_to_fit(full: Rect, target: Rect) -> tuple[Point, float]:
+  scale_x = target.w / full.w
+  scale_y = target.h / full.h
+  final_scale = min(scale_x, scale_y)
+
+  final_w = full.w * final_scale
+  final_h = full.h * final_scale
+  offset_x = (target.x - (full.x * final_scale) + (target.w - final_w) / 2)
+  offset_y = (target.y - (full.y * final_scale) + (target.h - final_h) / 2)
+  return (Point(offset_x, offset_y), final_scale)

@@ -78,7 +78,7 @@ class SnakeDrawParams:
       self.division_size.append(max_size * division_range.rand())
 
 
-def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, max_pad: Rect, group: Group = None):
+def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, rect: Rect, group: Group = None):
   # Generate flowing lines
   ribs_subdivide_centers = generate_centerpoints(line)
   points = generate_final_points(line, ribs_subdivide_centers, params.step_dist)
@@ -156,23 +156,8 @@ def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, max_pad: 
         avg_vec.add(node.final_vec)
       node.final_vec = avg_vec.divide(params.final_average_weight + 1)
 
-  # Clamp sizes
-  for node in snake.list:
-    n_top = node.point.y - node.size
-    n_bottom = node.point.y + node.size
-    n_right = node.point.x + node.size
-    n_left = node.point.x - node.size
-
-    if n_left < max_pad.x:
-      node.size = min(abs(max_pad.x - node.point.x), node.size)
-    if n_right > max_pad.right():
-      node.size = min(abs(max_pad.right() - node.point.x), node.size)
-    if n_top < max_pad.y:
-      node.size = min(abs(max_pad.y - node.point.y), node.size)
-    if n_bottom > max_pad.bottom():
-      node.size = min(abs(max_pad.bottom() - node.point.y), node.size)
-
   # Create lines
+  expand = ExpandingVolume()
   for node in snake.list:
     point = node.point
     size = node.size
@@ -181,17 +166,23 @@ def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, max_pad: 
     line1 = Line(point, point.add_copy(perpendicular.multiply_copy(-size)))
     node.lines.append(line0)
     node.lines.append(line1)
+    expand.add(line0.p1)
+    expand.add(line1.p1)
 
   forward_indices = [1, 5]
   backward_indices = [2, 3]
   spine_count = RangeInt(5, 5)
 
+  # Calculate scale
+  (offset, final_scale) = scale_rect_to_fit(expand.to_rect(), rect)
+  scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
+
   # Draw Result
   if params.draw_spine:
     if params.draw_head:
       head_point = snake.points[0]
-      draw_circ(head_point.x, head_point.y, 20, group)
-    draw_point_path(snake.points, group)
+      draw_circ(head_point.x, head_point.y, 20, scaled)
+    draw_point_path(snake.points, scaled)
 
   if params.draw_ribs:
     for node in snake.list:
@@ -209,4 +200,5 @@ def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, max_pad: 
           ribs_subdivide[i].subtract(shuffle)
 
         ribs_subdivide_centers = generate_centerpoints(ribs_subdivide)
-        draw_curved_path(ribs_subdivide, ribs_subdivide_centers, group)
+        draw_curved_path(ribs_subdivide, ribs_subdivide_centers, scaled)
+  close_group()
