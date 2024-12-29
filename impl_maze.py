@@ -28,8 +28,7 @@ class MazeParams(BaseParams):
     self.do_push: bool = True
     self.debug_push: bool = False
     self.random_push: bool = False
-    self.push_rect_pad_x: RangeFloat = RangeFloat(-100, 100)
-    self.push_rect_pad_y: RangeFloat = RangeFloat(-100, 100)
+    self.push_pad_range_max: float = .25
     self.push_num: RangeInt = RangeInt(800, 2000)
     self.push_range: RangeFloat = RangeFloat(400, 800)
     self.push_strength: RangeFloat = RangeFloat(0.5, 2.5) # TODOML scale?
@@ -78,7 +77,11 @@ def draw_maze(params: MazeParams, group: Group = None):
 
   # Do push randomization independent of draw
   pushers: List[Pusher] = []
-  push_rect = pad.shrink_xy_copy(params.push_rect_pad_x.rand(), params.push_rect_pad_y.rand())
+  pad_x = pad.w * params.push_pad_range_max
+  pad_y = pad.h * params.push_pad_range_max
+  push_pad_x = RangeFloat(-pad_x, pad_x)
+  push_pad_y = RangeFloat(-pad_y, pad_y)
+  push_rect = pad.shrink_xy_copy(push_pad_x.rand(), push_pad_y.rand())
   if params.random_push:
     num_pushers = params.push_num.rand()
     for _ in range(0, num_pushers):
@@ -114,6 +117,7 @@ def draw_maze(params: MazeParams, group: Group = None):
         t = 1 - (delta_len / push.range)
         push_amount = ease_in_out_quad(t, 0, push.strength, 1)
         point.add(delta.normalize().multiply(push_amount))
+    print('\n')
 
   # Scale output to fit safe area
   expand = ExpandingVolume()
@@ -123,6 +127,10 @@ def draw_maze(params: MazeParams, group: Group = None):
 
   # Draw the line
   scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
+  if params.draw_boundary_debug:
+    draw_rect_rect(push_rect, scaled)
+    draw_rect_rect(pad, scaled)
+    draw_circ(push_rect.x, push_rect.y, 10, scaled)
   if params.draw:
     if params.draw_type == DrawType.curved:
       centers = generate_centerpoints(line)

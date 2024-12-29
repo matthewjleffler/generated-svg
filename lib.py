@@ -394,7 +394,6 @@ def close_group():
   _current_group = _current_group.parent
 
 def print_overwrite(string: str):
-  # TODOML test macos
   stdout.write(f"\r{string}")
   stdout.flush()
 
