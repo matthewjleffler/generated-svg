@@ -17,6 +17,9 @@ from lib_rand import *
 
 # Helper functions
 
+def test_type(obj: any, field: str, expected: str) -> bool:
+  return type(getattr(obj, field)).__name__ == expected
+
 def add_nondup_floats(x:float, y:float, points:List[Point]):
   points.append(Point(x, y))
 
@@ -169,7 +172,7 @@ class BaseParams:
     for attr in attrs:
       if not attr.startswith('debug_'):
         continue
-      if not type(getattr(self, attr)).__name__ == 'bool':
+      if not test_type(self, attr, 'bool'):
         continue
       setattr(self, attr, False)
 
@@ -409,6 +412,10 @@ def print_overwrite(string: str):
   stdout.write(f"\r{string}")
   stdout.flush()
 
+def print_finish_overwite():
+  stdout.write('\n')
+  stdout.flush()
+
 # Drawing
 
 def draw_rect(x:float, y:float, w:float, h:float, group:Group = None):
@@ -440,8 +447,11 @@ def draw_path(value:str, group:Group = None):
   group.children.append(f"<path d=\"{value}\"/>")
 
 def draw_border(group:Group = None):
-  open_group(GroupSettings(stroke=GroupColor.red), group)
-  draw_rect(_svg_safe.x, _svg_safe.y, _svg_safe.w, _svg_safe.h)
+  debug = open_group(GroupSettings(), group)
+  draw_rect_rect(_svg_full, debug)
+  close_group()
+  red = open_group(GroupSettings(stroke=GroupColor.red), group)
+  draw_rect_rect(_svg_safe, red)
   close_group()
 
 def draw_sunburst(bursts:int, c_x:float, c_y:float, start_rad:float, ray_len:float, group:Group = None):

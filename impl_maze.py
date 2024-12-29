@@ -23,7 +23,7 @@ class MazeParams(BaseParams):
     self.debug_push: bool = False
     self.draw_type: DrawType = DrawType.curved
     self.close_path: bool = True
-    self.cell_size: int = 20
+    self.cell_size: int = 10
     self.do_cap: bool = False
     self.cap_percent: RangeFloat = RangeFloat(.8, .99)
     self.do_push: bool = True
@@ -103,11 +103,11 @@ def draw_maze(params: MazeParams, group: Group = None):
   # Draw push
   if params.do_push:
     push_index = 0
-    print('Pushing...')
+    print_overwrite('Pushing...')
     for push in pushers:
       push_index += 1
       print_overwrite(f"Running push {push_index} / {len(pushers)} ...")
-      if params.debug_push:
+      if params.debug_push and params.do_push:
         push.draw_debug()
       for point in line:
         delta = point.subtract_copy(push.origin)
@@ -117,7 +117,7 @@ def draw_maze(params: MazeParams, group: Group = None):
         t = 1 - (delta_len / push.range)
         push_amount = ease_in_out_quad(t, 0, push.strength, 1)
         point.add(delta.normalize().multiply(push_amount))
-    print('\n')
+    print_finish_overwite()
 
   # Scale output to fit safe area
   expand = ExpandingVolume()
@@ -128,9 +128,10 @@ def draw_maze(params: MazeParams, group: Group = None):
   # Draw the line
   scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
   if params.debug_draw_boundary:
-    draw_rect_rect(push_rect, scaled)
+    if params.do_push:
+      draw_rect_rect(push_rect, scaled)
+      draw_circ(push_rect.x, push_rect.y, 10, scaled)
     draw_rect_rect(pad, scaled)
-    draw_circ(push_rect.x, push_rect.y, 10, scaled)
   if params.draw:
     if params.draw_type == DrawType.curved:
       centers = generate_centerpoints(line)
