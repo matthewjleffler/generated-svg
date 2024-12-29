@@ -161,6 +161,17 @@ class BaseParams:
         print('Applied:', k, val)
       else:
         print('Invalid param:', k, v)
+    if defaults.test:
+      # All params allowed
+      return
+    print('Disabling Debug')
+    attrs = dir(self)
+    for attr in attrs:
+      if not attr.startswith('debug_'):
+        continue
+      if not type(getattr(self, attr)).__name__ == 'bool':
+        continue
+      setattr(self, attr, False)
 
   def __parse_number(self, v: str):
     try:
@@ -213,6 +224,7 @@ class BaseParams:
           return None
         return RangeFloat(rf_min, rf_max)
     return None
+
 
 class Runner:
   def __init__(self, dir:str) -> None:

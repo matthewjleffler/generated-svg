@@ -19,14 +19,14 @@ class DrawType(Enum):
 class MazeParams(BaseParams):
   def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
-    self.draw_boundary_debug: bool = False
+    self.debug_draw_boundary: bool = True
+    self.debug_push: bool = False
     self.draw_type: DrawType = DrawType.curved
     self.close_path: bool = True
     self.cell_size: int = 20
     self.do_cap: bool = False
     self.cap_percent: RangeFloat = RangeFloat(.8, .99)
     self.do_push: bool = True
-    self.debug_push: bool = False
     self.random_push: bool = False
     self.push_pad_range_max: float = .25
     self.push_num: RangeInt = RangeInt(800, 2000)
@@ -56,7 +56,7 @@ def draw_maze(params: MazeParams, group: Group = None):
   pad = svg_safe().copy()
 
   # Draw safety border and page border
-  if params.draw_boundary_debug:
+  if params.debug_draw_boundary:
     draw_border(group)
 
   cell_size = params.cell_size
@@ -127,7 +127,7 @@ def draw_maze(params: MazeParams, group: Group = None):
 
   # Draw the line
   scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
-  if params.draw_boundary_debug:
+  if params.debug_draw_boundary:
     draw_rect_rect(push_rect, scaled)
     draw_rect_rect(pad, scaled)
     draw_circ(push_rect.x, push_rect.y, 10, scaled)
