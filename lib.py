@@ -1,7 +1,7 @@
 import random
 import time
 from datetime import timedelta
-from sys import maxsize, argv, stdout
+from sys import maxsize, argv
 import os
 from re import compile
 from math import *
@@ -106,6 +106,7 @@ _svg_full = Rect(0, 0, 0, 0)
 _svg_safe = Rect(0, 0, 0, 0)
 _svg_border = 50
 _text_indent = 0
+_text_lines: List[str] = []
 _text_content = ""
 _font_styles = dict()
 _root_group = Group(None, GroupSettings(stroke=GroupColor.black, fill=GroupColor.none))
@@ -115,12 +116,13 @@ _round_digits = 2
 
 
 def init():
-  global _svg_full, _svg_safe, _svg_border, _text_indent, _text_content, _font_styles, _root_group, _current_group
+  global _svg_full, _svg_safe, _svg_border, _text_indent, _text_content, _font_styles, _root_group, _current_group, _text_lines
 
   _svg_full = Rect(0, 0, 0, 0)
   _svg_safe = Rect(0, 0, 0, 0)
   _svg_border = 50
   _text_indent = 0
+  _text_lines = []
   _text_content = ""
   _font_styles = dict()
   _root_group = Group(None, GroupSettings(stroke=GroupColor.black, fill=GroupColor.none))
@@ -320,26 +322,23 @@ class Args:
 
 # Text Writing
 
-def add_text_line(line:str):
-  global _text_content, _text_indent
+def _add_text_line(line:str):
+  global _text_lines, _text_indent
 
-  for _ in range(_text_indent):
-    _text_content += "  "
-  _text_content += line
-  _text_content += "\n"
+  _text_lines.append(f"{"  " * _text_indent}{line}")
 
 
-def open_text_indent(line:str):
+def _open_text_indent(line:str):
   global _text_indent
-  add_text_line(line)
+  _add_text_line(line)
   _text_indent = _text_indent + 1
 
 
-def close_text_indent(line:str):
+def _close_text_indent(line:str):
   global _text_indent
 
   _text_indent = max(_text_indent - 1, 0)
-  add_text_line(line)
+  _add_text_line(line)
 
 
 def write_file(path:str, name:str, number:int):
@@ -357,34 +356,43 @@ def write_file(path:str, name:str, number:int):
 # SVG Management
 
 def commit(seed:int, size:tuple[float, float], params:any):
+  global _text_content
   (x, y) = size
-  open_text_indent("<svg version=\"1.1\" width=\"{}\" height=\"{}\" xmlns=\"http://www.w3.org/2000/svg\">".format(_svg_full.w, _svg_full.h))
-  add_text_line(f"<!-- Seed: {seed} -->")
-  add_text_line(f"<!-- Size: {x}x{y} -->")
+  print_overwrite("Starting commit...")
+  _open_text_indent("<svg version=\"1.1\" width=\"{}\" height=\"{}\" xmlns=\"http://www.w3.org/2000/svg\">".format(_svg_full.w, _svg_full.h))
+  _add_text_line(f"<!-- Seed: {seed} -->")
+  _add_text_line(f"<!-- Size: {x}x{y} -->")
+  print_overwrite("Writing params...")
   if params is not None:
     list_params = vars(params)
-    open_text_indent("<!-- Params:")
+    _open_text_indent("<!-- Params:")
     for item in list_params:
-      add_text_line(f"{item}: {list_params[item]}")
-    close_text_indent("-->")
+      _add_text_line(f"{item}: {list_params[item]}")
+    _close_text_indent("-->")
   else:
-    add_text_line("<!-- No params -->")
+    _add_text_line("<!-- No params -->")
   commit_group(_root_group)
-  close_text_indent("</svg>")
+  _close_text_indent("</svg>")
+  print_overwrite("Joining output...")
+  _text_content = '\n'.join(_text_lines)
+  print_finish_overwite()
 
 
 def commit_group(group:Group):
   if group.settings is not None:
-    open_text_indent("<g {}>".format(group.settings))
+    _open_text_indent("<g {}>".format(group.settings))
   else:
-    open_text_indent("<g>")
+    _open_text_indent("<g>")
 
-  for child in group.children:
-    add_text_line(child)
+  len_children = len(group.children)
+  for i in range(0, len_children):
+    print_overwrite(f"Group {group} child: {pad_max(i + 1, len_children)}")
+    child = group.children[i]
+    _add_text_line(child)
   for group in group.groups:
     commit_group(group)
 
-  close_text_indent("</g>")
+  _close_text_indent("</g>")
 
 
 def open_group(settings: GroupSettings, parent:Group = None) -> Group:
@@ -408,13 +416,21 @@ def close_group():
 
   _current_group = _current_group.parent
 
+def pad_max(min_val: int, max_val: int) -> str:
+  str_len = len(str(max_val))
+  return f"{pad_text(min_val, str_len)} / {max_val}"
+
+def pad_text(val: any, length: int) -> str:
+  string = str(val)
+  str_len = len(string)
+  remaining = max(length - str_len, 0)
+  return f"{' ' * remaining}{string}"
+
 def print_overwrite(string: str):
-  stdout.write(f"\r{string}")
-  stdout.flush()
+  print(f"\r{string}", end="\x1b[1K")
 
 def print_finish_overwite():
-  stdout.write('\n')
-  stdout.flush()
+  print("\r", end="")
 
 # Drawing
 
@@ -498,7 +514,6 @@ def main(dir:str, layer: str, defaults: Defaults, seed: int, loop:callable) -> i
 
   params = loop(defaults)
   commit(seed, defaults.size, params)
-  # print(text_content)
 
   export_path_file = "./dir.txt"
   if not defaults.test and not os.path.exists(export_path_file):

@@ -86,28 +86,34 @@ def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, rect: Rec
   len_points = len(points)
   print("Nodes:", len_points)
   division_points = len_points / params.num_divisions
+  print_overwrite("Dividing points...")
   for i in range(0, len_points):
+    print_overwrite(f"Dividing point {pad_max(i + 1, len_points)}")
     division = params.division_size[floor(i / division_points)]
     node = snake.add(points[i], division)
     if i > 0:
       snake.list[i-1].set_next(node)
 
   # Shrink ends
-  length = len(snake.list)
-  falloff = floor(length * params.end_falloff)
-  for node in snake.list:
+  snake_len = len(snake.list)
+  falloff = floor(snake_len * params.end_falloff)
+  print_overwrite("Shrinking ends...")
+  for i in range(0, snake_len):
+    print_overwrite(f"Shrinking end {pad_max(i + 1, snake_len)}")
+    node = snake.list[i]
     percent_bot = node.index / falloff
-    percent_end = (length - 1 - node.index) / falloff
+    percent_end = (snake_len - 1 - node.index) / falloff
     percent = min(percent_bot, percent_end)
     percent = min(percent, 1)
     node.size = ease_in_out_quad(percent, 0, node.size, 1)
 
   # Average Sizes
   smoothing_range: int = floor(params.smoothing_range / params.step_dist)
-  snake_len = len(snake.list)
   if params.do_average:
-    for _ in range(0, params.smoothing_steps):
+    print_overwrite("Averaging...")
+    for s in range(0, params.smoothing_steps):
       for i in range(0, snake_len):
+        print_overwrite(f"Averaging step: {pad_max(s + 1, params.smoothing_steps)} node: {pad_max(i + 1, snake_len)}")
         from_end = min(i, snake_len - 1 - i)
         steps = min(from_end, smoothing_range)
         if steps == 0:
@@ -128,14 +134,19 @@ def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, rect: Rec
 
   # Increase corner sizes
   if params.do_inflate_corners:
-    for node in snake.list:
+    print_overwrite("Inflating corners...")
+    for i in range(0, snake_len):
+      print_overwrite(f"Inflating {pad_max(i + 1, snake_len)}")
+      node = snake.list[i]
       dot = 1 - abs(node.vec().dot(node.final_vec))
       node.size *= (1 + (dot) * params.inflate_factor)
 
   # One more average, sizes only
   if params.do_average:
-    for _ in range(0, params.smoothing_steps):
+    print_overwrite("Final average...")
+    for s in range(0, params.smoothing_steps):
       for i in range(0, snake_len):
+        print_overwrite(f"Final average step: {pad_max(s + 1, params.smoothing_steps)} node: {pad_max(i + 1, snake_len)}")
         from_end = min(i, snake_len - 1 - i)
         steps = min(from_end, smoothing_range)
         if steps == 0:
@@ -150,7 +161,10 @@ def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, rect: Rec
 
   # Average vec back towards original
   if params.do_final_average:
-    for node in snake.list:
+    print_overwrite("Weight vectors...")
+    for i in range(0, snake_len):
+      print_overwrite(f"Weight {pad_max(i + 1, snake_len)}")
+      node = snake.list[i]
       avg_vec = node.vec()
       for _ in range(0, params.final_average_weight):
         avg_vec.add(node.final_vec)
@@ -158,7 +172,10 @@ def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, rect: Rec
 
   # Create lines
   expand = ExpandingVolume()
-  for node in snake.list:
+  print_overwrite("Checking volume...")
+  for i in range(0, snake_len):
+    print_overwrite(f"Checking volume {pad_max(i + 1, snake_len)}")
+    node = snake.list[i]
     point = node.point
     size = node.size
     perpendicular = node.final_vec.perpendicular_copy()
@@ -185,7 +202,10 @@ def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, rect: Rec
     draw_point_path(snake.points, scaled)
 
   if params.draw_ribs:
-    for node in snake.list:
+    print_overwrite("Drawing ribs...")
+    for i in range(0, snake_len):
+      print_overwrite(f"Drawing rib {pad_max(i + 1, snake_len)}")
+      node = snake.list[i]
       for ribline in node.lines:
         ribs_subdivide = subdivide_point_path(ribline.points(), spine_count)
 
@@ -202,3 +222,5 @@ def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, rect: Rec
         ribs_subdivide_centers = generate_centerpoints(ribs_subdivide)
         draw_curved_path(ribs_subdivide, ribs_subdivide_centers, scaled)
   close_group()
+  print_finish_overwite()
+  print("Finished snake")

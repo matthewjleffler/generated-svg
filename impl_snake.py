@@ -18,11 +18,11 @@ from typing import List
 class SnakeParams(BaseParams):
   def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
-    self.draw_boundary_debug: bool = False
+    self.debug_draw_boundary: bool = True
     self.draw_head: bool = True
     self.draw_ribs: bool = True
     self.draw_spine: bool = True
-    self.cell_size: RangeInt = RangeInt(100, 175) # Min 50
+    self.cell_size: RangeInt = RangeInt(30, 30) # Min 50
     self.do_shuffle: bool = False
     self.shuffle: RangeFloat = RangeFloat(.1, .75)
     self.step_dist: int = 2 # 3
@@ -50,7 +50,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
   pad = svg_safe().copy()
 
   # Draw safety border and page border
-  if params.draw_boundary_debug:
+  if params.debug_draw_boundary:
     draw_border(group)
     draw_rect_rect(svg_full())
 
