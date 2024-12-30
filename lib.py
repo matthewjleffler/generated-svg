@@ -418,7 +418,8 @@ def close_group():
 
 def pad_max(min_val: int, max_val: int) -> str:
   str_len = len(str(max_val))
-  return f"{pad_text(min_val, str_len)} / {max_val}"
+  percent = floor((min_val / max_val) * 100)
+  return f"{pad_text(min_val, str_len)} / {max_val} ({percent}%)"
 
 def pad_text(val: any, length: int) -> str:
   string = str(val)

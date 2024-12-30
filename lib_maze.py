@@ -7,7 +7,58 @@ from typing import List
 ### https://observablehq.com/@esperanc/random-space-filling-curves
 ###
 
-class Connect:
+class MazeSize:
+  def __init__(self, cell_size: float, rect: Rect):
+    self.row = floor(rect.h / cell_size)
+    self.row2 = self.row * 2
+    self.col = floor(rect.w / cell_size)
+    self.col2 = self.col * 2
+    self.total = self.row * self.col
+    self.total2 = self.row2 * self.col2
+
+    self.node_w = rect.w / self.col2
+    self.node_h = rect.h / self.row2
+    self.node_scale = Point(self.node_w, self.node_h)
+    self.half_w = self.node_w / 2
+    self.half_h = self.node_h / 2
+
+    self.origin = Point(rect.x + self.half_w, rect.y + self.half_h)
+
+
+class PushParams:
+  def __init__(
+      self,
+      rect: Rect,
+      debug_draw_boundary: bool,
+      do_push: bool,
+      random_push: bool,
+      push_pad_range_max: float,
+      push_num: RangeInt,
+      push_line_cell_size: RangeFloat,
+      push_line_step_size: float,
+      push_range: RangeFloat,
+      push_strength: RangeFloat,
+    ):
+    self.rect = rect
+    self.debug_draw_boundary = debug_draw_boundary
+    self.do_push = do_push
+    self.random_push = random_push
+    self.push_pad_range_max = push_pad_range_max
+    self.push_num = push_num
+    self.push_line_cell_size = push_line_cell_size
+    self.push_line_step_size = push_line_step_size
+    self.push_range = push_range
+    self.push_strength = push_strength
+
+
+class _Pusher:
+  def __init__(self, origin: Point, params: PushParams):
+    self.origin = origin
+    self.range = params.push_range.rand()
+    self.strength = params.push_strength.rand()
+
+
+class _Connect:
   def __init__(self) -> None:
     self.right = False
     self.left = False
@@ -81,7 +132,7 @@ def _spanning_tree(row: int, col: int, total: int) -> List[tuple[int, int]]:
   return edges
 
 
-def _hamiltonian_from_spanning_tree(col: int, col2: int, total2: int, connect: List[Connect]) -> List[int]:
+def _hamiltonian_from_spanning_tree(col: int, col2: int, total2: int, connect: List[_Connect]) -> List[int]:
   edges2: List[tuple[int, int]] = []
   for i in range(0, len(connect)):
     cell = connect[i]
@@ -119,26 +170,12 @@ def _hamiltonian_from_spanning_tree(col: int, col2: int, total2: int, connect: L
   return path
 
 
-def make_maze_line(cell_size: float, rect: Rect, close_path: bool) -> List[Point]:
-  row = floor(rect.h / cell_size)
-  row2 = row * 2
-  col = floor(rect.w / cell_size)
-  col2 = col * 2
-  total = row * col
-  total2 = row2 * col2
+def make_maze_line(size: MazeSize, close_path: bool) -> List[Point]:
+  edges = _spanning_tree(size.row, size.col, size.total)
 
-  node_w = rect.w / col2
-  node_h = rect.h / row2
-  node_scale = Point(node_w, node_h)
-  half_w = node_w / 2
-  half_h = node_h / 2
-  origin = Point(rect.x + half_w, rect.y + half_h)
-
-  edges = _spanning_tree(row, col, total)
-
-  connect: List[Connect] = []
-  for i in range(0, total):
-    connect.append(Connect())
+  connect: List[_Connect] = []
+  for i in range(0, size.total):
+    connect.append(_Connect())
 
   for (i0, i1) in edges:
     f0 = i0
@@ -146,8 +183,8 @@ def make_maze_line(cell_size: float, rect: Rect, close_path: bool) -> List[Point
     if i0 > i1:
       f0 = i1
       f1 = i0
-    y0 = _index_to_x_y(f0, col)[1]
-    y1 = _index_to_x_y(f1, col)[1]
+    y0 = _index_to_x_y(f0, size.col)[1]
+    y1 = _index_to_x_y(f1, size.col)[1]
     if y0 == y1:
       connect[f0].right = connect[f1].left = True
     else:
@@ -155,13 +192,13 @@ def make_maze_line(cell_size: float, rect: Rect, close_path: bool) -> List[Point
 
   # Debug drawing the initial maze lines
   # for (i0, i1) in edges:
-  #   (x0, y0) = _index_to_x_y(i0, col)
-  #   (x1, y1) = _index_to_x_y(i1, col)
+  #   (x0, y0) = _index_to_x_y(i0, size.col)
+  #   (x1, y1) = _index_to_x_y(i1, size.col)
   #   debug_line = Line(Point(x0, y0), Point(x1, y1))
-  #   draw_point_path(debug_line.multiply(node_scale).add(origin).points())
+  #   draw_point_path(debug_line.multiply(size.node_scale).add(size.origin).points())
   # return []
 
-  path = _hamiltonian_from_spanning_tree(col, col2, total2, connect)
+  path = _hamiltonian_from_spanning_tree(size.col, size.col2, size.total2, connect)
 
   # Offset the path randomly
   offsetPath: List[int] = []
@@ -178,7 +215,55 @@ def make_maze_line(cell_size: float, rect: Rect, close_path: bool) -> List[Point
   offsetPathLen = len(offsetPath)
   for i in range(0, offsetPathLen):
     index = offsetPath[i]
-    (x, y) = _index_to_x_y(index, col2)
-    line.append(Point(x, y).multiply_point(node_scale).add(origin))
+    (x, y) = _index_to_x_y(index, size.col2)
+    line.append(Point(x, y).multiply_point(size.node_scale).add(size.origin))
 
   return line
+
+
+def push_line(line: List[Point], params: PushParams, group: Group = None) -> Rect:
+  # Do push randomization independent of draw
+  pushers: List[_Pusher] = []
+  pad_x = params.rect.w * params.push_pad_range_max
+  pad_y = params.rect.h * params.push_pad_range_max
+  push_pad_x = RangeFloat(-pad_x, pad_x)
+  push_pad_y = RangeFloat(-pad_y, pad_y)
+  push_rect = params.rect.shrink_xy_copy(push_pad_x.rand(), push_pad_y.rand())
+  if params.random_push:
+    num_pushers = params.push_num.rand()
+    for _ in range(0, num_pushers):
+      origin = Point(RangeFloat(push_rect.x, push_rect.right()).rand(), RangeFloat(push_rect.y, push_rect.bottom()).rand())
+      pushers.append(_Pusher(origin, params))
+  else:
+    push_cell = params.push_line_cell_size.rand()
+    push_size = MazeSize(push_cell, push_rect)
+    push_line = make_maze_line(push_size, True)
+    push_center = generate_centerpoints(push_line)
+    push_divisions = generate_final_points(push_line, push_center, params.push_line_step_size)
+
+    # Draw debug
+    # new_group = open_group(GroupSettings(stroke=GroupColor.red), group)
+    # draw_point_circles(push_divisions, new_group)
+    # close_group()
+
+    for point in push_divisions:
+      pushers.append(_Pusher(point, params))
+
+  # Draw push
+  if params.do_push:
+    push_index = 0
+    print_overwrite('Pushing...')
+    for push in pushers:
+      push_index += 1
+      print_overwrite(f"Running push {push_index} / {len(pushers)} ...")
+      for point in line:
+        delta = point.subtract_copy(push.origin)
+        delta_len = delta.length()
+        if delta_len > push.range:
+          continue
+        t = 1 - (delta_len / push.range)
+        push_amount = ease_in_out_quad(t, 0, push.strength, 1)
+        point.add(delta.normalize().multiply(push_amount))
+    print_finish_overwite()
+
+  return push_rect
