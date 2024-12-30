@@ -2,18 +2,17 @@ from lib_math import *
 from lib_path import *
 from typing import List
 
-
-class SnakeNode:
+class _SnakeNode:
   def __init__(self, point: Point, index: int, width: float) -> None:
     self.point = point
     self.index = index
     self.size = width
-    self.next: SnakeNode = None
+    self.next: _SnakeNode = None
     self.final_vec: Point = Point(0, 0)
     self.lines: List[Line] = []
     self.done = False
 
-  def set_next(self, next: 'SnakeNode') -> None:
+  def set_next(self, next: '_SnakeNode') -> None:
     self.next = next
     self.final_vec = self.vec()
 
@@ -23,14 +22,14 @@ class SnakeNode:
     return self.next.point.subtract_copy(self.point).normalize()
 
 
-class Snake:
+class _Snake:
   def __init__(self, points: List[Point], centers: List[Point]) -> None:
-    self.list: List[SnakeNode] = []
+    self.list: List[_SnakeNode] = []
     self.points = points
     self.centers = centers
 
-  def add(self, point: Point, width: float) -> SnakeNode:
-    node = SnakeNode(point, len(self.list), width)
+  def add(self, point: Point, width: float) -> _SnakeNode:
+    node = _SnakeNode(point, len(self.list), width)
     self.list.append(node)
     return node
 
@@ -42,15 +41,15 @@ class SnakeDrawParams:
       draw_head: bool,
       draw_ribs: bool,
       step_dist: int,
-      num_divisions: int,
-      division_range: RangeFloat,
-      max_size: float,
+      do_inflate: bool,
+      inflate_factor: float,
+      inflate_step: int,
       end_falloff: float,
       do_average: bool,
       smoothing_range: float,
       smoothing_steps: int,
       do_inflate_corners: bool,
-      inflate_factor: float,
+      inflate_corner_factor: float,
       do_final_average: bool,
       final_average_weight: int,
       do_rib_shuffle: bool,
@@ -60,42 +59,135 @@ class SnakeDrawParams:
     self.draw_head = draw_head
     self.draw_ribs = draw_ribs
     self.step_dist = step_dist
-    self.num_divisions = num_divisions
+    self.do_inflate = do_inflate
+    self.inflate_factor = inflate_factor
+    self.inflate_step = inflate_step
     self.end_falloff = end_falloff
     self.do_average = do_average
     self.smoothing_range = smoothing_range
     self.smoothing_steps = smoothing_steps
     self.do_inflate_corners = do_inflate_corners
-    self.inflate_factor = inflate_factor
+    self.inflate_corner_factor = inflate_corner_factor
     self.do_final_average = do_final_average
     self.final_average_weight = final_average_weight
     self.do_rib_shuffle = do_rib_shuffle
     self.rib_shuffle_amount = rib_shuffle_amount
 
-    # Set up divisions
-    self.division_size: List[float] = []
-    for _ in range(0, num_divisions + 1):
-      self.division_size.append(max_size * division_range.rand())
+
+def _nodes_in_range(pixels: List[tuple[int, int]], spatial: dict[(int, int), List[_SnakeNode]]) -> List[_SnakeNode]:
+  result: List[_SnakeNode] = []
+  for pixel in pixels:
+    nodes = spatial.get(pixel, None)
+    if nodes is None:
+      continue
+    result += nodes
+  return result
+
+
+def _pixels_in_range(x: int, y: int, min: int, max: int) -> List[tuple[int, int]]:
+  result: List[tuple[int, int]] = []
+  for range_x in range(-max, max + 1):
+    for range_y in range(-max, max + 1):
+      if abs(range_x) < min or abs(range_y) < min:
+        continue
+      result.append((x + range_x, y + range_y))
+  return result
 
 
 def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, rect: Rect, group: Group = None):
   # Generate flowing lines
   ribs_subdivide_centers = generate_centerpoints(line)
   points = generate_final_points(line, ribs_subdivide_centers, params.step_dist)
-  snake = Snake(points, ribs_subdivide_centers)
-  len_points = len(points)
-  print("Nodes:", len_points)
-  division_points = len_points / params.num_divisions
-  print_overwrite("Dividing points...")
-  for i in range(0, len_points):
-    print_overwrite(f"Dividing point {pad_max(i + 1, len_points)}")
-    division = params.division_size[floor(i / division_points)]
-    node = snake.add(points[i], division)
+  snake = _Snake(points, ribs_subdivide_centers)
+  snake_len = len(points)
+  print("Nodes:", snake_len)
+
+  print_overwrite("Create snake...")
+  for i in range(0, snake_len):
+    print_overwrite(f"Snake node {pad_max(i + 1, snake_len)}")
+    node = snake.add(points[i], 5)
     if i > 0:
       snake.list[i-1].set_next(node)
 
+  # Fill dictionary for inflation
+  if params.do_inflate:
+    max_dist = snake_len / 5
+
+    # Sort points into spatial map
+    spatial: dict[(int, int), List[_SnakeNode]] = dict()
+    for i in range(0, snake_len):
+      print_overwrite(f"Sorting {pad_max(i + 1, snake_len)}")
+      node = snake.list[i]
+      key = (floor(node.point.x), floor(node.point.y))
+      spatial_array = spatial.get(key, None)
+      if spatial_array is None:
+        spatial_array = []
+        spatial[key] = spatial_array
+      spatial_array.append(node)
+
+    # Inflate to edge
+    iteration = 0
+    max_size = params.inflate_step
+    calc_dict: dict[tuple[int, int], tuple[float,  float, float]] = dict()
+    node_indexes = list(range(0, snake_len))
+    while len(node_indexes) > 0:
+      iteration += 1
+      index = len(node_indexes)
+      start_len = index
+      while index >= 1:
+        index -= 1
+        i = node_indexes[index]
+        node = snake.list[i]
+        print_overwrite(f"Inflate {iteration} {pad_max(start_len - (index + 1), start_len)}")
+
+        if node.done:
+          node_indexes.pop(index)
+          continue
+
+        node.size += params.inflate_step * iteration
+        max_size = max(max_size, node.size)
+        x = floor(node.point.x)
+        y = floor(node.point.y)
+
+        pixels = _pixels_in_range(x, y, 0, max_size)
+        nodes = _nodes_in_range(pixels, spatial)
+        popped = False
+        for other_node in nodes:
+          if other_node.index == i:
+            # Same node
+            continue
+
+          key = (max(i, other_node.index), min(i, other_node.index))
+          (dot, delta_len) = calc_dict.get(key, (None, None))
+          if dot is None:
+            dot = node.final_vec.dot(other_node.final_vec)
+            delta = node.point.subtract_copy(other_node.point)
+            delta_len = delta.length()
+            calc_dict[key] = (dot, delta_len)
+
+          if abs(other_node.index - i) < max_dist and dot >= 0:
+            # Close enough and pointing in the same direction
+            continue
+
+          if delta_len > node.size + other_node.size:
+            # Too far
+            continue
+
+          # Touching, set size to dist
+          other_node.done = True
+          node.done = True
+          if popped == False:
+            node_indexes.pop(index)
+            popped = True
+          node.size = min(delta_len - other_node.size, node.size)
+
+  # Increase inflated sizes by the given factor
+  for i in range(0, snake_len):
+    node = snake.list[i]
+    print_overwrite(f"Inflate factor: {pad_max(i + 1, snake_len)}")
+    node.size *= params.inflate_factor
+
   # Shrink ends
-  snake_len = len(snake.list)
   falloff = floor(snake_len * params.end_falloff)
   print_overwrite("Shrinking ends...")
   for i in range(0, snake_len):
@@ -136,10 +228,10 @@ def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, rect: Rec
   if params.do_inflate_corners:
     print_overwrite("Inflating corners...")
     for i in range(0, snake_len):
-      print_overwrite(f"Inflating {pad_max(i + 1, snake_len)}")
+      print_overwrite(f"Inflating corner {pad_max(i + 1, snake_len)}")
       node = snake.list[i]
       dot = 1 - abs(node.vec().dot(node.final_vec))
-      node.size *= (1 + (dot) * params.inflate_factor)
+      node.size *= (1 + (dot) * params.inflate_corner_factor)
 
   # One more average, sizes only
   if params.do_average:

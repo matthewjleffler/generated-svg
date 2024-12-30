@@ -22,10 +22,10 @@ class SnakeParams(BaseParams):
     self.draw_head: bool = False
     self.draw_ribs: bool = True
     self.draw_spine: bool = True
-    self.cell_size: RangeInt = RangeInt(100, 200)
+    self.cell_size: RangeInt = RangeInt(50, 250)
     self.do_shuffle: bool = False
     self.shuffle: RangeFloat = RangeFloat(.1, .75)
-    self.do_push: bool = False
+    self.do_push: bool = True
     self.random_push: bool = False,
     self.push_pad_range_max: float = .25
     self.push_num: RangeInt = RangeInt(800, 2000)
@@ -36,7 +36,7 @@ class SnakeParams(BaseParams):
     self.step_dist: int = 2 # 3
     self.min_dist: int = 1
     self.do_inflate: bool = True
-    self.inflate_factor: float = 1.1
+    self.inflate_factor: float = 1.2
     self.dot_threshhold: float = -.9
     self.end_falloff: float = .02
     self.do_rib_shuffle: bool = True
@@ -45,7 +45,7 @@ class SnakeParams(BaseParams):
     self.smoothing_steps: int = 3 # 10
     self.close_path: bool = False
     self.do_average: bool = True
-    self.do_inflate_corners: bool = False
+    self.do_inflate_corners: bool = True
     self.inflate_corner_factor: float = .5
     self.do_final_average: bool = True
     self.final_average_weight: int = 2
