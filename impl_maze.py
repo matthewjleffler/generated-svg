@@ -29,6 +29,7 @@ class MazeParams(BaseParams):
     self.do_push: bool = True
     self.random_push: bool = False
     self.push_pad_range_max: float = .25
+    self.push_pad_range_offset: float = .15
     self.push_num: RangeInt = RangeInt(800, 2000)
     self.push_range: RangeFloat = RangeFloat(400, 800)
     self.push_strength: RangeFloat = RangeFloat(0.5, 2.5) # TODOML scale?

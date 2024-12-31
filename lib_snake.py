@@ -94,7 +94,7 @@ def _pixels_in_range(x: int, y: int, min: int, max: int) -> List[tuple[int, int]
   return result
 
 
-def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, rect: Rect, group: Group = None):
+def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, rect: Rect, push_rect: Rect, group: Group = None):
   # Generate flowing lines
   ribs_subdivide_centers = generate_centerpoints(line)
   points = generate_final_points(line, ribs_subdivide_centers, params.step_dist)
@@ -285,6 +285,9 @@ def draw_snake_from_points(line: List[Point], params: SnakeDrawParams, rect: Rec
   # Calculate scale
   (offset, final_scale) = scale_rect_to_fit(expand.to_rect(), rect)
   scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
+
+  if push_rect:
+    draw_rect_rect(push_rect, scaled)
 
   # Draw Result
   if params.draw_spine:

@@ -33,6 +33,7 @@ class PushParams:
       do_push: bool,
       random_push: bool,
       push_pad_range_max: float,
+      push_pad_range_offset: float,
       push_num: RangeInt,
       push_line_cell_size: RangeFloat,
       push_line_step_size: float,
@@ -44,6 +45,7 @@ class PushParams:
     self.do_push = do_push
     self.random_push = random_push
     self.push_pad_range_max = push_pad_range_max
+    self.push_pad_range_offset = push_pad_range_offset
     self.push_num = push_num
     self.push_line_cell_size = push_line_cell_size
     self.push_line_step_size = push_line_step_size
@@ -226,9 +228,15 @@ def push_line(line: List[Point], params: PushParams, group: Group = None) -> Rec
   pushers: List[_Pusher] = []
   pad_x = params.rect.w * params.push_pad_range_max
   pad_y = params.rect.h * params.push_pad_range_max
+  pad_offset_x = params.rect.w * params.push_pad_range_offset
+  pad_offset_y = params.rect.h * params.push_pad_range_offset
   push_pad_x = RangeFloat(-pad_x, pad_x)
   push_pad_y = RangeFloat(-pad_y, pad_y)
+  push_pad_offset_x = RangeFloat(-pad_offset_x, pad_offset_x)
+  push_pad_offset_y = RangeFloat(-pad_offset_y, pad_offset_y)
   push_rect = params.rect.shrink_xy_copy(push_pad_x.rand(), push_pad_y.rand())
+  push_rect.x += push_pad_offset_x.rand()
+  push_rect.y += push_pad_offset_y.rand()
   if params.random_push:
     num_pushers = params.push_num.rand()
     for _ in range(0, num_pushers):

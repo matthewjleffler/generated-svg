@@ -27,12 +27,13 @@ class SnakeParams(BaseParams):
     self.shuffle: RangeFloat = RangeFloat(.1, .75)
     self.do_push: bool = True
     self.random_push: bool = False,
-    self.push_pad_range_max: float = .25
+    self.push_pad_range_max: float = .1
+    self.push_pad_range_offset: float = .3
     self.push_num: RangeInt = RangeInt(800, 2000)
     self.push_range: RangeFloat = RangeFloat(400, 800)
     self.push_strength: RangeFloat = RangeFloat(0.5, 2.5)
     self.push_line_cell_size: RangeFloat = RangeFloat(100, 200)
-    self.push_line_step_size = 10
+    self.push_line_step_size = 15
     self.step_dist: int = 2 # 3
     self.min_dist: int = 1
     self.do_inflate: bool = True
@@ -109,6 +110,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
     params.do_push,
     params.random_push,
     params.push_pad_range_max,
+    params.push_pad_range_offset,
     params.push_num,
     params.push_line_cell_size,
     params.push_line_step_size,
@@ -116,6 +118,8 @@ def draw_snake(params: SnakeParams, group: Group = None):
     params.push_strength,
   )
   push_rect = push_line(line, push_params, group)
+  if not params.debug_draw_boundary or not params.do_push:
+    push_rect = None
 
   # Debug draw the line
   # draw_point_path(line)
@@ -123,5 +127,5 @@ def draw_snake(params: SnakeParams, group: Group = None):
   # # draw_curved_path(line, centers, group)
   # return
 
-  draw_snake_from_points(line, snake_params, pad, group)
+  draw_snake_from_points(line, snake_params, pad, push_rect, group)
 
