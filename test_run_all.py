@@ -1,9 +1,11 @@
 from lib import Args
 import types
+import svg_calibrate
 import svg_checkerboard
 import svg_circle_stack
 import svg_exploded_room
 import svg_long_worm
+import svg_maze
 import svg_radial_circles
 import svg_rect_stack
 import svg_snake

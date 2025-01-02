@@ -119,6 +119,9 @@ class Point:
       self.y = rect.bottom()
     return self
 
+  def to_int(self) -> tuple[int, int]:
+    return (floor(self.x), floor(self.y))
+
 
 class Line:
   def __init__(self, p0:Point, p1:Point) -> None:

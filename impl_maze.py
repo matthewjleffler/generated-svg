@@ -23,10 +23,10 @@ class MazeParams(BaseParams):
     self.debug_push: bool = False
     self.draw_type: DrawType = DrawType.curved
     self.close_path: bool = True
-    self.cell_size: int = 20
+    self.cell_size: int = 5
     self.do_cap: bool = False
     self.cap_percent: RangeFloat = RangeFloat(.8, .99)
-    self.do_push: bool = True
+    self.do_push: bool = False
     self.random_push: bool = False
     self.push_pad_range_max: float = .25
     self.push_pad_range_offset: float = .15
@@ -35,6 +35,10 @@ class MazeParams(BaseParams):
     self.push_strength: RangeFloat = RangeFloat(0.5, 2.5) # TODOML scale?
     self.push_line_cell_size: RangeFloat = RangeFloat(100, 200)
     self.push_line_step_size = 10
+    self.cutout_range = .1
+    self.do_inset = False
+    self.draw_cutout = True
+    self.circle_inset = 15
 
     super().__init__(defaults)
 
@@ -50,8 +54,13 @@ def draw_maze(params: MazeParams, group: Group = None):
   print("Cell size:", cell_size)
 
   # Make maze
-  maze_size = MazeSize(cell_size, pad)
-  line = make_maze_line(maze_size, params.close_path)
+  maze_size = MazeSize(cell_size, pad, params.cutout_range)
+  maze_options = MazeOptions(
+    maze_size,
+    params.close_path,
+    params.do_inset,
+  )
+  line = make_maze_line(maze_options)
 
   if len(line) < 1:
     print('0 length maze')
@@ -66,11 +75,11 @@ def draw_maze(params: MazeParams, group: Group = None):
   # Do push
   push_params = PushParams(
     pad,
-    params.debug_push,
     params.debug_draw_boundary,
     params.do_push,
     params.random_push,
     params.push_pad_range_max,
+    params.push_pad_range_offset,
     params.push_num,
     params.push_line_cell_size,
     params.push_line_step_size,
@@ -102,4 +111,17 @@ def draw_maze(params: MazeParams, group: Group = None):
       centers = generate_centerpoints(line)
       final = generate_final_points(line, centers, 1)
       draw_point_path_hatched(final, HatchParams(RangeInt(3, 10), RangeInt(1, 3)))
+
+    if params.draw_cutout and maze_size.range_stamp > 0:
+      center_x = pad.center_x()
+      if maze_size.col % 2 == 0:
+        center_x += maze_size.node_w
+      center_y = pad.center_y()
+      if maze_size.row % 2 == 0:
+        center_y += maze_size.node_h
+
+      circ_size_base = (maze_size.range_stamp * 2) * maze_size.node_w
+      draw_circ(center_x, center_y, circ_size_base - params.circle_inset - (maze_size.node_w), scaled)
+      draw_circ(center_x, center_y, circ_size_base - params.circle_inset - (maze_size.node_w * 2), scaled)
+
   close_group()

@@ -89,7 +89,11 @@ def draw_snake(params: SnakeParams, group: Group = None):
   )
 
   # Make maze
-  line: List[Point] = make_maze_line(maze_size, params.close_path)
+  maze_options = MazeOptions(
+    maze_size,
+    params.close_path,
+  )
+  line: List[Point] = make_maze_line(maze_options)
   if len(line) < 1:
     print('0 length maze')
     return

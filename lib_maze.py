@@ -8,7 +8,7 @@ from typing import List
 ###
 
 class MazeSize:
-  def __init__(self, cell_size: float, rect: Rect):
+  def __init__(self, cell_size: float, rect: Rect, cutout_range: float = 0):
     self.row = floor(rect.h / cell_size)
     self.row2 = self.row * 2
     self.col = floor(rect.w / cell_size)
@@ -23,6 +23,20 @@ class MazeSize:
     self.half_h = self.node_h / 2
 
     self.origin = Point(rect.x + self.half_w, rect.y + self.half_h)
+
+    self.range_stamp = floor(min(self.col * cutout_range, self.row * cutout_range))
+
+
+class MazeOptions:
+  def __init__(
+      self,
+      size: MazeSize,
+      close_path: bool = True,
+      do_inset: bool = False,
+  ):
+    self.size = size
+    self.close_path = close_path
+    self.do_inset = do_inset
 
 
 class PushParams:
@@ -117,10 +131,32 @@ def _visit(
   return order
 
 
-def _spanning_tree(row: int, col: int, total: int) -> List[tuple[int, int]]:
+def _spanning_tree(row: int, col: int, total: int, range_stamp: int, do_inset: bool) -> List[tuple[int, int]]:
   grid = [False] * total
+  totalRange = RangeInt(0, total - 1)
+
+  if range_stamp > 0:
+    center = Point(col / 2, row / 2)
+    for o_x in range(-range_stamp, range_stamp+1):
+      for o_y in range(-range_stamp, range_stamp+1):
+        if do_inset and o_x == 0 and o_y < range_stamp - 2:
+          continue
+        loc = center.add_floats_copy(o_x, o_y)
+        delta = loc.subtract_copy(center)
+        if delta.length() > range_stamp:
+          continue
+        (x_int, y_int) = loc.to_int()
+        i = _x_y_to_index(x_int, y_int, col)
+        grid[i] = True
+
   edges: List[tuple[int, int]] = []
-  start = RangeInt(0, total - 1).rand()
+
+  # Pick start until we get a valid one TODOML more efficient?
+  while True:
+    start = totalRange.rand()
+    if grid[start] == False:
+      break
+
   next_visit: List[tuple[int, List[int]]] = [(-1, [start])]
   while (len(next_visit) > 0):
     (last, next) = next_visit[0]
@@ -128,7 +164,7 @@ def _spanning_tree(row: int, col: int, total: int) -> List[tuple[int, int]]:
       next_visit.pop(0)
       continue
     index = next.pop(0)
-    new_visits = _visit(index, last, row, col, grid, edges, )
+    new_visits = _visit(index, last, row, col, grid, edges)
     if new_visits:
       next_visit.insert(0, (index, new_visits))
   return edges
@@ -172,8 +208,9 @@ def _hamiltonian_from_spanning_tree(col: int, col2: int, total2: int, connect: L
   return path
 
 
-def make_maze_line(size: MazeSize, close_path: bool) -> List[Point]:
-  edges = _spanning_tree(size.row, size.col, size.total)
+def make_maze_line(options: MazeOptions) -> List[Point]:
+  size = options.size
+  edges = _spanning_tree(size.row, size.col, size.total, size.range_stamp, options.do_inset)
 
   connect: List[_Connect] = []
   for i in range(0, size.total):
@@ -202,6 +239,13 @@ def make_maze_line(size: MazeSize, close_path: bool) -> List[Point]:
 
   path = _hamiltonian_from_spanning_tree(size.col, size.col2, size.total2, connect)
 
+  # Prune bad edges, if we have a subset of the whole image
+  for i in range(0, len(path)):
+    point = path[i]
+    if point == 0 and i > 0:
+      del path[i: len(path)]
+      break
+
   # Offset the path randomly
   offsetPath: List[int] = []
   pathlen = len(path)
@@ -209,7 +253,7 @@ def make_maze_line(size: MazeSize, close_path: bool) -> List[Point]:
   for i in range(0, pathlen):
     index = (offset + i) % pathlen
     offsetPath.append(path[index])
-  if close_path:
+  if options.close_path:
     offsetPath.append(path[offset])
 
   # Scale and shuffle the points
@@ -245,7 +289,8 @@ def push_line(line: List[Point], params: PushParams, group: Group = None) -> Rec
   else:
     push_cell = params.push_line_cell_size.rand()
     push_size = MazeSize(push_cell, push_rect)
-    push_line = make_maze_line(push_size, True)
+    push_options = MazeOptions(push_size, True)
+    push_line = make_maze_line(push_options)
     push_center = generate_centerpoints(push_line)
     push_divisions = generate_final_points(push_line, push_center, params.push_line_step_size)
 
@@ -263,7 +308,7 @@ def push_line(line: List[Point], params: PushParams, group: Group = None) -> Rec
     print_overwrite('Pushing...')
     for push in pushers:
       push_index += 1
-      print_overwrite(f"Running push {push_index} / {len(pushers)} ...")
+      print_overwrite(f"Running push {pad_max(push_index, len(pushers))} ...")
       for point in line:
         delta = point.subtract_copy(push.origin)
         delta_len = delta.length()
