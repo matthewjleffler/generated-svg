@@ -374,7 +374,7 @@ def _subdivide_bezier(p0: Point, p1: Point, control: Point, subdivisions: int, r
 def generate_final_points(
     points: List[Point],
     centers: List[Point],
-    step_dist:float
+    step_dist: float
   ) -> List[Point]:
   # Turn into line segments
   subdivisions_per = 100

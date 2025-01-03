@@ -99,6 +99,15 @@ class Point:
   def angle(self) -> float:
     return atan2(self.y, self.x)
 
+  def rotate(self, rads:float) -> 'Point':
+    ca = cos(rads)
+    sa = sin(rads)
+    tx = ca * self.x - sa * self.y
+    ty = sa * self.x + ca * self.y
+    self.x = tx
+    self.y = ty
+    return self
+
   def rotate_copy(self, rads:float) -> 'Point':
     ca = cos(rads)
     sa = sin(rads)
@@ -168,19 +177,37 @@ class Line:
     self.p1.y *= scale.y
     return self
 
+  def reverse(self) -> 'Line':
+    t0 = self.p0
+    self.p0 = self.p1
+    self.p1 = t0
+    return self
+
 
 class ExpandingVolume:
-  def __init__(self):
+  def __init__(self, list: List[Point] = None):
     self.min_x = float('inf')
     self.min_y = float('inf')
     self.max_x = float('-inf')
     self.max_y = float('-inf')
+
+    if list is not None:
+      for point in list:
+        self.add(point)
 
   def add(self, point: Point):
     self.min_x = min(point.x, self.min_x)
     self.min_y = min(point.y, self.min_y)
     self.max_x = max(point.x, self.max_x)
     self.max_y = max(point.y, self.max_y)
+
+  def add_list(self, points: List[Point]):
+    for point in points:
+      self.add(point)
+
+  def add_lists(self, point_list: List[List[Point]]):
+    for points in point_list:
+      self.add_list(points)
 
   def to_rect(self) -> 'Rect':
     return Rect.from_edges(self.min_x, self.min_y, self.max_x, self.max_y)
@@ -215,6 +242,9 @@ class Rect:
 
   def center_y(self) -> float:
     return floor(self.y + self.h / 2)
+
+  def center(self) -> Point:
+    return Point(self.x + self.w / 2, self.y + self.h / 2)
 
   def contains(self, x:float, y:float) -> bool:
     return x >= self.x and y >= self.y and x <= self.right() and y <= self.bottom()

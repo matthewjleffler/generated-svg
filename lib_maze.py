@@ -28,47 +28,26 @@ class MazeSize:
 
 
 class MazeOptions:
-  def __init__(
-      self,
-      size: MazeSize,
-      close_path: bool = True,
-      do_inset: bool = False,
-  ):
-    self.size = size
-    self.close_path = close_path
-    self.do_inset = do_inset
+  close_path: bool
+  do_inset: bool
 
 
-class PushParams:
-  def __init__(
-      self,
-      rect: Rect,
-      debug_draw_boundary: bool,
-      do_push: bool,
-      random_push: bool,
-      push_pad_range_max: float,
-      push_pad_range_offset: float,
-      push_num: RangeInt,
-      push_line_cell_size: RangeFloat,
-      push_line_step_size: float,
-      push_range: RangeFloat,
-      push_strength: RangeFloat,
-    ):
-    self.rect = rect
-    self.debug_draw_boundary = debug_draw_boundary
-    self.do_push = do_push
-    self.random_push = random_push
-    self.push_pad_range_max = push_pad_range_max
-    self.push_pad_range_offset = push_pad_range_offset
-    self.push_num = push_num
-    self.push_line_cell_size = push_line_cell_size
-    self.push_line_step_size = push_line_step_size
-    self.push_range = push_range
-    self.push_strength = push_strength
+# A 'type definition'
+class PushOptions:
+  debug_draw_boundary: bool
+  do_push: bool
+  random_push: bool
+  push_pad_range_max: float
+  push_pad_range_offset: float
+  push_num: RangeInt
+  push_line_cell_size: RangeFloat
+  push_line_step_size: float
+  push_range: RangeFloat
+  push_strength: RangeFloat
 
 
 class _Pusher:
-  def __init__(self, origin: Point, params: PushParams):
+  def __init__(self, origin: Point, params: PushOptions):
     self.origin = origin
     self.range = params.push_range.rand()
     self.strength = params.push_strength.rand()
@@ -208,8 +187,7 @@ def _hamiltonian_from_spanning_tree(col: int, col2: int, total2: int, connect: L
   return path
 
 
-def make_maze_line(options: MazeOptions) -> List[Point]:
-  size = options.size
+def make_maze_line(size: MazeSize, options: MazeOptions) -> List[Point]:
   edges = _spanning_tree(size.row, size.col, size.total, size.range_stamp, options.do_inset)
 
   connect: List[_Connect] = []
@@ -266,19 +244,21 @@ def make_maze_line(options: MazeOptions) -> List[Point]:
 
   return line
 
+def push_line(line: List[Point], rect: Rect, params: PushOptions, group: Group = None) -> Rect:
+  return push_lines([line], rect, params, group)
 
-def push_line(line: List[Point], params: PushParams, group: Group = None) -> Rect:
+def push_lines(lines: List[List[Point]], rect: Rect, params: PushOptions, group: Group = None) -> Rect:
   # Do push randomization independent of draw
   pushers: List[_Pusher] = []
-  pad_x = params.rect.w * params.push_pad_range_max
-  pad_y = params.rect.h * params.push_pad_range_max
-  pad_offset_x = params.rect.w * params.push_pad_range_offset
-  pad_offset_y = params.rect.h * params.push_pad_range_offset
+  pad_x = rect.w * params.push_pad_range_max
+  pad_y = rect.h * params.push_pad_range_max
+  pad_offset_x = rect.w * params.push_pad_range_offset
+  pad_offset_y = rect.h * params.push_pad_range_offset
   push_pad_x = RangeFloat(-pad_x, pad_x)
   push_pad_y = RangeFloat(-pad_y, pad_y)
   push_pad_offset_x = RangeFloat(-pad_offset_x, pad_offset_x)
   push_pad_offset_y = RangeFloat(-pad_offset_y, pad_offset_y)
-  push_rect = params.rect.shrink_xy_copy(push_pad_x.rand(), push_pad_y.rand())
+  push_rect = rect.shrink_xy_copy(push_pad_x.rand(), push_pad_y.rand())
   push_rect.x += push_pad_offset_x.rand()
   push_rect.y += push_pad_offset_y.rand()
   if params.random_push:
@@ -289,8 +269,10 @@ def push_line(line: List[Point], params: PushParams, group: Group = None) -> Rec
   else:
     push_cell = params.push_line_cell_size.rand()
     push_size = MazeSize(push_cell, push_rect)
-    push_options = MazeOptions(push_size, True)
-    push_line = make_maze_line(push_options)
+    push_options = MazeOptions()
+    push_options.close_path = True
+    push_options.do_inset = False
+    push_line = make_maze_line(push_size, push_options)
     push_center = generate_centerpoints(push_line)
     push_divisions = generate_final_points(push_line, push_center, params.push_line_step_size)
 
@@ -309,14 +291,15 @@ def push_line(line: List[Point], params: PushParams, group: Group = None) -> Rec
     for push in pushers:
       push_index += 1
       print_overwrite(f"Running push {pad_max(push_index, len(pushers))} ...")
-      for point in line:
-        delta = point.subtract_copy(push.origin)
-        delta_len = delta.length()
-        if delta_len > push.range:
-          continue
-        t = 1 - (delta_len / push.range)
-        push_amount = ease_in_out_quad(t, 0, push.strength, 1)
-        point.add(delta.normalize().multiply(push_amount))
+      for line in lines:
+        for point in line:
+          delta = point.subtract_copy(push.origin)
+          delta_len = delta.length()
+          if delta_len > push.range:
+            continue
+          t = 1 - (delta_len / push.range)
+          push_amount = ease_in_out_quad(t, 0, push.strength, 1)
+          point.add(delta.normalize().multiply(push_amount))
     print_finish_overwite()
 
   return push_rect

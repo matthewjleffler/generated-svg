@@ -55,12 +55,7 @@ def draw_maze(params: MazeParams, group: Group = None):
 
   # Make maze
   maze_size = MazeSize(cell_size, pad, params.cutout_range)
-  maze_options = MazeOptions(
-    maze_size,
-    params.close_path,
-    params.do_inset,
-  )
-  line = make_maze_line(maze_options)
+  line = make_maze_line(maze_size, params)
 
   if len(line) < 1:
     print('0 length maze')
@@ -73,20 +68,7 @@ def draw_maze(params: MazeParams, group: Group = None):
   print("Points:", len(line))
 
   # Do push
-  push_params = PushParams(
-    pad,
-    params.debug_draw_boundary,
-    params.do_push,
-    params.random_push,
-    params.push_pad_range_max,
-    params.push_pad_range_offset,
-    params.push_num,
-    params.push_line_cell_size,
-    params.push_line_step_size,
-    params.push_range,
-    params.push_strength,
-  )
-  push_rect = push_line(line, push_params, params.draw)
+  push_rect = push_line(line, pad, params, params.draw)
 
   # Scale output to fit safe area
   expand = ExpandingVolume()
