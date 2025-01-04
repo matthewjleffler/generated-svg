@@ -4,7 +4,9 @@ from lib_path import *
 from lib_poly import *
 from lib_maze import *
 from lib_snake import *
+from lib_triangle import *
 from typing import List
+from enum import Enum
 
 ###
 ### Snake Bones
@@ -15,22 +17,27 @@ from typing import List
 ### https://observablehq.com/@esperanc/random-space-filling-curves
 ###
 
+class _SnakeType(Enum):
+  maze = 0
+  triangle = 1
+
 class SnakeParams(BaseParams):
   def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
     self.debug_draw_boundary: bool = True
-    self.cell_size: RangeInt = RangeInt(50, 100)
+    self.cell_size: RangeInt = RangeInt(100, 150)
     self.do_shuffle: bool = False
     self.shuffle: RangeFloat = RangeFloat(.1, .75)
+    self.line_type: _SnakeType = _SnakeType.maze
 
     # SnakeOptions
     self.draw_spine: bool = True
     self.draw_head: bool = False
     self.draw_ribs: bool = True
     # 3 for sharpie pens, 4 (3.5?) for 0.5 isograph
-    self.step_dist: float = 3.5
-    self.do_inflate: bool = True
-    self.inflate_factor: float = 1.2
+    self.step_dist: float = 1
+    self.do_inflate: bool = False
+    self.inflate_factor: float = .6
     self.end_falloff: float = .02
     self.do_average: bool = True
     self.smoothing_range: int = 60
@@ -47,7 +54,7 @@ class SnakeParams(BaseParams):
     self.do_inset: bool = False
 
     # PushOptions
-    self.do_push: bool = True
+    self.do_push: bool = False
     self.random_push: bool = False,
     self.push_pad_range_max: float = .1
     self.push_pad_range_offset: float = .3
@@ -56,6 +63,9 @@ class SnakeParams(BaseParams):
     self.push_strength: RangeFloat = RangeFloat(0.5, 2.5)
     self.push_line_cell_size: RangeFloat = RangeFloat(100, 200)
     self.push_line_step_size = 15
+
+    # TriangleOptions
+    self.triangle_step_size = 50
 
     super().__init__(defaults)
 
@@ -67,16 +77,21 @@ def draw_snake(params: SnakeParams, group: Group = None):
   if params.debug_draw_boundary:
     draw_border(group)
 
-  cell_size = params.cell_size.rand()
-  print("Cell size:", cell_size)
+  if params.line_type == _SnakeType.maze:
+    cell_size = params.cell_size.rand()
+    print("Cell size:", cell_size)
+    maze_size = MazeSize(cell_size, pad)
 
-  maze_size = MazeSize(cell_size, pad)
-
-  # Make maze
-  line: List[Point] = make_maze_line(maze_size, params)
-  if len(line) < 1:
-    print('0 length maze')
-    return
+    # Make maze
+    line: List[Point] = make_maze_line(maze_size, params)
+    if len(line) < 1:
+      print('0 length maze')
+      return
+    inflate_step = max(int(min(maze_size.half_w / 2, maze_size.half_h / 2)), 5)
+  elif params.line_type == _SnakeType.triangle:
+    triangle_result = create_triangle_lines(pad, params)
+    line = triangle_result.triangle_points
+    inflate_step = max(int(params.triangle_step_size / 4), 5)
 
   # Shuffle points
   if params.do_shuffle:
@@ -98,6 +113,5 @@ def draw_snake(params: SnakeParams, group: Group = None):
   # # draw_curved_path(line, centers, group)
   # return
 
-  inflate_step = max(int(min(maze_size.half_w / 2, maze_size.half_h / 2)), 5)
   draw_snake_from_points(line, params, inflate_step, pad, push_rect, group)
 

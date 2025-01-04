@@ -23,15 +23,18 @@ def test_type(obj: any, field: str, expected: str) -> bool:
 def add_nondup_floats(x:float, y:float, points:List[Point]):
   points.append(Point(x, y))
 
-
 def add_nondup_point(point:Point, points:List[Point]):
   points.append(point.copy())
-
 
 def clamp_point_list(clamp_val:int, points:List[Point]):
   for point in points:
     point.x = round(point.x / clamp_val, 0) * clamp_val
     point.y = round(point.y / clamp_val, 0) * clamp_val
+
+def try_get[T](self, field: str, default: T) -> T:
+    if not hasattr(self, field):
+      return default
+    return getattr(self, field)
 
 class GroupColor(StrEnum):
   black = 'black'

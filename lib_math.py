@@ -290,3 +290,13 @@ def scale_rect_to_fit(full: Rect, target: Rect) -> tuple[Point, float]:
   offset_x = (target.x - (full.x * final_scale) + (target.w - final_w) / 2)
   offset_y = (target.y - (full.y * final_scale) + (target.h - final_h) / 2)
   return (Point(offset_x, offset_y), final_scale)
+
+def average_points(points: List[Point]) -> Point:
+  count = len(points)
+  sum = Point(0, 0)
+  if count < 1:
+    return sum
+  for point in points:
+    sum.add(point)
+  sum.divide(count)
+  return sum
