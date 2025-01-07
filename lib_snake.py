@@ -159,6 +159,11 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
             node_indexes.pop(index)
             popped = True
           node.size = min(delta_len - other_node.size, node.size)
+  else:
+    for i in range(0, snake_len):
+      node = snake.list[i]
+      print_overwrite(f"Set init size: {pad_max(i + 1, snake_len)}")
+      node.size = inflate_step * 2
 
   # Increase inflated sizes by the given factor
   for i in range(0, snake_len):
