@@ -51,6 +51,8 @@ class SnakeOptions:
   final_average_weight: int
   do_rib_shuffle: bool
   rib_shuffle_amount: float
+  break_count: int
+  break_loop: int
 
 
 def _nodes_in_range(pixels: List[tuple[int, int]], spatial: dict[(int, int), List[_SnakeNode]]) -> List[_SnakeNode]:
@@ -280,6 +282,10 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
       draw_circ(head_point.x, head_point.y, 20, scaled)
     draw_point_path(snake.points, scaled)
 
+  break_count = try_get(params, 'break_count', 0)
+  break_loop = try_get(params, 'break_loop', 3)
+  count_breaks = 0
+
   if params.draw_ribs:
     print_overwrite("Drawing ribs...")
     for i in range(0, snake_len):
@@ -293,13 +299,23 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
           shuffle_amount = 0
         shuffle = node.final_vec.multiply_copy(shuffle_amount)
 
-        for i in forward_indices:
-          ribs_subdivide[i].add(shuffle)
-        for i in backward_indices:
-          ribs_subdivide[i].subtract(shuffle)
+        for j in forward_indices:
+          ribs_subdivide[j].add(shuffle)
+        for j in backward_indices:
+          ribs_subdivide[j].subtract(shuffle)
 
         ribs_subdivide_centers = generate_centerpoints(ribs_subdivide)
         draw_curved_path(ribs_subdivide, ribs_subdivide_centers, scaled)
+
+      if i > 0 and break_count > 0 and i % break_count == 0:
+        count_breaks += 1
+        for i in range(0, break_loop):
+          draw_circ(0, 0, 5)
+
   close_group()
   print_finish_overwite()
+
+  if break_count > 0 and count_breaks > 0:
+    print('Breaks:', count_breaks)
+
   print("Finished snake")
