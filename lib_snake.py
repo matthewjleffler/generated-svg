@@ -284,6 +284,8 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
 
   break_count = try_get(params, 'break_count', 0)
   break_loop = try_get(params, 'break_loop', 3)
+  break_size = 5
+  break_pos = Point((break_size - offset.x) / final_scale, (svg_full().bottom() - break_size * 2 - offset.y) / final_scale)
   count_breaks = 0
 
   if params.draw_ribs:
@@ -310,7 +312,7 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
       if i > 0 and break_count > 0 and i % break_count == 0:
         count_breaks += 1
         for i in range(0, break_loop):
-          draw_circ(0, 0, 5)
+          draw_circ_point(break_pos, break_size / final_scale, scaled)
 
   close_group()
   print_finish_overwite()

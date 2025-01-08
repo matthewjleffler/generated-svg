@@ -48,7 +48,7 @@ class SnakeParams(BaseParams):
     self.final_average_weight: int = 2
     self.do_rib_shuffle: bool = True
     self.rib_shuffle_amount: float = .1
-    self.break_count: int = 1000
+    self.break_count: int = 500
 
     # MazeOptions
     self.close_path: bool = False
