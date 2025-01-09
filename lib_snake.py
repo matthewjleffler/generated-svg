@@ -35,6 +35,7 @@ class _Snake:
 
 
 class SnakeOptions:
+  debug_draw_boundary: bool
   draw_spine: bool
   draw_head: bool
   draw_ribs: bool
@@ -271,6 +272,9 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
   # Calculate scale
   (offset, final_scale) = scale_rect_to_fit(expand.to_rect(), rect)
   scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
+  draw_boundary = try_get(params, 'debug_draw_boundary', False)
+  if draw_boundary:
+    scaled_red = open_group(GroupSettings(stroke=GroupColor.red))
 
   if push_rect:
     draw_rect_rect(push_rect, scaled)
@@ -313,6 +317,8 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
         count_breaks += 1
         for i in range(0, break_loop):
           draw_circ_point(break_pos, break_size / final_scale, scaled)
+        if draw_boundary:
+          draw_circ_point(node.point, 10, scaled_red)
 
   close_group()
   print_finish_overwite()
