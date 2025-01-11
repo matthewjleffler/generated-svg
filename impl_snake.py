@@ -25,9 +25,9 @@ class SnakeParams(BaseParams):
   def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
     self.debug_draw_boundary: bool = True
-    self.cell_size: RangeInt = RangeInt(50, 50)
-    self.do_shuffle: bool = True
-    self.shuffle: RangeFloat = RangeFloat(.1, .75)
+    self.cell_size = 70
+    self.do_shuffle: bool = False
+    self.shuffle: RangeFloat = RangeFloat(0, 1)
     self.line_type: _SnakeType = _SnakeType.maze
 
     # SnakeOptions
@@ -48,7 +48,7 @@ class SnakeParams(BaseParams):
     self.final_average_weight: int = 2
     self.do_rib_shuffle: bool = True
     self.rib_shuffle_amount: float = .1
-    self.break_count: int = 500
+    self.break_count: int = 0
 
     # MazeOptions
     self.close_path: bool = False
@@ -79,9 +79,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
     draw_border(group)
 
   if params.line_type == _SnakeType.maze:
-    cell_size = params.cell_size.rand()
-    print("Cell size:", cell_size)
-    maze_size = MazeSize(cell_size, pad)
+    maze_size = MazeSize(params.cell_size, pad)
 
     # Make maze
     line: List[Point] = make_maze_line(maze_size, params)
