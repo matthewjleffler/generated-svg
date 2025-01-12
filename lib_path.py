@@ -27,8 +27,7 @@ def offest_point_path(original:List[Point], offset:Point) -> List[Point]:
 def subdivide_point_path(
     rough:List[Point],
     sub_count:RangeInt,
-    ignored_indexes: List[int] = [],
-    deltaRange: int = 1
+    ignored_indexes: List[int] = []
   ) -> List[Point]:
   last = rough[0]
   points: List[Point] = []

@@ -76,7 +76,7 @@ def _pixels_in_range(x: int, y: int, min: int, max: int) -> List[tuple[int, int]
   return result
 
 
-def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step: float, rect: Rect, push_rect: Rect, group: Group = None):
+def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step: float) -> List[List[Point]]:
   # Generate flowing lines
   ribs_subdivide_centers = generate_centerpoints(line)
   points = generate_final_points(line, ribs_subdivide_centers, params.step_dist)
@@ -249,11 +249,15 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
         avg_vec.add(node.final_vec)
       node.final_vec = avg_vec.divide(params.final_average_weight + 1)
 
-  # Create lines
-  expand = ExpandingVolume()
-  print_overwrite("Checking volume...")
+  forward_indices = [1, 5]
+  backward_indices = [2, 3]
+  spine_count = RangeInt(5, 5)
+  final_points: List[List[Point]] = []
+  if params.draw_spine:
+    final_points.append(snake.points)
+
   for i in range(0, snake_len):
-    print_overwrite(f"Checking volume {pad_max(i + 1, snake_len)}")
+    print_overwrite(f"Creating Lines volume {pad_max(i + 1, snake_len)}")
     node = snake.list[i]
     point = node.point
     size = node.size
@@ -262,68 +266,26 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
     line1 = Line(point, point.add_copy(perpendicular.multiply_copy(-size)))
     node.lines.append(line0)
     node.lines.append(line1)
-    expand.add(line0.p1)
-    expand.add(line1.p1)
 
-  forward_indices = [1, 5]
-  backward_indices = [2, 3]
-  spine_count = RangeInt(5, 5)
+  print_overwrite("Creating ribs...")
+  for i in range(0, snake_len):
+    print_overwrite(f"Creating rib {pad_max(i + 1, snake_len)}")
+    node = snake.list[i]
+    for ribline in node.lines:
+      ribs_subdivide = subdivide_point_path(ribline.points(), spine_count)
 
-  # Calculate scale
-  (offset, final_scale) = scale_rect_to_fit(expand.to_rect(), rect)
-  scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
-  draw_boundary = try_get(params, 'debug_draw_boundary', False)
-  if draw_boundary:
-    scaled_red = open_group(GroupSettings(stroke=GroupColor.red))
+      shuffle_amount = params.rib_shuffle_amount * ribline.length()
+      if not params.do_rib_shuffle:
+        shuffle_amount = 0
+      shuffle = node.final_vec.multiply_copy(shuffle_amount)
 
-  if push_rect:
-    draw_rect_rect(push_rect, scaled)
+      for j in forward_indices:
+        ribs_subdivide[j].add(shuffle)
+      for j in backward_indices:
+        ribs_subdivide[j].subtract(shuffle)
 
-  # Draw Result
-  if params.draw_spine:
-    if params.draw_head:
-      head_point = snake.points[0]
-      draw_circ(head_point.x, head_point.y, 20, scaled)
-    draw_point_path(snake.points, scaled)
+      # centers = generate_centerpoints(ribs_subdivide)
+      # final_rib = generate_final_points(ribs_subdivide, centers, 1)
+      final_points.append(ribs_subdivide)
 
-  break_count = try_get(params, 'break_count', 0)
-  break_loop = try_get(params, 'break_loop', 3)
-  break_size = 5
-  break_pos = Point((break_size - offset.x) / final_scale, (svg_full().bottom() - break_size * 2 - offset.y) / final_scale)
-  count_breaks = 0
-
-  if params.draw_ribs:
-    print_overwrite("Drawing ribs...")
-    for i in range(0, snake_len):
-      print_overwrite(f"Drawing rib {pad_max(i + 1, snake_len)}")
-      node = snake.list[i]
-      for ribline in node.lines:
-        ribs_subdivide = subdivide_point_path(ribline.points(), spine_count)
-
-        shuffle_amount = params.rib_shuffle_amount * ribline.length()
-        if not params.do_rib_shuffle:
-          shuffle_amount = 0
-        shuffle = node.final_vec.multiply_copy(shuffle_amount)
-
-        for j in forward_indices:
-          ribs_subdivide[j].add(shuffle)
-        for j in backward_indices:
-          ribs_subdivide[j].subtract(shuffle)
-
-        ribs_subdivide_centers = generate_centerpoints(ribs_subdivide)
-        draw_curved_path(ribs_subdivide, ribs_subdivide_centers, scaled)
-
-      if i > 0 and break_count > 0 and i % break_count == 0:
-        count_breaks += 1
-        for i in range(0, break_loop):
-          draw_circ_point(break_pos, break_size / final_scale, scaled)
-        if draw_boundary:
-          draw_circ_point(node.point, 10, scaled_red)
-
-  close_group()
-  print_finish_overwite()
-
-  if break_count > 0 and count_breaks > 0:
-    print('Breaks:', count_breaks)
-
-  print("Finished snake")
+  return final_points
