@@ -23,7 +23,7 @@ class MazeParams(BaseParams):
     self.debug_push: bool = False
     self.draw_type: DrawType = DrawType.curved
     self.close_path: bool = True
-    self.cell_size: int = 5
+    self.cell_size: int = 7
     self.do_cap: bool = False
     self.cap_percent: RangeFloat = RangeFloat(.8, .99)
     self.do_push: bool = False
@@ -35,10 +35,13 @@ class MazeParams(BaseParams):
     self.push_strength: RangeFloat = RangeFloat(0.5, 2.5) # TODOML scale?
     self.push_line_cell_size: RangeFloat = RangeFloat(100, 200)
     self.push_line_step_size = 10
-    self.cutout_range = .1
+    self.cutout_range = 0
     self.do_inset = False
-    self.draw_cutout = True
+    self.draw_cutout = False
     self.circle_inset = 15
+
+    self.do_shuffle = True
+    self.shuffle_range = RangeFloat(0, .75)
 
     super().__init__(defaults)
 
@@ -66,6 +69,13 @@ def draw_maze(params: MazeParams, group: Group = None):
     del line[cap_index: len(line)]
 
   print("Points:", len(line))
+
+  # Shuffle
+  for point in line:
+    offset_x = params.shuffle_range.rand() * maze_size.half_w
+    offset_y = params.shuffle_range.rand() * maze_size.half_h
+    if params.do_shuffle:
+      point.add_floats(offset_x, offset_y)
 
   # Do push
   push_rect = push_line(line, pad, params, params.draw)
