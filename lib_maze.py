@@ -247,7 +247,7 @@ def make_maze_line(size: MazeSize, options: MazeOptions) -> List[Point]:
 def push_line(line: List[Point], rect: Rect, params: PushOptions, group: Group = None) -> Rect:
   return push_lines([line], rect, params, group)
 
-def push_lines(lines: List[List[Point]], rect: Rect, params: PushOptions, group: Group = None) -> Rect:
+def push_lines(lines: List[List[Point]], rect: Rect, params: PushOptions) -> Rect:
   # Do push randomization independent of draw
   pushers: List[_Pusher] = []
   pad_x = rect.w * params.push_pad_range_max

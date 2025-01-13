@@ -25,22 +25,22 @@ class SnakeParams(BaseParams):
   def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
     self.debug_draw_boundary: bool = True
-    self.cell_size = 30
+    self.cell_size = 100
     self.do_shuffle: bool = False
     self.shuffle: RangeFloat = RangeFloat(0, 1)
     self.line_type: _SnakeType = _SnakeType.maze
 
     # SnakeOptions
     self.draw_spine: bool = True
-    self.draw_head: bool = False
+    self.draw_head: bool = True
     self.draw_ribs: bool = True
     # 3 for sharpie pens, 4 (3.5?) for 0.5 isograph
-    self.step_dist: float = 2
-    self.do_inflate: bool = False
-    self.inflate_factor: float = 0.7
-    self.end_falloff: float = .001
+    self.step_dist: float = 5
+    # self.do_inflate: bool = False
+    self.inflate_factor: float = 1
+    self.end_falloff: float = .01
     self.do_average: bool = True
-    self.smoothing_range: int = 20
+    self.smoothing_range: int = 60
     self.smoothing_steps: int = 1
     self.do_inflate_corners: bool = True
     self.inflate_corner_factor: float = 1.1
@@ -107,12 +107,7 @@ def draw_snake(params: SnakeParams, group: Group = None):
   # # draw_curved_path(line, centers, group)
   # return
 
-  snake_points = draw_snake_from_points(line, params, inflate_step)
-
-  # Do push
-  push_rect = push_lines(snake_points, pad, params, group)
-  if not params.debug_draw_boundary or not params.do_push:
-    push_rect = None
+  snake_points = draw_snake_from_points(line, params, inflate_step, pad)
 
   # Expand Boundary
   print_overwrite("Checking volume...")
@@ -125,8 +120,8 @@ def draw_snake(params: SnakeParams, group: Group = None):
   draw_boundary = try_get(params, 'debug_draw_boundary', False)
   if draw_boundary:
     scaled_red = open_group(GroupSettings(stroke=GroupColor.red))
-    if push_rect:
-      draw_rect_rect(push_rect, scaled)
+    # if push_rect:
+    #   draw_rect_rect(push_rect, scaled)
 
   # Draw Result
   if params.draw_spine:
