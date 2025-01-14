@@ -4,14 +4,13 @@ from lib_maze import *
 from typing import List
 
 class _SnakeNode:
-  def __init__(self, point: Point, index: int, left: float, right: float) -> None:
+  def __init__(self, point: Point, index: int) -> None:
     self.point = point
     self.index = index
-    self.left = left
-    self.right = right
+    self.left = 0
+    self.right = 0
     self.next: _SnakeNode = None
     self.final_vec: Point = Point(0, 0)
-    self.lines: List[Line] = []
     self.done = False
 
   def set_next(self, next: '_SnakeNode') -> None:
@@ -30,8 +29,8 @@ class _Snake:
     self.points = points
     # self.centers = centers
 
-  def add(self, point: Point, left: float, right: float) -> _SnakeNode:
-    node = _SnakeNode(point, len(self.list), left, right)
+  def add(self, point: Point) -> _SnakeNode:
+    node = _SnakeNode(point, len(self.list))
     self.list.append(node)
     return node
 
@@ -57,46 +56,59 @@ class SnakeOptions:
   break_count: int
   break_loop: int
 
-
-def _nodes_in_range(pixels: List[tuple[int, int]], spatial: dict[(int, int), List[_SnakeNode]]) -> List[_SnakeNode]:
-  result: List[_SnakeNode] = []
-  for pixel in pixels:
-    nodes = spatial.get(pixel, None)
-    if nodes is None:
+def _test_edge_array(origin: Point, line: Line, edges: List[Line]) -> Point:
+  closest_distance = maxsize
+  hit: Point = None
+  for edge in edges:
+    intersection = line_intersection(edge, line)
+    if intersection is None:
+      # No intersection
       continue
-    result += nodes
-  return result
+    if not edge.test_point_on_line(intersection):
+      # Not in segment
+      continue
+    line_vec = line.vec()
+    int_vec = intersection.subtract_copy(origin)
+    if line_vec.dot(int_vec) < 1:
+      # Pointing at wrong edge
+      continue
+    int_vec_length = int_vec.length()
+    if int_vec_length >= closest_distance:
+      # Further than one we've checked
+      continue
+    closest_distance = int_vec_length
+    hit = intersection
+  return hit
 
+#TODOML when crossing the spine
+def _sample_width(
+    origin: Point,
+    vec: Point,
+    edges: List[Line],
+    center_edges: List[Line] # TODOML remove
+  ) -> float:
+  total_range = 60
+  range_max = 2
+  deg_delta = total_range / range_max
+  min_delta = maxsize
+  for i in range(-range_max, range_max):
+    rot = deg_delta * i
+    rotated = vec.rotate_copy(rot * deg_to_rad)
+    line = Line(origin, rotated.add(origin))
 
-def _pixels_in_range(x: int, y: int, min: int, max: int) -> List[tuple[int, int]]:
-  result: List[tuple[int, int]] = []
-  for range_x in range(-max, max + 1):
-    for range_y in range(-max, max + 1):
-      if abs(range_x) < min or abs(range_y) < min:
-        continue
-      result.append((x + range_x, y + range_y))
-  return result
+    hit_edge = _test_edge_array(origin, line, edges)
+    if hit_edge is None:
+      continue
 
+    edge_delta = origin.subtract_copy(hit_edge).length()
+    if edge_delta < min_delta:
+      min_delta = edge_delta
 
-def _find_original_index(index: int, step_dist: float, original: List[Point]) -> int:
-  target = index * step_dist
-  for i in range(1, len(original)):
-    last = original[i - 1]
-    current = original[i]
-    delta = last.subtract_copy(current).length()
-    target -= delta
-    if target < 0:
-      return i
-  return len(original) - 1
+  if min_delta == maxsize:
+    # Maybe original width?
+    return 0
 
-def _sample_width(index: int, step_dist: float, original:List[List[Point]]) -> tuple[float, float, List[Point]]:
-  original_index = _find_original_index(index, step_dist, original[0])
-  original_point = original[0][original_index]
-  original_ribs = original[original_index + 1]
-  left = original_point.subtract_copy(original_ribs[0]).length()
-  right = original_point.subtract_copy(original_ribs[1]).length()
-  return (left, right, original_ribs)
-
+  return min_delta
 
 def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step: float, rect: Rect) -> List[List[Point]]:
   # Generate flowing lines
@@ -109,8 +121,9 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
   init_snake = _Snake(init_spine)
   for i in range(0, init_snake_len):
     print_overwrite(f"Init node {pad_max(i + 1, init_snake_len)}")
-    width = inflate_step * 2 * params.inflate_factor
-    node = init_snake.add(init_spine[i], width, width)
+    width = inflate_step * 2
+    node = init_snake.add(init_spine[i])
+    node.left = node.right = width
     if i > 0:
       init_snake.list[i-1].set_next(node)
 
@@ -131,6 +144,24 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
   if not params.debug_draw_boundary or not params.do_push:
     push_rect = None
 
+  edges: List[Line] = []
+  center_edge: List[Line] = []
+  edge_points: List[Point] = []
+  for i in range(1, init_snake_len):
+    print_overwrite(f"Init edges {pad_max(i + 1, init_snake_len)}")
+    last_center = init_points[0][i - 1]
+    next_center = init_points[0][i]
+    last = init_points[i]
+    next = init_points[i + 1]
+    left = Line(last[0], next[0])
+    right = Line(last[1], next[1])
+    center = Line(last_center, next_center)
+    edges.append(left)
+    edges.append(right)
+    center_edge.append(center)
+    edge_points.append(left.points())
+    edge_points.append(right.points())
+
   # Create final lines
   final_centers = generate_centerpoints(init_points[0])
   final_spine = generate_final_points(init_points[0], final_centers, params.step_dist)
@@ -140,14 +171,21 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
   final_snake = _Snake(final_spine)
   final_points: List[List[Point]] = [final_spine]
   for i in range(0, final_snake_len):
-    print_overwrite(f"Final node {pad_max(i + 1, final_snake_len)}")
-    (left, right, orig) = _sample_width(i, params.step_dist, init_points)
-
-    node = final_snake.add(final_spine[i], left, right)
-    final_points.append([node.point, orig[0]])
-    final_points.append([node.point, orig[1]])
+    print_overwrite(f"Creating final node {pad_max(i + 1, final_snake_len)}")
+    node = final_snake.add(final_spine[i])
     if i > 0:
       final_snake.list[i-1].set_next(node)
+
+  # Create rib widths
+  rand_index = RangeInt(0, final_snake_len - 1).rand()
+  for i in range(0, final_snake_len):
+    print_overwrite(f"Finding final node width {pad_max(i + 1, final_snake_len)}")
+    # if i != rand_index:
+    #   continue
+    node = final_snake.list[i]
+    vec = node.vec()
+    node.left = _sample_width(node.point, vec.perpendicular_copy().normalize().multiply(10), edges, center_edge)
+    node.right = _sample_width(node.point, vec.perpendicular_copy().normalize().multiply(-10), edges, center_edge)
 
   # Shrink ends
   falloff = floor(final_snake_len * params.end_falloff)
@@ -162,82 +200,83 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
     node.right = ease_in_out_quad(percent, 0, node.right, 1)
 
   # Average Sizes
-  # smoothing_range: int = floor(params.smoothing_range / params.step_dist)
-  # if params.do_average:
-  #   for s in range(0, params.smoothing_steps):
-  #     for i in range(0, final_snake_len):
-  #       print_overwrite(f"Averaging step: {pad_max(s + 1, params.smoothing_steps)} node: {pad_max(i + 1, final_snake_len)}")
-  #       from_end = min(i, final_snake_len - 1 - i)
-  #       steps = min(from_end, smoothing_range)
-  #       if steps == 0:
-  #         continue
-  #       current = final_snake.list[i]
-  #       avg_left = 0
-  #       avg_right = 0
-  #       avg_vec = Point(0, 0)
-  #       total_steps = steps * 2 + 1
-  #       for j in range(-steps, steps + 1):
-  #         node = final_snake.list[i + j]
-  #         avg_left += node.left
-  #         avg_right += node.right
-  #         avg_vec.add(node.final_vec)
-  #       current.left = avg_left / total_steps
-  #       current.right = avg_right / total_steps
-  #       # Don't average corners as much
-  #       avg_vec.add(current.final_vec)
-  #       avg_vec.add(current.final_vec)
-  #       current.final_vec = avg_vec.divide(total_steps + 2)
-
-  # Create final rib edges
-  for i in range(0, final_snake_len):
-    print_overwrite(f"Init volume {pad_max(i + 1, final_snake_len)}")
-    node = final_snake.list[i]
-    point = node.point
-    perpendicular = node.final_vec.perpendicular_copy()
-    final_points.append([point.copy(), point.add_copy(perpendicular.multiply_copy(node.left))])
-    final_points.append([point.copy(), point.add_copy(perpendicular.multiply_copy(-node.right))])
-
-  return final_points + init_points
+  smoothing_range: int = floor(params.smoothing_range / params.step_dist)
+  if params.do_average:
+    for s in range(0, params.smoothing_steps):
+      for i in range(0, final_snake_len):
+        print_overwrite(f"Averaging step: {pad_max(s + 1, params.smoothing_steps)} node: {pad_max(i + 1, final_snake_len)}")
+        from_end = min(i, final_snake_len - 1 - i)
+        steps = min(from_end, smoothing_range)
+        if steps == 0:
+          continue
+        current = final_snake.list[i]
+        avg_left = 0
+        avg_right = 0
+        avg_vec = Point(0, 0)
+        total_steps = steps * 2 + 1
+        for j in range(-steps, steps + 1):
+          node = final_snake.list[i + j]
+          avg_left += node.left
+          avg_right += node.right
+          avg_vec.add(node.final_vec)
+        current.left = avg_left / total_steps
+        current.right = avg_right / total_steps
+        # Don't average corners as much
+        avg_vec.add(current.final_vec)
+        avg_vec.add(current.final_vec)
+        current.final_vec = avg_vec.divide(total_steps + 2)
 
   # Increase corner sizes
-  # if params.do_inflate_corners:
-  #   print_overwrite("Inflating corners...")
-  #   for i in range(0, snake_len):
-  #     print_overwrite(f"Inflating corner {pad_max(i + 1, snake_len)}")
-  #     node = snake.list[i]
-  #     dot = 1 - abs(node.vec().dot(node.final_vec))
-  #     node.size *= (1 + (dot) * params.inflate_corner_factor)
+  if params.do_inflate_corners:
+    print_overwrite("Inflating corners...")
+    for i in range(0, final_snake_len):
+      print_overwrite(f"Inflating corner {pad_max(i + 1, final_snake_len)}")
+      node = final_snake.list[i]
+      dot = 1 - abs(node.vec().dot(node.final_vec))
+      factor = (1 + (dot) * params.inflate_corner_factor)
+      node.left *= factor
+      node.right *= factor
 
   # One more average, sizes only
-  # if params.do_average:
-  #   print_overwrite("Final average...")
-  #   for s in range(0, params.smoothing_steps):
-  #     for i in range(0, snake_len):
-  #       print_overwrite(f"Final average step: {pad_max(s + 1, params.smoothing_steps)} node: {pad_max(i + 1, snake_len)}")
-  #       from_end = min(i, snake_len - 1 - i)
-  #       steps = min(from_end, smoothing_range)
-  #       if steps == 0:
-  #         continue
-  #       current = snake.list[i]
-  #       avg_size = 0
-  #       total_steps = steps * 2 + 1
-  #       for j in range(-steps, steps + 1):
-  #         node = snake.list[i + j]
-  #         avg_size += node.size
-  #       current.size = avg_size / total_steps
+  if params.do_average:
+    print_overwrite("Final average...")
+    for s in range(0, params.smoothing_steps):
+      for i in range(0, final_snake_len):
+        print_overwrite(f"Final average step: {pad_max(s + 1, params.smoothing_steps)} node: {pad_max(i + 1, final_snake_len)}")
+        from_end = min(i, final_snake_len - 1 - i)
+        steps = min(from_end, smoothing_range)
+        if steps == 0:
+          continue
+        current = final_snake.list[i]
+        avg_left = 0
+        avg_right = 0
+        total_steps = steps * 2 + 1
+        for j in range(-steps, steps + 1):
+          node = final_snake.list[i + j]
+          avg_left += node.left
+          avg_right += node.right
+        current.left = avg_left / total_steps
+        current.right = avg_right / total_steps
 
   # Average vec back towards original
-  # if params.do_final_average:
-  #   print_overwrite("Weight vectors...")
-  #   for i in range(0, snake_len):
-  #     print_overwrite(f"Weight {pad_max(i + 1, snake_len)}")
-  #     node = snake.list[i]
-  #     avg_vec = node.vec()
-  #     for _ in range(0, params.final_average_weight):
-  #       avg_vec.add(node.final_vec)
-  #     node.final_vec = avg_vec.divide(params.final_average_weight + 1)
+  if params.do_final_average:
+    print_overwrite("Weight vectors...")
+    for i in range(0, final_snake_len):
+      print_overwrite(f"Weight {pad_max(i + 1, final_snake_len)}")
+      node = final_snake.list[i]
+      avg_vec = node.vec()
+      for _ in range(0, params.final_average_weight):
+        avg_vec.add(node.final_vec)
+      node.final_vec = avg_vec.divide(params.final_average_weight + 1)
 
-  return final_points
+  # Create final rib edges
+  # for i in range(0, final_snake_len):
+  #   print_overwrite(f"Init volume {pad_max(i + 1, final_snake_len)}")
+  #   node = final_snake.list[i]
+  #   point = node.point
+  #   perpendicular = node.final_vec.perpendicular_copy()
+  #   final_points.append([point.copy(), point.add_copy(perpendicular.multiply_copy(node.left * params.inflate_factor))])
+  #   final_points.append([point.copy(), point.add_copy(perpendicular.multiply_copy(-node.right * params.inflate_factor))])
 
   forward_indices = [1, 5]
   backward_indices = [2, 3]
@@ -246,11 +285,19 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
   if params.draw_spine:
     init_points.append(init_snake.points)
 
-  print_overwrite("Creating ribs...")
-  for i in range(0, init_snake_len):
-    print_overwrite(f"Creating rib {pad_max(i + 1, init_snake_len)}")
-    node = init_snake.list[i]
-    for ribline in node.lines:
+  # Create ribs
+  for i in range(0, final_snake_len):
+    print_overwrite(f"Creating rib {pad_max(i + 1, final_snake_len)}")
+    node = final_snake.list[i]
+    point = node.point
+    perpendicular = node.final_vec.perpendicular_copy()
+
+    lines: List[Line] = [
+      Line(point, point.add_copy(perpendicular.multiply_copy(node.left * params.inflate_factor))),
+      Line(point, point.add_copy(perpendicular.multiply_copy(-node.right * params.inflate_factor))),
+    ]
+
+    for ribline in lines:
       ribs_subdivide = subdivide_point_path(ribline.points(), spine_count)
 
       shuffle_amount = params.rib_shuffle_amount * ribline.length()
@@ -265,6 +312,6 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
 
       # centers = generate_centerpoints(ribs_subdivide)
       # final_rib = generate_final_points(ribs_subdivide, centers, 1)
-      init_points.append(ribs_subdivide)
+      final_points.append(ribs_subdivide)
 
-  return init_points
+  return final_points

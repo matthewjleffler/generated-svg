@@ -1,6 +1,7 @@
 from math import *
 from lib_rand import *
 from typing import List
+from sys import *
 
 ###
 ### Math Helpers
@@ -161,6 +162,34 @@ class Line:
 
   def length(self) -> float:
     return self.p1.subtract_copy(self.p0).length()
+
+  def test_point_on_line(self, point: Point) -> bool:
+    delta_self = self.p1.subtract_copy(self.p0)
+    delta_other = point.subtract_copy(self.p0)
+    if delta_other.length() > delta_self.length() + 1:
+      return False
+
+    dot = delta_other.dot(delta_self)
+    if dot < 1:
+      return False
+    # a = self.p0
+    # b = self.p1
+    # c = point
+    # cross = (c.y - a.y) * (b.x - a.x) - (c.x - a.x) * (b.y - a.y)
+
+    # # compare versus epsilon for floating point values, or != 0 if using integers
+    # if abs(cross) > float_info.epsilon:
+    #   return False
+
+    # dot = (c.x - a.x) * (b.x - a.x) + (c.y - a.y) * (b.y - a.y)
+    # if dot < 0:
+    #   return False
+
+    # squaredlengthba = (b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y)
+    # if dot > squaredlengthba:
+    #   return False
+
+    return True
 
   def dot(self, other: 'Line') -> float:
     return self.vec().dot(other.vec())

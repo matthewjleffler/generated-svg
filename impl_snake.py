@@ -35,12 +35,12 @@ class SnakeParams(BaseParams):
     self.draw_head: bool = True
     self.draw_ribs: bool = True
     # 3 for sharpie pens, 4 (3.5?) for 0.5 isograph
-    self.step_dist: float = 5
+    self.step_dist: float = 2
     # self.do_inflate: bool = False
     self.inflate_factor: float = 1
     self.end_falloff: float = .01
     self.do_average: bool = True
-    self.smoothing_range: int = 60
+    self.smoothing_range: int = 90
     self.smoothing_steps: int = 1
     self.do_inflate_corners: bool = True
     self.inflate_corner_factor: float = 1.1
@@ -48,14 +48,14 @@ class SnakeParams(BaseParams):
     self.final_average_weight: int = 2
     self.do_rib_shuffle: bool = True
     self.rib_shuffle_amount: float = .1
-    self.break_count: int = 0
+    self.break_count: int = 200
 
     # MazeOptions
     self.close_path: bool = False
     self.do_inset: bool = False
 
     # PushOptions
-    self.do_push: bool = True
+    self.do_push: bool = False
     self.random_push: bool = False,
     self.push_pad_range_max: float = .25
     self.push_pad_range_offset: float = 0
@@ -143,6 +143,8 @@ def draw_snake(params: SnakeParams, group: Group = None):
       rib = snake_points[i]
       centers = generate_centerpoints(rib)
       draw_curved_path(rib, centers, scaled)
+      # if i > 2:
+        # draw_point_circles(rib, scaled)
 
       if i > 0 and break_count > 0 and i % break_count == 0:
         count_breaks += 1
