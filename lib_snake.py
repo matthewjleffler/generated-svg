@@ -54,6 +54,8 @@ class SnakeOptions:
   rib_shuffle_amount: float
   break_count: int
   break_loop: int
+  original_ribs: bool
+  rib_range: RangeInt
 
 
 def _nodes_in_range(pixels: List[tuple[int, int]], spatial: dict[(int, int), List[_SnakeNode]]) -> List[_SnakeNode]:
@@ -249,9 +251,31 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
         avg_vec.add(node.final_vec)
       node.final_vec = avg_vec.divide(params.final_average_weight + 1)
 
-  forward_indices = [1, 5]
-  backward_indices = [2, 3]
-  spine_count = RangeInt(5, 5)
+  forward_indices = []
+  backward_indices = []
+  rib_sub_count = RangeInt(5, 5)
+  original_ribs = try_get(params, 'original_ribs', True)
+  if original_ribs:
+    forward_indices += [1, 5]
+    backward_indices += [2, 3]
+    raw_shuffle_amount = .1
+  else:
+    rib_range_count = try_get(params, 'rib_range', RangeInt(5, 5)).rand()
+    rib_sub_count = RangeInt(rib_range_count, rib_range_count)
+    rib_indexes = list(range(0, rib_range_count))
+    rib_change = floor(rib_range_count / 2)
+    rib_dir = RangeInt(0, 1)
+    raw_shuffle_amount = try_get(params, 'rib_shuffle_amount', RangeFloat(.1, .2)).rand()
+    while rib_change > 0:
+      rib_change -= 1
+      index = RangeInt(0, len(rib_indexes) - 1).rand()
+      index = rib_indexes.pop(index)
+      if rib_dir.rand() == 0:
+        # Forward
+        forward_indices.append(index)
+      else:
+        backward_indices.append(index)
+
   final_points: List[List[Point]] = []
   if params.draw_spine:
     final_points.append(snake.points)
@@ -272,9 +296,9 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
     print_overwrite(f"Creating rib {pad_max(i + 1, snake_len)}")
     node = snake.list[i]
     for ribline in node.lines:
-      ribs_subdivide = subdivide_point_path(ribline.points(), spine_count)
+      ribs_subdivide = subdivide_point_path(ribline.points(), rib_sub_count)
 
-      shuffle_amount = params.rib_shuffle_amount * ribline.length()
+      shuffle_amount = raw_shuffle_amount * ribline.length()
       if not params.do_rib_shuffle:
         shuffle_amount = 0
       shuffle = node.final_vec.multiply_copy(shuffle_amount)

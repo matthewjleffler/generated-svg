@@ -25,9 +25,9 @@ class SnakeParams(BaseParams):
   def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
     self.debug_draw_boundary: bool = True
-    self.cell_size = 30
-    self.do_shuffle: bool = False
-    self.shuffle: RangeFloat = RangeFloat(0, 1)
+    self.cell_size = 150
+    self.do_shuffle: bool = True
+    self.shuffle: RangeFloat = RangeFloat(0, .5)
     self.line_type: _SnakeType = _SnakeType.maze
 
     # SnakeOptions
@@ -37,25 +37,28 @@ class SnakeParams(BaseParams):
     # 3 for sharpie pens, 4 (3.5?) for 0.5 isograph
     self.step_dist: float = 2
     self.do_inflate: bool = False
-    self.inflate_factor: float = 0.7
-    self.end_falloff: float = .001
+    self.inflate_factor: float = 1.5
+    self.end_falloff: float = .02
     self.do_average: bool = True
-    self.smoothing_range: int = 20
-    self.smoothing_steps: int = 1
+    self.smoothing_range: int = 60
+    self.smoothing_steps: int = 4
     self.do_inflate_corners: bool = True
     self.inflate_corner_factor: float = 1.1
     self.do_final_average: bool = True
     self.final_average_weight: int = 2
     self.do_rib_shuffle: bool = True
-    self.rib_shuffle_amount: float = .1
-    self.break_count: int = 0
+    self.raw_shuffle_amount: RangeFloat = RangeFloat(.05, .2)
+    self.break_count: int = 100
+    self.original_ribs: bool = False
+    self.rib_range: RangeInt = RangeInt(3, 10)
+
 
     # MazeOptions
     self.close_path: bool = False
     self.do_inset: bool = False
 
     # PushOptions
-    self.do_push: bool = True
+    self.do_push: bool = False
     self.random_push: bool = False,
     self.push_pad_range_max: float = .25
     self.push_pad_range_offset: float = 0
