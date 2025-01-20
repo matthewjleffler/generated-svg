@@ -5,9 +5,9 @@ class LinesRunner(Runner):
   def __init__(self) -> None:
     super().__init__("lines")
 
-  def loop_main(self, defaults: Defaults):
+  def loop_main(self, defaults: Defaults, group: Group):
     params = LinesParams(defaults)
-    draw_lines(params)
+    draw_lines(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:

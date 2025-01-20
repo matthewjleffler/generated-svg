@@ -21,7 +21,7 @@ class SpiralCircleParams(BaseParams):
     super().__init__(defaults)
 
 
-def draw_spiral_circle(params:SpiralCircleParams, group:Group = None):
+def draw_spiral_circle(params:SpiralCircleParams, group:Group):
   # draw_border(group)
 
   pad_rect = svg_safe().shrink_copy(params.padding)

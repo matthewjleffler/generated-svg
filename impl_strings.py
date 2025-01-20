@@ -18,7 +18,7 @@ class StringParams(BaseParams):
     super().__init__(defaults)
 
 
-def draw_strings(params:StringParams, group:Group = None):
+def draw_strings(params:StringParams, group:Group):
   # draw_border(group)
 
   text_file = params.text_file_override

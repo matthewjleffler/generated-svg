@@ -80,7 +80,7 @@ def _draw_worm_layer(params:WormParams, fixed_size:float, group:Group = None):
   _draw_worm_set(max_row, max_col, worm_size, fixed_size, params)
   close_group()
 
-def draw_worm(params:WormParams, group:Group = None):
+def draw_worm(params:WormParams, group:Group):
   # draw_border(group)
 
   if params.draw_worm:
@@ -244,7 +244,7 @@ def _draw_worm_highlights(positions:List[Position], params:LongWormParams, group
 
   close_group()
 
-def draw_long_worm(params:LongWormParams, group:Group = None):
+def draw_long_worm(params:LongWormParams, group:Group):
   # draw_border(group)
 
   # Variables
@@ -390,7 +390,7 @@ def _highlight_2(
     draw_circ(pos.x, pos.y, pos.size + 10)
 
 
-def draw_spiral_worm(params:SprialWormParams, group:Group = None):
+def draw_spiral_worm(params:SprialWormParams, group:Group):
   # draw_border()
 
   # Build outline

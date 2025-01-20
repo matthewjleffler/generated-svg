@@ -5,9 +5,9 @@ class StringsRunner(Runner):
   def __init__(self) -> None:
     super().__init__("strings")
 
-  def loop(self, defaults: Defaults):
+  def loop(self, defaults: Defaults, group: Group):
     params = StringParams(defaults)
-    draw_strings(params)
+    draw_strings(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:

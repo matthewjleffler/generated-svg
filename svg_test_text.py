@@ -6,8 +6,8 @@ class TestTextRunner(Runner):
   def __init__(self) -> None:
     super().__init__("test-text")
 
-  def loop(self, defaults: Defaults):
-    # draw_border()
+  def loop(self, defaults: Defaults, group: Group):
+    # draw_border(group)
 
     draw_text(100, 200, 10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
     draw_text(100, 300, 10, "abcdefghijklmnopqrstuvwxyz")

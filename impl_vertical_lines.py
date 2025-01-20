@@ -199,7 +199,7 @@ def _create_lines(params:VerticalLineParams, group:Group = None):
   return (fine, lines[0][0].x, lines[-1][0].x)
 
 
-def draw_lines(params:VerticalLineParams, group:Group = None):
+def draw_lines(params:VerticalLineParams, group:Group):
   # draw_border(group)
 
   result = _create_lines(params, group)

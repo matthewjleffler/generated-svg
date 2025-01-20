@@ -5,9 +5,9 @@ class ExplodedRoomRunner(Runner):
   def __init__(self) -> None:
     super().__init__("exploded-room")
 
-  def loop_main(self, defaults: Defaults):
+  def loop_main(self, defaults: Defaults, group: Group):
     params = ExplodedRoomParams(defaults)
-    draw_exploded_room(params)
+    draw_exploded_room(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:

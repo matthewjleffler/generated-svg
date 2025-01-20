@@ -238,7 +238,7 @@ def _create_room(
     return outer
 
 
-def draw_exploded_room(params: ExplodedRoomParams, group:Group = None):
+def draw_exploded_room(params: ExplodedRoomParams, group:Group):
   # draw_border(group)
 
   pad = svg_safe().copy()

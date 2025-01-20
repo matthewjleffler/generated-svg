@@ -55,7 +55,9 @@ class GroupSettings:
       scaleXY: tuple[float, float] = None,
       scalePoint: Point = None,
       rotate: float = None,
+      name: str = None
   ):
+    self.name = name
     settings: List[str] = []
 
     if stroke is not None:
@@ -114,12 +116,13 @@ _text_content = ""
 _font_styles = dict()
 _root_group = Group(None, GroupSettings(stroke=GroupColor.black, fill=GroupColor.none))
 _current_group = _root_group
+_groups: dict[str, Group] = dict()
 _pixel_per_inch = 95.8
 _round_digits = 2
 
 
 def init():
-  global _svg_full, _svg_safe, _svg_border, _text_indent, _text_content, _font_styles, _root_group, _current_group, _text_lines
+  global _svg_full, _svg_safe, _svg_border, _text_indent, _text_content, _font_styles, _root_group, _current_group, _text_lines, _groups
 
   _svg_full = Rect(0, 0, 0, 0)
   _svg_safe = Rect(0, 0, 0, 0)
@@ -130,6 +133,7 @@ def init():
   _font_styles = dict()
   _root_group = Group(None, GroupSettings(stroke=GroupColor.black, fill=GroupColor.none))
   _current_group = _root_group
+  _groups = dict()
 
 
 # Sizes
@@ -382,7 +386,7 @@ def commit(seed:int, size:tuple[float, float], params:any):
 
 
 def commit_group(group:Group):
-  if group.settings is not None:
+  if group.settings is not None and group.settings != "":
     _open_text_indent("<g {}>".format(group.settings))
   else:
     _open_text_indent("<g>")
@@ -398,8 +402,8 @@ def commit_group(group:Group):
   _close_text_indent("</g>")
 
 
-def open_group(settings: GroupSettings, parent:Group = None) -> Group:
-  global _current_group
+def open_group(settings: GroupSettings, parent: Group = None) -> Group:
+  global _current_group, _groups
 
   if not parent:
     parent = _current_group
@@ -408,8 +412,10 @@ def open_group(settings: GroupSettings, parent:Group = None) -> Group:
   parent.groups.append(new_group)
   _current_group = new_group
 
-  return new_group
+  if settings.name is not None:
+    _groups[settings.name] = new_group
 
+  return new_group
 
 def close_group():
   global _current_group
@@ -418,6 +424,17 @@ def close_group():
     return
 
   _current_group = _current_group.parent
+
+def get_or_create_group(settings: GroupSettings, parent: Group = None) -> Group:
+  global _current_group, _groups
+
+  if settings.name is not None:
+    result = _groups.get(settings.name, None)
+    if result is not None:
+      return result
+
+  return open_group(settings, parent)
+
 
 def pad_max(min_val: int, max_val: int) -> str:
   str_len = len(str(max_val))
@@ -470,7 +487,7 @@ def draw_border(group:Group = None):
   debug = open_group(GroupSettings(), group)
   draw_rect_rect(_svg_full, debug)
   close_group()
-  red = open_group(GroupSettings(stroke=GroupColor.red), group)
+  red = get_or_create_group(GroupSettings(stroke=GroupColor.red, name="debug_red"), debug)
   draw_rect_rect(_svg_safe, red)
   close_group()
 
@@ -507,6 +524,8 @@ def draw_ring_of_circles(number:int, c_x:float, c_y:float, center_rad:float, cir
 # Main
 
 def main(dir:str, layer: str, defaults: Defaults, seed: int, loop:callable) -> int:
+  global _root_group
+
   start = time.time()
   init()
   setup_size(defaults.size)
@@ -516,7 +535,7 @@ def main(dir:str, layer: str, defaults: Defaults, seed: int, loop:callable) -> i
   random.seed(seed)
   print("Seed: {}".format(seed))
 
-  params = loop(defaults)
+  params = loop(defaults, _root_group)
   commit(seed, defaults.size, params)
 
   export_path_file = "./dir.txt"

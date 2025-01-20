@@ -127,6 +127,9 @@ class Matrix:
   def translate_y(self, ty: float) -> 'Matrix':
     return self.__transform(1, 0, 0, 1, 0, ty)
 
+  def translate_point(self, point: Point) -> 'Matrix':
+    return self.translate(point.x, point.y)
+
   def copy(self) -> 'Matrix':
     return Matrix().set_to(self)
 

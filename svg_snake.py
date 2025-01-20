@@ -5,21 +5,21 @@ class SnakeRunner(Runner):
   def __init__(self) -> None:
     super().__init__("snake")
 
-  def loop_main(self, defaults: Defaults):
+  def loop_main(self, defaults: Defaults, group: Group):
     params = SnakeParams(defaults)
-    draw_snake(params)
+    draw_snake(params, group)
     return params
 
-  def loop_spine(self, defaults: Defaults):
+  def loop_spine(self, defaults: Defaults, group: Group):
     params = SnakeParams(defaults)
     params.draw_ribs = False
-    draw_snake(params)
+    draw_snake(params, group)
     return params
 
-  def loop_ribs(self, defaults: Defaults):
+  def loop_ribs(self, defaults: Defaults, group: Group):
     params = SnakeParams(defaults)
     params.draw_spine = False
-    draw_snake(params)
+    draw_snake(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:

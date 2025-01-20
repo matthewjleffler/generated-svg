@@ -13,6 +13,7 @@ import svg_spiral_circle
 import svg_spiral_worm
 import svg_strings
 import svg_template
+import svg_test_node
 import svg_test_text
 import svg_triangle
 import svg_vertical_lines

@@ -9,8 +9,8 @@ class CalibrateRunner(Runner):
   def __init__(self) -> None:
     super().__init__("calibrate")
 
-  def loop(self, defaults: Defaults):
-    # draw_border()
+  def loop(self, defaults: Defaults, group: Group):
+    # draw_border(group)
 
     split = 5
     pad = svg_safe().copy()

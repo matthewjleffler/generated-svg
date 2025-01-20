@@ -95,7 +95,7 @@ def _create_wave_patterns(pad_rect:Rect, rows:int, cols:int, params:VerticalWave
   return result
 
 
-def draw_wave(params:VerticalWaveParams, group:Group = None):
+def draw_wave(params:VerticalWaveParams, group:Group):
   # draw_border(group)
 
   # Create pad rect

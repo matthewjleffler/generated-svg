@@ -38,7 +38,7 @@ class TriangleParams(BaseParams):
     super().__init__(defaults)
 
 
-def draw_triangle(params:TriangleParams, group:Group = None):
+def draw_triangle(params:TriangleParams, group:Group):
   pad_rect = svg_safe().copy()
 
   result = create_triangle_lines(pad_rect, params)

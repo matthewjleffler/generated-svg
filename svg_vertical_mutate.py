@@ -5,11 +5,11 @@ class VerticalMutateRunner(Runner):
   def __init__(self) -> None:
     super().__init__("vertical-mutate")
 
-  def loop_main(self, defaults: Defaults):
+  def loop_main(self, defaults: Defaults, group: Group):
     params = VerticalLineParams(defaults)
     params.mutate = True
     params.draw_highlights = False
-    draw_lines(params)
+    draw_lines(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:

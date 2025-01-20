@@ -16,8 +16,11 @@ class MazeSize:
     self.total = self.row * self.col
     self.total2 = self.row2 * self.col2
 
-    self.node_w = rect.w / self.col2
-    self.node_h = rect.h / self.row2
+    node_w = rect.w / self.col2
+    node_h = rect.h / self.row2
+    node = min(node_w, node_h)
+
+    self.node_w = self.node_h = node
     self.node_scale = Point(self.node_w, self.node_h)
     self.half_w = self.node_w / 2
     self.half_h = self.node_h / 2

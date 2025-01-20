@@ -5,9 +5,9 @@ class CircleStackRunner(Runner):
   def __init__(self) -> None:
     super().__init__("circle-stack")
 
-  def loop(self, defaults: Defaults):
+  def loop(self, defaults: Defaults, group: Group):
     params = CircleStackParams(defaults)
-    draw_circle_stack(params)
+    draw_circle_stack(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:

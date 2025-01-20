@@ -5,9 +5,9 @@ class MazeRunner(Runner):
   def __init__(self) -> None:
     super().__init__("maze")
 
-  def loop_main(self, defaults: Defaults):
+  def loop_main(self, defaults: Defaults, group: Group):
     params = MazeParams(defaults)
-    draw_maze(params)
+    draw_maze(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:

@@ -30,7 +30,7 @@ class LinesParams(BaseParams):
     super().__init__(defaults)
 
 
-def draw_lines(params: LinesParams, group: Group = None):
+def draw_lines(params: LinesParams, group: Group):
   pad = svg_safe().copy()
   pad_bottom = pad.bottom()
 

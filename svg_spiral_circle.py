@@ -5,9 +5,9 @@ class SpiralCircleRunner(Runner):
   def __init__(self) -> None:
     super().__init__("spiral-circle")
 
-  def loop(self, defaults: Defaults):
+  def loop(self, defaults: Defaults, group: Group):
     params = SpiralCircleParams(defaults)
-    draw_spiral_circle(params)
+    draw_spiral_circle(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:

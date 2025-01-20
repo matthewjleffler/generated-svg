@@ -114,7 +114,7 @@ def _add_border(x:float, y:float, size_h:float, params:RadialParams):
   elif border == BorderType.Starburst:
     draw_sunburst(floor(size_h / 3), x, y, size_h + ring_buffer, 5)
 
-def draw_radial_circles(params:RadialParams, group:Group = None):
+def draw_radial_circles(params:RadialParams, group:Group):
   # draw_border(group)
 
   # Rough path

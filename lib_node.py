@@ -8,10 +8,11 @@ class Node:
     self._children: List[Node] = []
     self._parent: Node = None
 
-  def add_child(self, other: 'Node') -> 'Node':
-    other._parent = self
-    self._children.append(other)
-    return other
+  def add_child(self) -> 'Node':
+    result = Node()
+    result._parent = self
+    self._children.append(result)
+    return result
 
   def transformation(self) -> 'Matrix':
     parents: List[Node] = []

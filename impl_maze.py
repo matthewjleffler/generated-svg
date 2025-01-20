@@ -46,7 +46,7 @@ class MazeParams(BaseParams):
     super().__init__(defaults)
 
 
-def draw_maze(params: MazeParams, group: Group = None):
+def draw_maze(params: MazeParams, group: Group):
   pad = svg_safe().copy()
 
   # Draw safety border and page border

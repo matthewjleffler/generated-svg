@@ -5,6 +5,7 @@ from lib_poly import *
 from lib_maze import *
 from lib_snake import *
 from lib_triangle import *
+from lib_node import *
 from typing import List
 from enum import Enum
 
@@ -25,7 +26,7 @@ class SnakeParams(BaseParams):
   def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
     self.debug_draw_boundary: bool = True
-    self.cell_size = 150
+    self.cell_size = 120
     self.do_shuffle: bool = True
     self.shuffle: RangeFloat = RangeFloat(0, .5)
     self.line_type: _SnakeType = _SnakeType.maze
@@ -37,18 +38,18 @@ class SnakeParams(BaseParams):
     # 3 for sharpie pens, 4 (3.5?) for 0.5 isograph
     self.step_dist: float = 2
     self.do_inflate: bool = False
-    self.inflate_factor: float = 1.5
+    self.inflate_factor: float = 1
     self.end_falloff: float = .02
     self.do_average: bool = True
     self.smoothing_range: int = 60
-    self.smoothing_steps: int = 4
+    self.smoothing_steps: int = 2
     self.do_inflate_corners: bool = True
     self.inflate_corner_factor: float = 1.1
-    self.do_final_average: bool = True
+    self.do_final_average: bool = False
     self.final_average_weight: int = 2
     self.do_rib_shuffle: bool = True
     self.raw_shuffle_amount: RangeFloat = RangeFloat(.05, .2)
-    self.break_count: int = 100
+    self.break_count: int = 0
     self.original_ribs: bool = False
     self.rib_range: RangeInt = RangeInt(3, 10)
 
@@ -74,7 +75,7 @@ class SnakeParams(BaseParams):
     super().__init__(defaults)
 
 
-def draw_snake(params: SnakeParams, group: Group = None):
+def draw_snake(params: SnakeParams, group: Group):
   pad = svg_safe().copy()
 
   # Draw safety border and page border
@@ -124,42 +125,46 @@ def draw_snake(params: SnakeParams, group: Group = None):
 
   # Calculate scale
   (offset, final_scale) = scale_rect_to_fit(expand.to_rect(), pad)
-  scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
+  root_node = Node()
+  root_node.transform.translate_point(offset)
+  root_node.transform.scale(final_scale, final_scale)
+  scaled_node = root_node.add_child()
+  scaled_transform = scaled_node.transformation()
+  scaled_points = scaled_transform.apply_to_point_arrays(snake_points)
+
   draw_boundary = try_get(params, 'debug_draw_boundary', False)
   if draw_boundary:
-    scaled_red = open_group(GroupSettings(stroke=GroupColor.red))
+    group_red = get_or_create_group(GroupSettings(stroke=GroupColor.red, name="debug_red"))
     if push_rect:
-      draw_rect_rect(push_rect, scaled)
+      draw_rect_rect(push_rect, group)
 
   # Draw Result
   if params.draw_spine:
     if params.draw_head:
       head_point = snake_points[0][0]
-      draw_circ(head_point.x, head_point.y, 20, scaled)
-    # draw_point_path(snake.points, scaled)
+      draw_circ(head_point.x, head_point.y, 20, group)
 
   break_count = try_get(params, 'break_count', 0)
   break_loop = try_get(params, 'break_loop', 3)
   break_size = 5
-  break_pos = Point((break_size - offset.x) / final_scale, (svg_full().bottom() - break_size * 2 - offset.y) / final_scale)
+  break_pos = Point(break_size + 2, svg_full().bottom() - break_size - 2)
   count_breaks = 0
 
   if params.draw_ribs:
-    len_ribs = len(snake_points)
+    len_ribs = len(scaled_points)
     for i in range(0, len_ribs):
       print_overwrite(f"Drawing rib {pad_max(i + 1, len_ribs)}")
-      rib = snake_points[i]
+      rib = scaled_points[i]
       centers = generate_centerpoints(rib)
-      draw_curved_path(rib, centers, scaled)
+      draw_curved_path(rib, centers, group)
 
       if i > 0 and break_count > 0 and i % break_count == 0:
         count_breaks += 1
         for i in range(0, break_loop):
-          draw_circ_point(break_pos, break_size / final_scale, scaled)
+          draw_circ_point(break_pos, break_size, group)
         if draw_boundary:
-          draw_circ_point(rib[0], 10, scaled_red)
+          draw_circ_point(rib[0], 10, group_red)
 
-  close_group()
   print_finish_overwite()
 
   if break_count > 0 and count_breaks > 0:

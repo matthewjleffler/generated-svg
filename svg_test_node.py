@@ -6,16 +6,16 @@ class TestNodeRunner(Runner):
   def __init__(self) -> None:
     super().__init__("test_node")
 
-  def loop(self, defaults: Defaults):
+  def loop(self, defaults: Defaults, group: Group):
     pad = svg_safe().copy()
-    draw_border()
+    draw_border(group)
 
     root = Node()
     root.transform.translate(pad.x, pad.y)
     root.transform.scale(1, 1)
     root.transform.rotate_degree(45)
 
-    offset = root.add_child(Node())
+    offset = root.add_child()
     offset.transform.translate(100, 100)
 
     point = Point(0, 0)

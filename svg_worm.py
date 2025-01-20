@@ -5,21 +5,21 @@ class WormRunner(Runner):
   def __init__(self) -> None:
     super().__init__("worm")
 
-  def loop_combined(self, defaults: Defaults):
+  def loop_combined(self, defaults: Defaults, group: Group):
     params = WormParams(defaults)
-    draw_worm(params)
+    draw_worm(params, group)
     return params
 
-  def loop_main(self, defaults: Defaults):
+  def loop_main(self, defaults: Defaults, group: Group):
     params = WormParams(defaults)
     params.draw_innards = False
-    draw_worm(params)
+    draw_worm(params, group)
     return params
 
-  def loop_innards(self, defaults: Defaults):
+  def loop_innards(self, defaults: Defaults, group: Group):
     params = WormParams(defaults)
     params.draw_worm = False
-    draw_worm(params)
+    draw_worm(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
