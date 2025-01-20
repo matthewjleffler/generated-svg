@@ -6,7 +6,7 @@ from sys import float_info
 ### Matrix Math
 ### Based on logic from: https://github.com/leeoniya/transformation-matrix-js/blob/master/src/matrix.js
 
-def _is_equal(a: float, b: float) -> bool:
+def __is_equal(a: float, b: float) -> bool:
   return abs(a - b) < float_info.epsilon
 
 class Matrix:
@@ -24,6 +24,9 @@ class Matrix:
     ## Translate Y
     self._f: float = 0
 
+  def __repr__(self) -> str:
+    return f"[Matrix] x:{self.get_x()} y:{self.get_y()} scale_x: {self.get_scale_x()} scale_y: {self.get_scale_y()}, skewx: {self.get_skew_x()} skewy: {self.get_skew_y()}"
+
   def get_scale_x(self) -> float:
     return self._a
 
@@ -37,14 +40,14 @@ class Matrix:
     return self._f
 
   def get_skew_x(self) -> float:
-    return self._a
+    return self._c
 
   def get_skew_y(self) -> float:
     return self._b
 
   # TODOML rot?
 
-  def _set(self, a: float, b: float, c: float, d: float, e: float, f: float) -> 'Matrix':
+  def __set(self, a: float, b: float, c: float, d: float, e: float, f: float) -> 'Matrix':
     self._a = a
     self._b = b
     self._c = c
@@ -53,7 +56,7 @@ class Matrix:
     self._f = f
     return self
 
-  def _transform(self, a2: float, b2: float, c2: float, d2: float, e2: float, f2: float) -> 'Matrix':
+  def __transform(self, a2: float, b2: float, c2: float, d2: float, e2: float, f2: float) -> 'Matrix':
     a1 = self._a
     b1 = self._b
     c1 = self._c
@@ -65,7 +68,7 @@ class Matrix:
     #  ace
     #  bdf
     #  001
-    return self._set(
+    return self.__set(
       a1 * a2 + c1 * b2,
       b1 * a2 + d1 * b2,
       a1 * c2 + c1 * d2,
@@ -75,10 +78,10 @@ class Matrix:
     )
 
   def flip_x(self) -> 'Matrix':
-    return self._transform(-1, 0, 0, 1, 0, 0)
+    return self.__transform(-1, 0, 0, 1, 0, 0)
 
   def flip_y(self) -> 'Matrix':
-    return self._transform(1, 0, 0, -1, 0, 0)
+    return self.__transform(1, 0, 0, -1, 0, 0)
 
   # Reset to identity matrix
   def reset(self) -> 'Matrix':
@@ -89,42 +92,48 @@ class Matrix:
   def rotate(self, rad: float) -> 'Matrix':
     rad_cos = cos(rad)
     rad_sin = sin(rad)
-    return self._transform(rad_cos, rad_sin, -rad_sin, rad_cos, 0, 0)
+    return self.__transform(rad_cos, rad_sin, -rad_sin, rad_cos, 0, 0)
 
   def rotate_degree(self, deg: float) -> 'Matrix':
     return self.rotate(deg * deg_to_rad)
 
   def scale(self, sx: float, sy: float) -> 'Matrix':
-    return self._transform(sx, 0, 0, sy, 0, 0)
+    return self.__transform(sx, 0, 0, sy, 0, 0)
 
   def scale_x(self, sx: float) -> 'Matrix':
-    return self._transform(sx, 0, 0, 1, 0, 0)
+    return self.__transform(sx, 0, 0, 1, 0, 0)
 
   def scale_y(self, sy: float) -> 'Matrix':
-    return self._transform(1, 0, 0, sy, 0, 0)
+    return self.__transform(1, 0, 0, sy, 0, 0)
 
   def skew(self, sx: float, sy: float) -> 'Matrix':
-    return self._transform(1, sy, sx, 1, 0, 0)
+    return self.__transform(1, sy, sx, 1, 0, 0)
 
   def skew_x(self, sx: float) -> 'Matrix':
-    return self._transform(1, 0, sx, 1, 0, 0)
+    return self.__transform(1, 0, sx, 1, 0, 0)
 
   def skew_y(self, sy: float) -> 'Matrix':
-    return self._transform(1, sy, 0, 1, 0, 0)
+    return self.__transform(1, sy, 0, 1, 0, 0)
 
   def set_to(self, other: 'Matrix') -> 'Matrix':
-    return self._set(other._a, other._b, other._c, other._d, other._e, other._f)
+    return self.__set(other._a, other._b, other._c, other._d, other._e, other._f)
 
   def translate(self, tx: float, ty: float) -> 'Matrix':
-    return self._transform(1, 0, 0, 1, tx, ty)
+    return self.__transform(1, 0, 0, 1, tx, ty)
 
   def translate_x(self, tx: float) -> 'Matrix':
-    return self._transform(1, 0, 0, 1, tx, 0)
+    return self.__transform(1, 0, 0, 1, tx, 0)
 
   def translate_y(self, ty: float) -> 'Matrix':
-    return self._transform(1, 0, 0, 1, 0, ty)
+    return self.__transform(1, 0, 0, 1, 0, ty)
 
-  def get_inverse(self) -> 'Matrix':
+  def copy(self) -> 'Matrix':
+    return Matrix().set_to(self)
+
+  def multiply(self, other: 'Matrix') -> 'Matrix':
+    return self.__transform(other._a, other._b, other._c, other._d, other._e, other._f)
+
+  def copy_inverse(self) -> 'Matrix':
     a = self._a
     b = self._b
     c = self._c
@@ -133,7 +142,7 @@ class Matrix:
     f = self._f
     dt = (a * d - b * c)
 
-    return Matrix()._set(
+    return Matrix().__set(
       d / dt,
       -b / dt,
       -c / dt,
@@ -142,8 +151,8 @@ class Matrix:
       -(a * f - b * e) / dt
     )
 
-  def get_interpolated(self, other: 'Matrix', t: float) -> 'Matrix':
-    return Matrix()._set(
+  def copy_interpolated(self, other: 'Matrix', t: float) -> 'Matrix':
+    return Matrix().__set(
       self._a + (other._a - self._a) * t,
       self._b + (other._b - self._b) * t,
       self._c + (other._c - self._c) * t,
@@ -160,7 +169,7 @@ class Matrix:
     )
 
   def apply_to_point(self, point: Point) -> Point:
-    (x, y) = self.apply_to_floats(point.x, point.y)
+    (x, y) = self.apply_to_floats((point.x, point.y))
     return Point(x, y)
 
   def apply_to_point_array(self, points: List[Point]) -> List[Point]:
@@ -177,12 +186,12 @@ class Matrix:
 
   def is_equal(self, other: 'Matrix') -> bool:
     return (
-      _is_equal(self.a, other.a) and
-      _is_equal(self.b, other.b) and
-      _is_equal(self.c, other.c) and
-      _is_equal(self.d, other.d) and
-      _is_equal(self.e, other.e) and
-      _is_equal(self.f, other.f)
+      __is_equal(self._a, other._a) and
+      __is_equal(self._b, other._b) and
+      __is_equal(self._c, other._c) and
+      __is_equal(self._d, other._d) and
+      __is_equal(self._e, other._e) and
+      __is_equal(self._f, other._f)
     )
 
   def is_identity(self) -> bool:
