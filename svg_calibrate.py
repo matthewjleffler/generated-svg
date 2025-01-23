@@ -9,7 +9,7 @@ class CalibrateRunner(Runner):
   def __init__(self) -> None:
     super().__init__("calibrate")
 
-  def loop(self, defaults: Defaults, group: Group):
+  def loop(self, defaults: Defaults, group: Group, seed: int):
     # draw_border(group)
 
     split = 5

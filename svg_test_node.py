@@ -6,7 +6,7 @@ class TestNodeRunner(Runner):
   def __init__(self) -> None:
     super().__init__("test_node")
 
-  def loop(self, defaults: Defaults, group: Group):
+  def loop(self, defaults: Defaults, group: Group, seed: int):
     pad = svg_safe().copy()
     draw_border(group)
 

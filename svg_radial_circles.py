@@ -5,18 +5,18 @@ class RadialCirclesRunner(Runner):
   def __init__(self) -> None:
     super().__init__("radial-circles")
 
-  def loop_combined(self, defaults: Defaults, group: Group):
+  def loop_combined(self, defaults: Defaults, group: Group, seed: int):
     params = RadialParams(defaults)
     draw_radial_circles(params, group)
     return params
 
-  def loop_main(self, defaults: Defaults, group: Group):
+  def loop_main(self, defaults: Defaults, group: Group, seed: int):
     params = RadialParams(defaults)
     params.draw_border = False
     draw_radial_circles(params, group)
     return params
 
-  def loop_highlights(self, defaults: Defaults, group: Group):
+  def loop_highlights(self, defaults: Defaults, group: Group, seed: int):
     params = RadialParams(defaults)
     params.draw_circles = False
     draw_radial_circles(params, group)

@@ -5,7 +5,7 @@ class VerticalWaveRunner(Runner):
   def __init__(self) -> None:
     super().__init__("vertical-wave")
 
-  def loop_main(self, defaults: Defaults, group: Group):
+  def loop_main(self, defaults: Defaults, group: Group, seed: int):
     params = VerticalWaveParams(defaults)
     draw_wave(params, group)
     return params

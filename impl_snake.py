@@ -26,18 +26,20 @@ class SnakeParams(BaseParams):
   def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
     self.debug_draw_boundary: bool = True
-    self.cell_size = 110
+    self.cell_size = 90
     self.do_shuffle: bool = True
     self.shuffle: RangeFloat = RangeFloat(0, .5)
     self.line_type: _SnakeType = _SnakeType.maze
     self.spine_factor: float = .15
+    self.do_cap: bool = True
+    self.cap_percent: RangeFloat = RangeFloat(.5, .99)
 
     # SnakeOptions
     self.draw_spine: bool = True
     self.draw_head: bool = False
     self.draw_ribs: bool = True
     # 3 for sharpie pens, 4 (3.5?) for 0.5 isograph
-    self.step_dist: float = 5
+    self.step_dist: float = 2
     self.do_inflate: bool = False
     self.inflate_factor: float = 1.2
     self.end_falloff: float = .02
@@ -76,12 +78,13 @@ class SnakeParams(BaseParams):
     super().__init__(defaults)
 
 
-def draw_snake(params: SnakeParams, group: Group):
+def draw_snake(params: SnakeParams, group: Group, seed: int):
   pad = svg_safe().copy()
 
   # Draw safety border and page border
   if params.debug_draw_boundary:
     draw_border(group)
+
 
   if params.line_type == _SnakeType.maze:
     maze_size = MazeSize(params.cell_size, pad)
@@ -96,6 +99,15 @@ def draw_snake(params: SnakeParams, group: Group):
     triangle_result = create_triangle_lines(pad, params)
     line = triangle_result.triangle_points
     inflate_step = max(int(params.triangle_step_size / 4), 5)
+
+  # Re-init randomness after maze
+  random.seed(seed)
+
+  # Cap line
+  cap_percent = params.cap_percent.rand()
+  cap_index = floor(len(line) * cap_percent)
+  if params.do_cap:
+    del line[cap_index: len(line)]
 
   # Shuffle points
   if params.do_shuffle:
@@ -112,7 +124,9 @@ def draw_snake(params: SnakeParams, group: Group):
   # # draw_curved_path(line, centers, group)
   # return
 
+  random.seed(seed)
   snake_points = draw_snake_from_points(line, params, inflate_step)
+  random.seed(seed)
   snake_points_spines = draw_snake_from_points(line, params, inflate_step * params.spine_factor)
 
   # Do push
@@ -137,8 +151,12 @@ def draw_snake(params: SnakeParams, group: Group):
   scaled_spines = scaled_transform.apply_to_point_arrays(snake_points_spines)
 
   draw_boundary = try_get(params, 'debug_draw_boundary', False)
+  rib_group = group
+  spine_group = group
+
   if draw_boundary:
-    group_red = get_or_create_group(GroupSettings(stroke=GroupColor.red, name="debug_red"))
+    group_red = get_or_create_group(GroupSettings(stroke=GroupColor.red, name="debug_red"), group)
+    spine_group = get_or_create_group(GroupSettings(stroke=GroupColor.blue, name="debug_blue"), group)
     if push_rect:
       draw_rect_rect(push_rect, group)
 
@@ -159,11 +177,11 @@ def draw_snake(params: SnakeParams, group: Group):
     if params.draw_ribs:
       rib = scaled_points[i]
       centers = generate_centerpoints(rib)
-      draw_curved_path(rib, centers, group)
+      draw_curved_path(rib, centers, rib_group)
     if params.draw_spine:
       spine = scaled_spines[i]
       centers = generate_centerpoints(spine)
-      draw_curved_path(spine, centers, group)
+      draw_curved_path(spine, centers, spine_group)
 
     if i > 0 and break_count > 0 and i % break_count == 0:
       count_breaks += 1

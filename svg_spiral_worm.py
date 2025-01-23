@@ -5,26 +5,26 @@ class SpiralWormRunner(Runner):
   def __init__(self) -> None:
     super().__init__("spiral-worm")
 
-  def loop_combined(self, defaults: Defaults, group: Group):
+  def loop_combined(self, defaults: Defaults, group: Group, seed: int):
     params = SprialWormParams(defaults)
     draw_spiral_worm(params, group)
     return params
 
-  def loop_main(self, defaults: Defaults, group: Group):
+  def loop_main(self, defaults: Defaults, group: Group, seed: int):
     params = SprialWormParams(defaults)
     params.draw_highlight = False
     params.draw_highlight2 = False
     draw_spiral_worm(params, group)
     return params
 
-  def loop_circle(self, defaults: Defaults, group: Group):
+  def loop_circle(self, defaults: Defaults, group: Group, seed: int):
     params = SprialWormParams(defaults)
     params.draw_worm = False
     params.draw_highlight2 = False
     draw_spiral_worm(params, group)
     return params
 
-  def loop_lines(self, defaults: Defaults, group: Group):
+  def loop_lines(self, defaults: Defaults, group: Group, seed: int):
     params = SprialWormParams(defaults)
     params.draw_worm = False
     params.draw_highlight = False

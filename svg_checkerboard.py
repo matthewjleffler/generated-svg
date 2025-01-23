@@ -5,12 +5,12 @@ class CheckerboardRunner(Runner):
   def __init__(self) -> None:
     super().__init__("checkerboard")
 
-  def loop_combined(self, defaults: Defaults, group: Group):
+  def loop_combined(self, defaults: Defaults, group: Group, seed: int):
     params = CheckerboardParams(defaults)
     draw_checkerboard(params, group)
     return params
 
-  def loop_main(self, defaults: Defaults, group: Group):
+  def loop_main(self, defaults: Defaults, group: Group, seed: int):
     params = CheckerboardParams(defaults)
     params.draw_lines = True
     params.draw_aligned_vertical = False
@@ -19,7 +19,7 @@ class CheckerboardRunner(Runner):
     draw_checkerboard(params, group)
     return params
 
-  def loop_vert(self, defaults: Defaults, group: Group):
+  def loop_vert(self, defaults: Defaults, group: Group, seed: int):
     params = CheckerboardParams(defaults)
     params.draw_lines = False
     params.draw_aligned_vertical = True
@@ -28,7 +28,7 @@ class CheckerboardRunner(Runner):
     draw_checkerboard(params, group)
     return params
 
-  def loop_horiz(self, defaults: Defaults, group: Group):
+  def loop_horiz(self, defaults: Defaults, group: Group, seed: int):
     params = CheckerboardParams(defaults)
     params.draw_lines = False
     params.draw_aligned_vertical = False
@@ -37,7 +37,7 @@ class CheckerboardRunner(Runner):
     draw_checkerboard(params, group)
     return params
 
-  def loop_fill(self, defaults: Defaults, group: Group):
+  def loop_fill(self, defaults: Defaults, group: Group, seed: int):
     params = CheckerboardParams(defaults)
     params.draw_lines = False
     params.draw_aligned_vertical = False

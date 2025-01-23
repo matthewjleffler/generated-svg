@@ -4,7 +4,7 @@ class TriangleRunner(Runner):
   def __init__(self) -> None:
     super().__init__("triangle")
 
-  def loop(self, defaults: Defaults, group: Group):
+  def loop(self, defaults: Defaults, group: Group, seed: int):
     params = TriangleParams(defaults)
     draw_triangle(params, group)
     return params

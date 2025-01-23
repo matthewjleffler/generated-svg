@@ -8,7 +8,7 @@ class TemplateRunner(Runner):
   def __init__(self) -> None:
     super().__init__("template")
 
-  def loop(self, defaults: Defaults, group: Group):
+  def loop(self, defaults: Defaults, group: Group, seed: int):
     draw_border(group)
 
     draw_text(200, 200, 5, "Test Text")

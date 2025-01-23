@@ -535,7 +535,7 @@ def main(dir:str, layer: str, defaults: Defaults, seed: int, loop:callable) -> i
   random.seed(seed)
   print("Seed: {}".format(seed))
 
-  params = loop(defaults, _root_group)
+  params = loop(defaults, _root_group, seed)
   commit(seed, defaults.size, params)
 
   export_path_file = "./dir.txt"
