@@ -312,4 +312,6 @@ def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step
       # final_rib = generate_final_points(ribs_subdivide, centers, 1)
       final_points.append(ribs_subdivide)
 
+  print_finish_overwite()
+
   return final_points

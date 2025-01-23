@@ -26,23 +26,24 @@ class SnakeParams(BaseParams):
   def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
     self.debug_draw_boundary: bool = True
-    self.cell_size = 120
+    self.cell_size = 110
     self.do_shuffle: bool = True
     self.shuffle: RangeFloat = RangeFloat(0, .5)
     self.line_type: _SnakeType = _SnakeType.maze
+    self.spine_factor: float = .15
 
     # SnakeOptions
     self.draw_spine: bool = True
     self.draw_head: bool = False
     self.draw_ribs: bool = True
     # 3 for sharpie pens, 4 (3.5?) for 0.5 isograph
-    self.step_dist: float = 2
+    self.step_dist: float = 5
     self.do_inflate: bool = False
-    self.inflate_factor: float = 1
+    self.inflate_factor: float = 1.2
     self.end_falloff: float = .02
     self.do_average: bool = True
     self.smoothing_range: int = 60
-    self.smoothing_steps: int = 2
+    self.smoothing_steps: int = 1
     self.do_inflate_corners: bool = True
     self.inflate_corner_factor: float = 1.1
     self.do_final_average: bool = False
@@ -112,6 +113,7 @@ def draw_snake(params: SnakeParams, group: Group):
   # return
 
   snake_points = draw_snake_from_points(line, params, inflate_step)
+  snake_points_spines = draw_snake_from_points(line, params, inflate_step * params.spine_factor)
 
   # Do push
   push_rect = push_lines(snake_points, pad, params, group)
@@ -122,6 +124,7 @@ def draw_snake(params: SnakeParams, group: Group):
   print_overwrite("Checking volume...")
   expand = ExpandingVolume()
   expand.add_lists(snake_points)
+  expand.add_lists(snake_points_spines)
 
   # Calculate scale
   (offset, final_scale) = scale_rect_to_fit(expand.to_rect(), pad)
@@ -131,6 +134,7 @@ def draw_snake(params: SnakeParams, group: Group):
   scaled_node = root_node.add_child()
   scaled_transform = scaled_node.transformation()
   scaled_points = scaled_transform.apply_to_point_arrays(snake_points)
+  scaled_spines = scaled_transform.apply_to_point_arrays(snake_points_spines)
 
   draw_boundary = try_get(params, 'debug_draw_boundary', False)
   if draw_boundary:
@@ -139,10 +143,9 @@ def draw_snake(params: SnakeParams, group: Group):
       draw_rect_rect(push_rect, group)
 
   # Draw Result
-  if params.draw_spine:
-    if params.draw_head:
-      head_point = snake_points[0][0]
-      draw_circ(head_point.x, head_point.y, 20, group)
+  if params.draw_head:
+    head_point = snake_points[0][0]
+    draw_circ(head_point.x, head_point.y, 20, group)
 
   break_count = try_get(params, 'break_count', 0)
   break_loop = try_get(params, 'break_loop', 3)
@@ -150,20 +153,24 @@ def draw_snake(params: SnakeParams, group: Group):
   break_pos = Point(break_size + 2, svg_full().bottom() - break_size - 2)
   count_breaks = 0
 
-  if params.draw_ribs:
-    len_ribs = len(scaled_points)
-    for i in range(0, len_ribs):
-      print_overwrite(f"Drawing rib {pad_max(i + 1, len_ribs)}")
+  len_ribs = len(scaled_points)
+  for i in range(1, len_ribs):
+    print_overwrite(f"Drawing rib {pad_max(i + 1, len_ribs)}")
+    if params.draw_ribs:
       rib = scaled_points[i]
       centers = generate_centerpoints(rib)
       draw_curved_path(rib, centers, group)
+    if params.draw_spine:
+      spine = scaled_spines[i]
+      centers = generate_centerpoints(spine)
+      draw_curved_path(spine, centers, group)
 
-      if i > 0 and break_count > 0 and i % break_count == 0:
-        count_breaks += 1
-        for i in range(0, break_loop):
-          draw_circ_point(break_pos, break_size, group)
-        if draw_boundary:
-          draw_circ_point(rib[0], 10, group_red)
+    if i > 0 and break_count > 0 and i % break_count == 0:
+      count_breaks += 1
+      for i in range(0, break_loop):
+        draw_circ_point(break_pos, break_size, group)
+      if draw_boundary:
+        draw_circ_point(rib[0], 10, group_red)
 
   print_finish_overwite()
 

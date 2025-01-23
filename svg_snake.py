@@ -24,9 +24,8 @@ class SnakeRunner(Runner):
 
   def run(self, defaults: Defaults) -> int:
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop_main)
-    # mainseed = main(self.dir, "combined", defaults, self.loop_main)
-    # main(self.dir, "spine", defaults, mainseed, self.loop_spine)
-    # main(self.dir, "ribs", defaults, mainseed, self.loop_ribs)
+    main(self.dir, "spine", defaults, mainseed, self.loop_spine)
+    main(self.dir, "ribs", defaults, mainseed, self.loop_ribs)
     return mainseed
 
 

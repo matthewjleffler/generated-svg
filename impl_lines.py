@@ -12,12 +12,13 @@ class LinesParams(BaseParams):
     self.draw: bool = True
     self.debug_draw_boundary: bool = True
 
-    self.separation = 3
+    self.separation = 2
     self.alternate_line_dir = False
     self.subdivisions = 100
+    self.break_count = 50
 
     # Push params
-    self.do_push: bool = True
+    self.do_push: bool = False
     self.random_push: bool = False
     self.push_pad_range_max: float = .25
     self.push_pad_range_offset: float = 0
@@ -64,10 +65,30 @@ def draw_lines(params: LinesParams, group: Group):
   expand = ExpandingVolume()
   expand.add_lists(subdivided)
 
-  if params.draw:
-    (offset, final_scale) = scale_rect_to_fit(expand.to_rect(), pad)
-    scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
+  (offset, final_scale) = scale_rect_to_fit(expand.to_rect(), pad)
+  scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
+  if params.debug_draw_boundary:
+    scaled_red = open_group(GroupSettings(stroke=GroupColor.red))
 
-    for line in subdivided:
+  break_count = try_get(params, 'break_count', 0)
+  break_loop = try_get(params, 'break_loop', 3)
+  break_size = 5
+  break_pos = Point((break_size - offset.x) / final_scale, (svg_full().bottom() - break_size * 2 - offset.y) / final_scale)
+  count_breaks = 0
+
+  if params.draw:
+    for i in range(0, len(subdivided)):
+      line = subdivided[i]
       centers = generate_centerpoints(line)
       draw_curved_path(line, centers, scaled)
+
+      if i > 0 and break_count > 0 and i % break_count == 0:
+        count_breaks += 1
+        for i in range(0, break_loop):
+          draw_circ_point(break_pos, break_size / final_scale, scaled)
+        if params.debug_draw_boundary:
+          draw_circ_point(line[0], 10, scaled_red)
+
+    if params.debug_draw_boundary:
+      close_group()
+    close_group()
