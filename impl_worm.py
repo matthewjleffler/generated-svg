@@ -30,7 +30,9 @@ def _draw_worm_set(
   max_col:int,
   worm_size:int,
   fixed_size:float,
-  params:WormParams):
+  params:WormParams,
+  group:Group
+):
 
   for row in range(0, max_row):
     origin_y = worm_size * row * 1.5
@@ -56,9 +58,9 @@ def _draw_worm_set(
         x = svg_safe().x + origin_x + sin(pi_half_percent) * params.stack_spread * i
         y = svg_safe().y + origin_y + cos(pi_half_percent) * params.stack_spread * i
 
-        draw_circ(x, y, half)
+        draw_circ(x, y, half, group)
 
-def _draw_worm_layer(params:WormParams, fixed_size:float, group:Group = None):
+def _draw_worm_layer(params:WormParams, fixed_size:float, group:Group):
   worm_size = params.stack_count * params.stack_spread * .75
   worm_row_size = worm_size * 1.55
 
@@ -71,14 +73,12 @@ def _draw_worm_layer(params:WormParams, fixed_size:float, group:Group = None):
   offset_x = round((svg_safe().w - (max_col * worm_size)) / 2, 2)
   offset_y = round((svg_safe().h - (max_row * worm_row_size)) / 2, 2)
 
-  open_group(GroupSettings(translate=(offset_x, offset_y)), group)
-  _draw_worm_set(max_row, max_col, worm_size, fixed_size, params)
-  close_group()
+  group_offset = open_group(GroupSettings(translate=(offset_x, offset_y)), group)
+  _draw_worm_set(max_row, max_col, worm_size, fixed_size, params, group_offset)
   translate_x = svg_full().w - offset_x + worm_size * .1
   translate_y = offset_y + worm_size * .75
-  open_group(GroupSettings(translate=(translate_x, translate_y), scaleXY=(-1, 1)), group)
-  _draw_worm_set(max_row, max_col, worm_size, fixed_size, params)
-  close_group()
+  group_flipped = open_group(GroupSettings(translate=(translate_x, translate_y), scaleXY=(-1, 1)), group)
+  _draw_worm_set(max_row, max_col, worm_size, fixed_size, params, group_flipped)
 
 def draw_worm(params:WormParams, group:Group):
   # draw_border(group)
@@ -87,10 +87,8 @@ def draw_worm(params:WormParams, group:Group):
     _draw_worm_layer(params, 0, group)
 
   if params.draw_innards:
-    open_group(GroupSettings(stroke=GroupColor.blue), group)
-    _draw_worm_layer(params, params.fixed_size)
-    close_group()
-
+    group_blue = open_group(GroupSettings(stroke=GroupColor.blue), group)
+    _draw_worm_layer(params, params.fixed_size, group_blue)
 
 
 # Long Worm Random Winding
@@ -175,17 +173,17 @@ def _pick_valid_highlight(available_highlights:List[int], consumed_highlights:Li
     if len(available_highlights) < 1:
       return None
 
-def _draw_worm_highlights(positions:List[Position], params:LongWormParams, group:Group = None):
-  open_group(GroupSettings(stroke=GroupColor.blue), group)
+def _draw_worm_highlights(positions:List[Position], params:LongWormParams, group:Group):
+  group_blue = open_group(GroupSettings(stroke=GroupColor.blue), group)
 
   start = positions[0]
   end = positions[-1]
 
   # Draw rings
   if params.draw_highlight:
-    draw_ring_of_circles(params.highlight_end_points, start.x, start.y, params.highlight_end_circle_radius, params.highlight_end_point_radius)
-    draw_sunburst(params.highlight_end_points, end.x, end.y, params.highlight_end_circle_radius, params.highlight_sunburst_ray_len)
-    # draw_ring_of_circles(params.highlight_end_points, end.x, end.y, params.highlight_end_circle_radius, params.highlight_end_point_radius)
+    draw_ring_of_circles(params.highlight_end_points, start.x, start.y, params.highlight_end_circle_radius, params.highlight_end_point_radius, group_blue)
+    draw_sunburst(params.highlight_end_points, end.x, end.y, params.highlight_end_circle_radius, params.highlight_sunburst_ray_len, group_blue)
+    # draw_ring_of_circles(params.highlight_end_points, end.x, end.y, params.highlight_end_circle_radius, params.highlight_end_point_radius, group_blue)
 
   consumed_highlights = []
   consumed_highlights.append(Position(start.x, start.y, params.highlight_end_circle_radius))
@@ -222,27 +220,24 @@ def _draw_worm_highlights(positions:List[Position], params:LongWormParams, group
 
     if params.draw_highlight:
       if connect_next:
-        draw_path(f"M {last.x} {last.y}L{point.x} {point.y}")
+        draw_path(f"M {last.x} {last.y}L{point.x} {point.y}", group_blue)
 
       if highlight_type == HighlightType.Circle:
-        draw_circ(point.x, point.y, highlight_size)
+        draw_circ(point.x, point.y, highlight_size, group_blue)
       elif highlight_type == HighlightType.DoubleRing:
-        draw_circ(point.x, point.y, highlight_size)
-        draw_circ(point.x, point.y, highlight_size + params.highlight_spacing)
+        draw_circ(point.x, point.y, highlight_size, group_blue)
+        draw_circ(point.x, point.y, highlight_size + params.highlight_spacing, group_blue)
       elif highlight_type == HighlightType.SunRing:
-        draw_circ(point.x, point.y, highlight_size)
-        draw_sunburst(20, point.x, point.y, highlight_size + params.highlight_spacing, params.highlight_spacing)
+        draw_circ(point.x, point.y, highlight_size, group_blue)
+        draw_sunburst(20, point.x, point.y, highlight_size + params.highlight_spacing, params.highlight_spacing, group_blue)
 
       if num > 0:
-        open_group(GroupSettings(translate=(point.x + highlight_size * 1.5, point.y), scale=0.5))
-        draw_text(0, 0, 10, str(num))
-        close_group()
+        group_text = open_group(GroupSettings(translate=(point.x + highlight_size * 1.5, point.y), scale=0.5), group_blue)
+        draw_text(0, 0, 10, str(num), group_text)
 
     last = point
     # Decide whether to connect the next line
     connect_next = rand_weight(params.connect_highlight_weight) == 0
-
-  close_group()
 
 def draw_long_worm(params:LongWormParams, group:Group):
   # draw_border(group)
@@ -340,14 +335,17 @@ class SprialWormParams(BaseParams):
 
 def _spiral_worm_highlight(
   height:float,
-  x:float, y:float,
-  params:SprialWormParams):
+  x:float,
+  y:float,
+  params:SprialWormParams,
+  group:Group
+):
 
   rings = rand_weight(params.weight_rings)
   half_height = height / 2
   if params.draw_highlight:
     for i in range(0, rings):
-      draw_circ(x, y, half_height + params.ring_distance * i)
+      draw_circ(x, y, half_height + params.ring_distance * i, group)
 
   max_ring = half_height + params.ring_distance * rings
   border = rand_weight(params.weight_border)
@@ -355,18 +353,20 @@ def _spiral_worm_highlight(
     if border == SpiralWormBorderType.Empty:
       pass
     elif border == SpiralWormBorderType.Circles:
-      draw_ring_of_circles(100, x, y, max_ring, 5)
+      draw_ring_of_circles(100, x, y, max_ring, 5, group)
     elif border == SpiralWormBorderType.Sunburst:
-      draw_sunburst(100, x, y, max_ring, 15)
+      draw_sunburst(100, x, y, max_ring, 15, group)
 
 
 def _highlight_2(
   width:float,
   height:float,
-  x:float, y:float,
+  x:float,
+  y:float,
   positions:List[Position],
-  params:SprialWormParams):
-
+  params:SprialWormParams,
+  group:Group
+):
   center = (width - height)
 
   size = params.h2_size.rand()
@@ -383,11 +383,11 @@ def _highlight_2(
 
   if params.draw_highlight2:
     for i in range(0, left_rings):
-      draw_circ(left_circ_x, y, size + 10 * i)
+      draw_circ(left_circ_x, y, size + 10 * i, group)
     for i in range(0, right_rings):
-      draw_circ(right_circ_x, y, size + 10 * i)
-    draw_path(path)
-    draw_circ(pos.x, pos.y, pos.size + 10)
+      draw_circ(right_circ_x, y, size + 10 * i, group)
+    draw_path(path, group)
+    draw_circ(pos.x, pos.y, pos.size + 10, group)
 
 
 def draw_spiral_worm(params:SprialWormParams, group:Group):
@@ -451,11 +451,9 @@ def draw_spiral_worm(params:SprialWormParams, group:Group):
     for pos in positions:
       draw_circ(pos.x, pos.y, pos.size, group)
 
-  open_group(GroupSettings(stroke=GroupColor.blue), group)
-  _spiral_worm_highlight(pad_rect.h, pad_rect.center_x(), pad_rect.center_y(), params)
-  close_group()
+  group_blue = open_group(GroupSettings(stroke=GroupColor.blue), group)
+  _spiral_worm_highlight(pad_rect.h, pad_rect.center_x(), pad_rect.center_y(), params, group_blue)
 
-  open_group(GroupSettings(stroke=GroupColor.red), group)
-  _highlight_2(pad_rect.w, pad_rect.h, pad_rect.center_x(), pad_rect.center_y(), positions, params)
-  close_group()
+  group_red = open_group(GroupSettings(stroke=GroupColor.red), group)
+  _highlight_2(pad_rect.w, pad_rect.h, pad_rect.center_x(), pad_rect.center_y(), positions, params, group_red)
 

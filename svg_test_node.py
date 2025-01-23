@@ -19,15 +19,15 @@ class TestNodeRunner(Runner):
     offset.transform.translate(100, 100)
 
     point = Point(0, 0)
-    draw_circ_point(point, 10)
+    draw_circ_point(point, 10, group)
 
     root_transformation = root.transformation()
     root_transformed = root_transformation.apply_to_point(point)
-    draw_circ_point(root_transformed, 10)
+    draw_circ_point(root_transformed, 10, group)
 
     offset_transformation = offset.transformation()
     offset_transformed = offset_transformation.apply_to_point(point)
-    draw_circ_point(offset_transformed, 10)
+    draw_circ_point(offset_transformed, 10, group)
 
   def run(self, defaults: Defaults) -> int:
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)

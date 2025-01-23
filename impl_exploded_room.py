@@ -67,7 +67,7 @@ def _create_room(
     rect:Rect,
     clip:List[shapely.geometry.Polygon],
     params:ExplodedRoomParams,
-    group:Group = None
+    group:Group
 ) -> shapely.geometry.Polygon:
   # Create top and bottom rings based on height
   bot_front_line = _horizontal_line(rect.bottom())

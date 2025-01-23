@@ -31,7 +31,7 @@ class _Wave:
     self.val = val
 
 
-def _create_wave_columns(pad_rect:Rect, rows:int, cols:int, params:VerticalWaveParams, group:Group = None) -> List[List[Point]]:
+def _create_wave_columns(pad_rect:Rect, rows:int, cols:int, params:VerticalWaveParams, group:Group) -> List[List[Point]]:
   # Calculate wave points
   col_delta = pad_rect.w / (cols - 1)
   row_delta = pad_rect.h / (rows - 1)
@@ -54,7 +54,7 @@ def _create_wave_columns(pad_rect:Rect, rows:int, cols:int, params:VerticalWaveP
 
   return result
 
-def _create_wave_patterns(pad_rect:Rect, rows:int, cols:int, params:VerticalWaveParams, group:Group = None) -> List[List[_Wave]]:
+def _create_wave_patterns(pad_rect:Rect, rows:int, cols:int, params:VerticalWaveParams, group:Group) -> List[List[_Wave]]:
   # Calculate wave points
   col_delta = pad_rect.w / (cols - 1)
   row_delta = pad_rect.h / (rows - 1)
@@ -169,7 +169,7 @@ def draw_wave(params:VerticalWaveParams, group:Group):
           control = column[row]
           point = column[row + 1]
           path += f"Q{control.x} {control.y} {point.x} {point.y}"
-        draw_path(path)
+        draw_path(path, group)
       else:
         hatch_params = HatchParams(params.hatch_range_on, params.hatch_range_off)
 

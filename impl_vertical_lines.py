@@ -37,11 +37,11 @@ class VerticalLineParams(BaseParams):
     super().__init__(defaults)
 
 
-def _create_highlight(line:List[Point], left:float, final:float, params:VerticalLineParams, group:Group = None):
+def _create_highlight(line:List[Point], left:float, final:float, params:VerticalLineParams, group:Group):
   available: List[int] = []
   claimed: List[int] = []
 
-  open_group(GroupSettings(stroke=GroupColor.blue), group)
+  group_blue = open_group(GroupSettings(stroke=GroupColor.blue), group)
 
   # Variables
   strike = params.strike_range.rand()
@@ -60,7 +60,7 @@ def _create_highlight(line:List[Point], left:float, final:float, params:Vertical
     claimed.append(index)
     point = line[index]
     if params.draw_highlights:
-      draw_path(f"M{svg_safe().x} {round(point.y, 2)}h{svg_safe().w}")
+      draw_path(f"M{svg_safe().x} {round(point.y, 2)}h{svg_safe().w}", group_blue)
 
   # Collect available indexes
   available = []
@@ -84,7 +84,7 @@ def _create_highlight(line:List[Point], left:float, final:float, params:Vertical
     claimed.append(index)
     point = line[index]
     if params.draw_highlights:
-      draw_circ(left - 20, point.y, 10)
+      draw_circ(left - 20, point.y, 10, group_blue)
 
   # Create starbursts
   available = []
@@ -107,12 +107,9 @@ def _create_highlight(line:List[Point], left:float, final:float, params:Vertical
     claimed.append(index)
     point = line[index]
     if params.draw_highlights:
-      draw_sunburst(10, final + 20, point.y, 10, 5)
+      draw_sunburst(10, final + 20, point.y, 10, 5, group)
 
-  close_group()
-
-
-def _create_lines(params:VerticalLineParams, group:Group = None):
+def _create_lines(params:VerticalLineParams, group:Group):
   pad_rect = svg_safe().shrink_xy_copy(params.pad_x, params.pad_y)
 
   # Pick subdivisions, make sure it's an even number

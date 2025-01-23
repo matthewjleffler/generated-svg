@@ -97,6 +97,7 @@ class Group:
     self.settings = settings.settings
     self.groups = []
     self.children = []
+    self.name = settings.name
 
 
 def clamp(val:float, min_val:float, max_val:float) -> float:
@@ -114,15 +115,15 @@ _text_indent = 0
 _text_lines: List[str] = []
 _text_content = ""
 _font_styles = dict()
-_root_group = Group(None, GroupSettings(stroke=GroupColor.black, fill=GroupColor.none))
-_current_group = _root_group
+_root_group = Group(None, GroupSettings(name="root", stroke=GroupColor.black, fill=GroupColor.none))
+_group_count = 0
 _groups: dict[str, Group] = dict()
 _pixel_per_inch = 95.8
 _round_digits = 2
 
 
 def init():
-  global _svg_full, _svg_safe, _svg_border, _text_indent, _text_content, _font_styles, _root_group, _current_group, _text_lines, _groups
+  global _svg_full, _svg_safe, _svg_border, _text_indent, _text_content, _font_styles, _root_group, _text_lines, _groups, _group_count
 
   _svg_full = Rect(0, 0, 0, 0)
   _svg_safe = Rect(0, 0, 0, 0)
@@ -131,8 +132,8 @@ def init():
   _text_lines = []
   _text_content = ""
   _font_styles = dict()
-  _root_group = Group(None, GroupSettings(stroke=GroupColor.black, fill=GroupColor.none))
-  _current_group = _root_group
+  _root_group = Group(None, GroupSettings(name="root", stroke=GroupColor.black, fill=GroupColor.none))
+  _group_count = 0
   _groups = dict()
 
 
@@ -387,13 +388,13 @@ def commit(seed:int, size:tuple[float, float], params:any):
 
 def commit_group(group:Group):
   if group.settings is not None and group.settings != "":
-    _open_text_indent("<g {}>".format(group.settings))
+    _open_text_indent(f"<g {group.settings}> <!-- {group.name} -->")
   else:
-    _open_text_indent("<g>")
+    _open_text_indent(f"<g> <!-- {group.name} -->")
 
   len_children = len(group.children)
   for i in range(0, len_children):
-    print_overwrite(f"Group {group} child: {pad_max(i + 1, len_children)}")
+    print_overwrite(f"Group '{group.name}' child: {pad_max(i + 1, len_children)}")
     child = group.children[i]
     _add_text_line(child)
   for group in group.groups:
@@ -402,38 +403,24 @@ def commit_group(group:Group):
   _close_text_indent("</g>")
 
 
-def open_group(settings: GroupSettings, parent: Group = None) -> Group:
-  global _current_group, _groups
+def open_group(settings: GroupSettings, parent: Group) -> Group:
+  global _group_count
 
-  if not parent:
-    parent = _current_group
+  original_name = settings.name
+  if original_name is not None:
+    existing = _groups.get(settings.name, None)
+    if existing is not None:
+      return existing
+  else:
+    _group_count += 1
+    settings.name = f"group_{_group_count}"
 
   new_group = Group(parent, settings)
   parent.groups.append(new_group)
-  _current_group = new_group
-
-  if settings.name is not None:
+  if original_name is not None:
     _groups[settings.name] = new_group
 
   return new_group
-
-def close_group():
-  global _current_group
-
-  if _current_group.parent == None:
-    return
-
-  _current_group = _current_group.parent
-
-def get_or_create_group(settings: GroupSettings, parent: Group = None) -> Group:
-  global _current_group, _groups
-
-  if settings.name is not None:
-    result = _groups.get(settings.name, None)
-    if result is not None:
-      return result
-
-  return open_group(settings, parent)
 
 
 def pad_max(min_val: int, max_val: int) -> str:
@@ -455,43 +442,35 @@ def print_finish_overwite():
 
 # Drawing
 
-def draw_rect(x:float, y:float, w:float, h:float, group:Group = None):
-  if not group:
-    group = _current_group
+def draw_rect(x:float, y:float, w:float, h:float, group:Group):
   x = round(x, _round_digits)
   y = round(y, _round_digits)
   w = round(w, _round_digits)
   h = round(h, _round_digits)
   group.children.append(f"<rect x=\"{x}\" y=\"{y}\" width=\"{w}\" height=\"{h}\"/>")
 
-def draw_rect_rect(rect: Rect, group: Group = None):
+def draw_rect_rect(rect: Rect, group: Group):
   draw_rect(rect.x, rect.y, rect.w, rect.h, group)
 
-def draw_circ(x:float, y:float, r:float, group:Group = None):
-  if not group:
-    group = _current_group
+def draw_circ(x:float, y:float, r:float, group:Group):
   x = round(x, _round_digits)
   y = round(y, _round_digits)
   r = round(r, _round_digits)
   group.children.append(f"<circle cx=\"{x}\" cy=\"{y}\" r=\"{r}\"/>")
 
-def draw_circ_point(point: Point, r:float, group:Group = None):
+def draw_circ_point(point: Point, r:float, group:Group):
   draw_circ(point.x, point.y, r, group)
 
-def draw_path(value:str, group:Group = None):
-  if not group:
-    group = _current_group
+def draw_path(value:str, group:Group):
   group.children.append(f"<path d=\"{value}\"/>")
 
-def draw_border(group:Group = None):
-  debug = open_group(GroupSettings(), group)
+def draw_border(group:Group):
+  debug = open_group(GroupSettings(name="debug"), _root_group)
   draw_rect_rect(_svg_full, debug)
-  close_group()
-  red = get_or_create_group(GroupSettings(stroke=GroupColor.red, name="debug_red"), debug)
+  red = open_group(GroupSettings(name="debug_red", stroke=GroupColor.red), _root_group)
   draw_rect_rect(_svg_safe, red)
-  close_group()
 
-def draw_sunburst(bursts:int, c_x:float, c_y:float, start_rad:float, ray_len:float, group:Group = None):
+def draw_sunburst(bursts:int, c_x:float, c_y:float, start_rad:float, ray_len:float, group:Group):
   sunburst_points = bursts
   for i in range(0, sunburst_points):
     t = i / sunburst_points
@@ -512,7 +491,7 @@ def draw_sunburst(bursts:int, c_x:float, c_y:float, start_rad:float, ray_len:flo
       group
     )
 
-def draw_ring_of_circles(number:int, c_x:float, c_y:float, center_rad:float, circle_rad:float, group:Group = None):
+def draw_ring_of_circles(number:int, c_x:float, c_y:float, center_rad:float, circle_rad:float, group:Group):
   for i in range(0, number):
     t = i / number
     rad = t * pi * 2
@@ -524,8 +503,6 @@ def draw_ring_of_circles(number:int, c_x:float, c_y:float, center_rad:float, cir
 # Main
 
 def main(dir:str, layer: str, defaults: Defaults, seed: int, loop:callable) -> int:
-  global _root_group
-
   start = time.time()
   init()
   setup_size(defaults.size)

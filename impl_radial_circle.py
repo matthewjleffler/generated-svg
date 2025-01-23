@@ -91,18 +91,14 @@ def _draw_circle(
       final.append(Point(round(x + rotated.x, 2), round(y + rotated.y, 2)))
 
     # Draw rotated lines
-    # draw_point_circles(final)
-    # draw_point_path(final)
     points.append(final)
 
-  # points.append(subdivided)
-
-def _add_border(x:float, y:float, size_h:float, params:RadialParams):
+def _add_border(x:float, y:float, size_h:float, params:RadialParams, group: Group):
   ring_count = rand_weight(params.ring_weights)
 
   if params.draw_border:
     for i in range(0, ring_count):
-      draw_circ(x, y, size_h + params.ring_pad + params.ring_pad * i)
+      draw_circ(x, y, size_h + params.ring_pad + params.ring_pad * i, group)
 
   ring_buffer = params.ring_pad + params.ring_pad * (ring_count + 1)
 
@@ -110,9 +106,9 @@ def _add_border(x:float, y:float, size_h:float, params:RadialParams):
   if border == BorderType.Empty or not params.draw_border:
     return
   elif border == BorderType.Circles:
-    draw_ring_of_circles(floor(size_h / 3), x, y, size_h + ring_buffer, 5)
+    draw_ring_of_circles(floor(size_h / 3), x, y, size_h + ring_buffer, 5, group)
   elif border == BorderType.Starburst:
-    draw_sunburst(floor(size_h / 3), x, y, size_h + ring_buffer, 5)
+    draw_sunburst(floor(size_h / 3), x, y, size_h + ring_buffer, 5, group)
 
 def draw_radial_circles(params:RadialParams, group:Group):
   # draw_border(group)
@@ -134,7 +130,7 @@ def draw_radial_circles(params:RadialParams, group:Group):
   offset_y = (svg_safe().h - size / 2 - (row_max * size_d * .85)) / 2
 
   # Calculate circles and draw borders
-  open_group(GroupSettings(stroke=GroupColor.blue), group)
+  group_blue = open_group(GroupSettings(stroke=GroupColor.blue), group)
   for row in range(0, row_max):
     y = offset_y + pad_rect.y + size + (size_d * .85) * row
     for col in range(0, col_max):
@@ -148,8 +144,7 @@ def draw_radial_circles(params:RadialParams, group:Group):
       x += change_x
       y += change_y
       _draw_circle(x, y, floor(size_h / 2), 10, size_h, points, params)
-      _add_border(x, y, size_h, params)
-  close_group()
+      _add_border(x, y, size_h, params, group_blue)
 
   # Draw points
   for point_array in points:

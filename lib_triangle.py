@@ -26,7 +26,7 @@ def _create_adjusted_point(
 
 
 # TODOML option to use this
-def _draw_scaled_triangle(center:Point, corners:List[Point], scale:float, group:Group = None) -> List[Point]:
+def _draw_scaled_triangle(center:Point, corners:List[Point], scale:float, group:Group) -> List[Point]:
   result: List[Point] = []
   for corner in corners:
     scaled = corner.subtract_copy(center)

@@ -198,7 +198,7 @@ def _create_fill(
 
 
 
-def draw_checkerboard(params:CheckerboardParams, group:Group = None):
+def draw_checkerboard(params:CheckerboardParams, group:Group):
   # draw_border(group)
 
   # Pad safe space
@@ -229,7 +229,7 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
 
   for i in range(0, len(corners)):
     point = corners[i]
-    draw_circ(point.x, point.y, 5)
+    draw_circ(point.x, point.y, 5, group)
     # open_group(GroupSettings(translatePoint=point, scale=0.5))
     # draw_text(0, 0, 5, str(i))
     # close_group()
@@ -344,16 +344,14 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
 
   # Draw interior aligned lines
   if params.draw_aligned_vertical:
-    open_group(GroupSettings(stroke=GroupColor.red))
+    group_red = open_group(GroupSettings(stroke=GroupColor.red), group)
     path = _create_point_path_alternating(fill_vert)
-    draw_path(path)
-    close_group()
+    draw_path(path, group_red)
 
   if params.draw_aligned_horizontal:
-    open_group(GroupSettings(stroke=GroupColor.blue))
+    group_blue = open_group(GroupSettings(stroke=GroupColor.blue), group)
     path = _create_point_path_alternating(fill_horiz)
-    draw_path(path)
-    close_group()
+    draw_path(path, group_blue)
 
 
   # Step through and create checkerboard sets
@@ -404,10 +402,9 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
     _create_fill(fill_vec, pad_rect, checker, top_bottom, checker_fill, params)
 
   if params.draw_filled_checkers:
-    open_group(GroupSettings(stroke=GroupColor.green), group)
+    group_green = open_group(GroupSettings(stroke=GroupColor.green), group)
     path = _create_point_path_alternating(checker_fill)
-    draw_path(path)
-    close_group()
+    draw_path(path, group_green)
 
   # Collect checker corner points
   corners: List[Point] = []
@@ -424,6 +421,6 @@ def draw_checkerboard(params:CheckerboardParams, group:Group = None):
     corner = corners[i]
     draw_circ(corner.x, corner.y, 5, group)
     scale = 0.3
-    open_group(GroupSettings(translate=(corner.x, corner.y), scale=scale))
+    open_group(GroupSettings(translate=(corner.x, corner.y), scale=scale), group)
     draw_text(0, 0, 5, str(i))
     close_group()

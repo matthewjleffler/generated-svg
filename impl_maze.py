@@ -87,22 +87,22 @@ def draw_maze(params: MazeParams, group: Group):
   (offset, final_scale) = scale_rect_to_fit(expand.to_rect(), pad)
 
   # Draw the line
-  scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
+  group_scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
   if params.debug_draw_boundary:
     if params.do_push:
-      draw_rect_rect(push_rect, scaled)
-      draw_circ(push_rect.x, push_rect.y, 10, scaled)
-    draw_rect_rect(pad, scaled)
+      draw_rect_rect(push_rect, group_scaled)
+      draw_circ(push_rect.x, push_rect.y, 10, group_scaled)
+    draw_rect_rect(pad, group_scaled)
   if params.draw:
     if params.draw_type == DrawType.curved:
       centers = generate_centerpoints(line)
-      draw_curved_path(line, centers, scaled)
+      draw_curved_path(line, centers, group_scaled)
     if params.draw_type == DrawType.straight:
-      draw_point_path(line, scaled)
+      draw_point_path(line, group_scaled)
     if params.draw_type == DrawType.hatched:
       centers = generate_centerpoints(line)
       final = generate_final_points(line, centers, 1)
-      draw_point_path_hatched(final, HatchParams(RangeInt(3, 10), RangeInt(1, 3)))
+      draw_point_path_hatched(final, HatchParams(RangeInt(3, 10), RangeInt(1, 3)), group_scaled)
 
     if params.draw_cutout and maze_size.range_stamp > 0:
       center_x = pad.center_x()
@@ -113,7 +113,5 @@ def draw_maze(params: MazeParams, group: Group):
         center_y += maze_size.node_h
 
       circ_size_base = (maze_size.range_stamp * 2) * maze_size.node_w
-      draw_circ(center_x, center_y, circ_size_base - params.circle_inset - (maze_size.node_w), scaled)
-      draw_circ(center_x, center_y, circ_size_base - params.circle_inset - (maze_size.node_w * 2), scaled)
-
-  close_group()
+      draw_circ(center_x, center_y, circ_size_base - params.circle_inset - (maze_size.node_w), group_scaled)
+      draw_circ(center_x, center_y, circ_size_base - params.circle_inset - (maze_size.node_w * 2), group_scaled)

@@ -46,7 +46,7 @@ class CalibrateRunner(Runner):
         line.append(right)
         line.append(left)
 
-    draw_point_path(line)
+    draw_point_path(line, group)
 
 
   def run(self, defaults: Defaults) -> int:

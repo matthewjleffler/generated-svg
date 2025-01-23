@@ -9,18 +9,16 @@ class TestTextRunner(Runner):
   def loop(self, defaults: Defaults, group: Group, seed: int):
     # draw_border(group)
 
-    draw_text(100, 200, 10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-    draw_text(100, 300, 10, "abcdefghijklmnopqrstuvwxyz")
-    draw_text(100, 400, 10, "0123456789 ;:'\"éÉ`~")
-    draw_text(100, 500, 10, "!@#$%^&*()-_+={}[]\|,./<>?")
+    draw_text(100, 200, 10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", group)
+    draw_text(100, 300, 10, "abcdefghijklmnopqrstuvwxyz", group)
+    draw_text(100, 400, 10, "0123456789 ;:'\"éÉ`~", group)
+    draw_text(100, 500, 10, "!@#$%^&*()-_+={}[]\|,./<>?", group)
 
-    open_group(GroupSettings(translate=(100, 600), scale=0.5))
-    draw_text(0, 0, 10, "Test Small Text too")
-    close_group()
+    group_scaled = open_group(GroupSettings(translate=(100, 600), scale=0.5), group)
+    draw_text(0, 0, 10, "Test Small Text too", group_scaled)
 
-    open_group(GroupSettings(translate=(100, 700), rotate=10))
-    draw_text(0, 0, 10, "TEST ROTATED TEXT")
-    close_group()
+    group_rotated = open_group(GroupSettings(translate=(100, 700), rotate=10), group)
+    draw_text(0, 0, 10, "TEST ROTATED TEXT", group_rotated)
 
   def run(self, defaults: Defaults) -> int:
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)

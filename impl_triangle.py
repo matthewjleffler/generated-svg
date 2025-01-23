@@ -100,36 +100,31 @@ def draw_triangle(params:TriangleParams, group:Group):
 
   # Draw points
   if params.draw_triangles:
-    parent = open_group(GroupSettings(), group)
-    scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), parent)
+    group_scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
 
     if params.debug_draw_boundary:
-      draw_point_path([Point(pad_rect.center_x(), pad_rect.y), Point(pad_rect.center_x(), pad_rect.bottom())])
-      draw_border(parent)
-      draw_rect_rect(pad_rect, scaled)
+      draw_point_path([Point(pad_rect.center_x(), pad_rect.y), Point(pad_rect.center_x(), pad_rect.bottom())], group_scaled)
+      draw_border(group)
+      draw_rect_rect(pad_rect, group_scaled)
       if params.do_push:
-        draw_rect_rect(push_rect, scaled)
-        draw_circ(push_rect.x, push_rect.y, 5, scaled)
+        draw_rect_rect(push_rect, group_scaled)
+        draw_circ(push_rect.x, push_rect.y, 5, group_scaled)
 
     hatch_params = HatchParams(RangeInt(20, 50), RangeInt(3, 5))
 
     if params.hatch_triangle:
       # TODOML support for split versions?
-      draw_point_path_hatched(triangle_points, hatch_params, scaled)
+      draw_point_path_hatched(triangle_points, hatch_params, group_scaled)
     else:
       for line in triangle_lines:
         centers = generate_centerpoints(line)
-        draw_curved_path(line, centers, scaled)
+        draw_curved_path(line, centers, group_scaled)
 
     if params.draw_background:
       for line in background_lines:
         if params.hatch_background:
-          draw_point_path_hatched(line, hatch_params, scaled)
+          draw_point_path_hatched(line, hatch_params, group_scaled)
         else:
           # draw_point_path(line, scaled)
           centers = generate_centerpoints(line)
-          draw_curved_path(line, centers, scaled)
-
-    close_group()
-    close_group()
-
+          draw_curved_path(line, centers, group_scaled)

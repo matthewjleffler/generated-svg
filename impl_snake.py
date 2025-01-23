@@ -155,8 +155,8 @@ def draw_snake(params: SnakeParams, group: Group, seed: int):
   spine_group = group
 
   if draw_boundary:
-    group_red = get_or_create_group(GroupSettings(stroke=GroupColor.red, name="debug_red"), group)
-    spine_group = get_or_create_group(GroupSettings(stroke=GroupColor.blue, name="debug_blue"), group)
+    group_red = open_group(GroupSettings(stroke=GroupColor.red, name="debug_red"), group)
+    spine_group = open_group(GroupSettings(stroke=GroupColor.blue, name="debug_blue"), group)
     if push_rect:
       draw_rect_rect(push_rect, group)
 

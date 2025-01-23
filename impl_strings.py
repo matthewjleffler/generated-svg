@@ -92,12 +92,9 @@ def draw_strings(params:StringParams, group:Group):
   height = line_num * text_line_height() * scale
 
   # Draw text
-  open_group(GroupSettings(translate=(svg_safe().x, svg_safe().center_y() - height / 2), scale=scale), group)
+  group_text = open_group(GroupSettings(translate=(svg_safe().x, svg_safe().center_y() - height / 2), scale=scale), group)
 
   if params.draw:
     for i in range(0, line_num):
       line = render_lines[i]
-      draw_text(0, text_line_height() * (i + 1), 10, line)
-
-  close_group()
-
+      draw_text(0, text_line_height() * (i + 1), 10, line, group_text)

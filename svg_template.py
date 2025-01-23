@@ -11,7 +11,7 @@ class TemplateRunner(Runner):
   def loop(self, defaults: Defaults, group: Group, seed: int):
     draw_border(group)
 
-    draw_text(200, 200, 5, "Test Text")
+    draw_text(200, 200, 5, "Test Text", group)
 
   def run(self, defaults: Defaults) -> int:
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)

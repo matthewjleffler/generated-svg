@@ -66,9 +66,9 @@ def draw_lines(params: LinesParams, group: Group):
   expand.add_lists(subdivided)
 
   (offset, final_scale) = scale_rect_to_fit(expand.to_rect(), pad)
-  scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
+  group_scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
   if params.debug_draw_boundary:
-    scaled_red = open_group(GroupSettings(stroke=GroupColor.red))
+    group_red = open_group(GroupSettings(stroke=GroupColor.red), group_scaled)
 
   break_count = try_get(params, 'break_count', 0)
   break_loop = try_get(params, 'break_loop', 3)
@@ -80,15 +80,11 @@ def draw_lines(params: LinesParams, group: Group):
     for i in range(0, len(subdivided)):
       line = subdivided[i]
       centers = generate_centerpoints(line)
-      draw_curved_path(line, centers, scaled)
+      draw_curved_path(line, centers, group_scaled)
 
       if i > 0 and break_count > 0 and i % break_count == 0:
         count_breaks += 1
         for i in range(0, break_loop):
-          draw_circ_point(break_pos, break_size / final_scale, scaled)
+          draw_circ_point(break_pos, break_size / final_scale, group_scaled)
         if params.debug_draw_boundary:
-          draw_circ_point(line[0], 10, scaled_red)
-
-    if params.debug_draw_boundary:
-      close_group()
-    close_group()
+          draw_circ_point(line[0], 10, group_red)
