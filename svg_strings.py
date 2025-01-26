@@ -1,5 +1,5 @@
 from lib import *
-import impl_strings as impl
+import impl.impl_strings as impl
 
 
 class StringsRunner(Runner):

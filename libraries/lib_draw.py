@@ -1,5 +1,5 @@
-from lib_group import *
-from lib_math import Rect
+from .lib_group import *
+from .lib_math import Rect
 from math import *
 
 

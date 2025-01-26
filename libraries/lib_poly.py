@@ -1,4 +1,4 @@
-from lib_math import *
+from .lib_math import *
 import shapely.geometry
 from typing import List
 

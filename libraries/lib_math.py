@@ -1,5 +1,5 @@
 from math import *
-from lib_rand import *
+from .lib_rand import *
 from typing import List
 
 

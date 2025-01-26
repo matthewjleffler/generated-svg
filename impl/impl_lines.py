@@ -1,5 +1,5 @@
 from lib import *
-import build_maze
+import drawing.build_maze as build_maze
 
 
 ###

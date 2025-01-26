@@ -1,5 +1,5 @@
 from math import *
-from lib_math import *
+from .lib_math import *
 from typing import List
 from sys import float_info
 

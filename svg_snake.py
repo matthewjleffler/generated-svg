@@ -1,5 +1,5 @@
 from lib import *
-import impl_snake as impl
+import impl.impl_snake as impl
 
 
 class SnakeRunner(Runner):

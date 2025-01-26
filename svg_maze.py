@@ -1,5 +1,5 @@
 from lib import *
-import impl_maze as impl
+import impl.impl_maze as impl
 
 
 class MazeRunner(Runner):

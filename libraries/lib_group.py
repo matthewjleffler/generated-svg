@@ -1,6 +1,6 @@
 from enum import StrEnum
 from typing import List
-from lib_math import Point
+from .lib_math import Point
 
 
 class GroupColor(StrEnum):

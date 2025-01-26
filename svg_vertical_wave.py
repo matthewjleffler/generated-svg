@@ -1,5 +1,5 @@
 from lib import *
-import impl_wave as impl
+import impl.impl_wave as impl
 
 
 class VerticalWaveRunner(Runner):

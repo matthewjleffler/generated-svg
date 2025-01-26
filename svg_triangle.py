@@ -1,5 +1,5 @@
 from lib import *
-import impl_triangle as impl
+import impl.impl_triangle as impl
 
 
 class TriangleRunner(Runner):

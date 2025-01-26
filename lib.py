@@ -4,19 +4,19 @@ from datetime import timedelta
 from sys import maxsize, argv
 import os
 from os import listdir
-from lib_group import *
+from libraries.lib_group import *
 from re import compile
 from math import *
 from enum import StrEnum, Enum, IntEnum
 from typing import List
-from lib_draw import *
-from lib_rand import *
-from lib_math import *
-from lib_reload import *
-from lib_path import *
-from lib_text import *
-from lib_node import *
-from lib_poly import *
+from libraries.lib_draw import *
+from libraries.lib_rand import *
+from libraries.lib_math import *
+from libraries.lib_reload import *
+from libraries.lib_path import *
+from libraries.lib_text import *
+from libraries.lib_node import *
+from libraries.lib_poly import *
 
 
 ###

@@ -1,5 +1,5 @@
 from lib import *
-import impl_exploded_room as impl
+import impl.impl_exploded_room as impl
 
 
 class ExplodedRoomRunner(Runner):

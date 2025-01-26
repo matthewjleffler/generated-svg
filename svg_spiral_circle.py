@@ -1,5 +1,5 @@
 from lib import *
-import impl_spiral_circle as impl
+import impl.impl_spiral_circle as impl
 
 
 class SpiralCircleRunner(Runner):

@@ -1,6 +1,6 @@
 from lib import *
-import build_triangle
-import build_maze
+import drawing.build_triangle as build_triangle
+import drawing.build_maze as build_maze
 
 
 ###

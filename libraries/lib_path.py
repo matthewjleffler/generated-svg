@@ -1,7 +1,7 @@
 from typing import List
-from lib_math import *
-from lib_group import *
-from lib_draw import *
+from .lib_math import *
+from .lib_group import *
+from .lib_draw import *
 
 
 ###

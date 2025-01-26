@@ -1,5 +1,5 @@
 from lib import *
-import impl_worm as impl
+import impl.impl_worm as impl
 
 
 class LongWormRunner(Runner):

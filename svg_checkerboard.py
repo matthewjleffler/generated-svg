@@ -1,5 +1,5 @@
 from lib import *
-import impl_checkerboard as impl
+import impl.impl_checkerboard as impl
 
 
 class CheckerboardRunner(Runner):

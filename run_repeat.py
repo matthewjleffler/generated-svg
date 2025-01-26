@@ -1,7 +1,7 @@
 import importlib
 import time
 from lib import Args, Defaults, Runner
-from lib_input import *
+from libraries.lib_input import *
 from enum import Enum
 
 
@@ -77,7 +77,7 @@ def run():
     return
 
   if args.positional_str(0).endswith('?'):
-    print('\nUsage: python test_repeat_run.py [script_name.py]')
+    print('\nUsage: python run_repeat.py [script_name.py]')
     print('  Args:')
     print('    size:       --size=[w]x[h]')
     print('    seed:       --seed=[seed]')
