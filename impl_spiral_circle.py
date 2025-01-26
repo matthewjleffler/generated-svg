@@ -1,8 +1,4 @@
 from lib import *
-from math import *
-from lib_path import *
-from typing import List
-from enum import IntEnum
 
 
 ###
@@ -22,6 +18,8 @@ class SpiralCircleParams(BaseParams):
 
 
 def draw_spiral_circle(params:SpiralCircleParams, group:Group):
+  reload_libs(globals())
+
   # draw_border(group)
 
   pad_rect = svg_safe().shrink_copy(params.padding)

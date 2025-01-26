@@ -1,10 +1,6 @@
 from lib import *
-from lib_math import *
-from lib_path import *
-from lib_poly import *
-from lib_maze import *
-from enum import Enum
-from typing import List
+import build_maze
+
 
 ###
 ### Infinite Maze
@@ -47,6 +43,8 @@ class MazeParams(BaseParams):
 
 
 def draw_maze(params: MazeParams, group: Group):
+  reload_libs(globals())
+
   pad = svg_safe().copy()
 
   # Draw safety border and page border
@@ -57,8 +55,8 @@ def draw_maze(params: MazeParams, group: Group):
   print("Cell size:", cell_size)
 
   # Make maze
-  maze_size = MazeSize(cell_size, pad, params.cutout_range)
-  line = make_maze_line(maze_size, params)
+  maze_size = build_maze.MazeSize(cell_size, pad, params.cutout_range)
+  line = build_maze.make_maze_line(maze_size, params)
 
   if len(line) < 1:
     print('0 length maze')
@@ -78,7 +76,7 @@ def draw_maze(params: MazeParams, group: Group):
       point.add_floats(offset_x, offset_y)
 
   # Do push
-  push_rect = push_line(line, pad, params, params.draw)
+  push_rect = build_maze.push_line(line, pad, params, params.draw)
 
   # Scale output to fit safe area
   expand = ExpandingVolume()

@@ -4,6 +4,7 @@ from lib import Args, Defaults, Runner
 from lib_input import *
 from enum import Enum
 
+
 ###
 ### Test run a given script repeatedly
 ###
@@ -98,6 +99,7 @@ def run():
   module = importlib.import_module(module_path)
   if not module:
     print(f"Couldn't load module: {module_path}")
+    return
 
   defaults = args.get_defaults(True, 0, (9, 12))
   wait = args.get_float("wait", 0)
@@ -105,6 +107,7 @@ def run():
   with KeyPoller() as key:
     current = defaults
     while True:
+      module = importlib.reload(module)
       (current, quit) = _run_step(module.runner, wait, key, current, defaults)
       if quit:
         print("Escape pressed.")

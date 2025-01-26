@@ -1,4 +1,5 @@
-from impl_exploded_room import *
+from lib import *
+import impl_exploded_room as impl
 
 
 class ExplodedRoomRunner(Runner):
@@ -6,11 +7,12 @@ class ExplodedRoomRunner(Runner):
     super().__init__("exploded-room")
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = ExplodedRoomParams(defaults)
-    draw_exploded_room(params, group)
+    params = impl.ExplodedRoomParams(defaults)
+    impl.draw_exploded_room(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop_main)
     return mainseed
 

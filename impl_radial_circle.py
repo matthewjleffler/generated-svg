@@ -1,8 +1,4 @@
 from lib import *
-from math import *
-from lib_path import *
-from typing import List
-from enum import IntEnum
 
 
 ###
@@ -111,6 +107,8 @@ def _add_border(x:float, y:float, size_h:float, params:RadialParams, group: Grou
     draw_sunburst(floor(size_h / 3), x, y, size_h + ring_buffer, 5, group)
 
 def draw_radial_circles(params:RadialParams, group:Group):
+  reload_libs(globals())
+
   # draw_border(group)
 
   # Rough path

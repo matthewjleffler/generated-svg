@@ -1,7 +1,4 @@
 from lib import *
-from lib_path import *
-from lib_text import *
-from math import *
 
 
 class TemplateRunner(Runner):
@@ -14,6 +11,7 @@ class TemplateRunner(Runner):
     draw_text(200, 200, 5, "Test Text", group)
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)
     return mainseed
 

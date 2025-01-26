@@ -1,4 +1,5 @@
-from impl_stack import *
+from lib import *
+import impl_stack as impl
 
 
 class CircleStackRunner(Runner):
@@ -6,11 +7,12 @@ class CircleStackRunner(Runner):
     super().__init__("circle-stack")
 
   def loop(self, defaults: Defaults, group: Group, seed: int):
-    params = CircleStackParams(defaults)
-    draw_circle_stack(params, group)
+    params = impl.CircleStackParams(defaults)
+    impl.draw_circle_stack(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)
     return mainseed
 

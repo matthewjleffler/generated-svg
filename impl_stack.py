@@ -22,6 +22,8 @@ class CircleStackParams(BaseParams):
 
 
 def draw_circle_stack(params:CircleStackParams, group:Group):
+  reload_libs(globals())
+
   # draw_border(group)
 
   circles = []
@@ -77,6 +79,8 @@ class RectStackParams(BaseParams):
 
 
 def draw_rect_stack(params:RectStackParams, group:Group):
+  reload_libs(globals())
+
   # draw_border(group)
 
   rects = []

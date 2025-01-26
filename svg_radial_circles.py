@@ -1,4 +1,5 @@
-from impl_radial_circle import *
+from lib import *
+import impl_radial_circle as impl
 
 
 class RadialCirclesRunner(Runner):
@@ -6,23 +7,24 @@ class RadialCirclesRunner(Runner):
     super().__init__("radial-circles")
 
   def loop_combined(self, defaults: Defaults, group: Group, seed: int):
-    params = RadialParams(defaults)
-    draw_radial_circles(params, group)
+    params = impl.RadialParams(defaults)
+    impl.draw_radial_circles(params, group)
     return params
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = RadialParams(defaults)
+    params = impl.RadialParams(defaults)
     params.draw_border = False
-    draw_radial_circles(params, group)
+    impl.draw_radial_circles(params, group)
     return params
 
   def loop_highlights(self, defaults: Defaults, group: Group, seed: int):
-    params = RadialParams(defaults)
+    params = impl.RadialParams(defaults)
     params.draw_circles = False
-    draw_radial_circles(params, group)
+    impl.draw_radial_circles(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "combined", defaults, defaults.seed, self.loop_combined)
     main(self.dir, "main", defaults, mainseed, self.loop_main)
     main(self.dir, "highlights", defaults, mainseed, self.loop_highlights)

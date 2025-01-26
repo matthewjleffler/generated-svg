@@ -1,8 +1,4 @@
 from lib import *
-from lib_path import *
-from lib_text import *
-from typing import List
-from enum import IntEnum, Enum
 
 
 ###
@@ -81,6 +77,8 @@ def _draw_worm_layer(params:WormParams, fixed_size:float, group:Group):
   _draw_worm_set(max_row, max_col, worm_size, fixed_size, params, group_flipped)
 
 def draw_worm(params:WormParams, group:Group):
+  reload_libs(globals())
+
   # draw_border(group)
 
   if params.draw_worm:
@@ -240,6 +238,8 @@ def _draw_worm_highlights(positions:List[Position], params:LongWormParams, group
     connect_next = rand_weight(params.connect_highlight_weight) == 0
 
 def draw_long_worm(params:LongWormParams, group:Group):
+  reload_libs(globals())
+
   # draw_border(group)
 
   # Variables
@@ -391,6 +391,8 @@ def _highlight_2(
 
 
 def draw_spiral_worm(params:SprialWormParams, group:Group):
+  reload_libs(globals())
+
   # draw_border()
 
   # Build outline

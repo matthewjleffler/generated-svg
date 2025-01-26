@@ -1,26 +1,13 @@
 from lib import Args
-import types
-import svg_calibrate
-import svg_checkerboard
-import svg_circle_stack
-import svg_exploded_room
-import svg_long_worm
-import svg_maze
-import svg_radial_circles
-import svg_rect_stack
-import svg_snake
-import svg_spiral_circle
-import svg_spiral_worm
-import svg_strings
-import svg_template
-import svg_test_node
-import svg_test_text
-import svg_triangle
-import svg_vertical_lines
-import svg_vertical_mutate
-import svg_vertical_wave
-import svg_worm
+from os import listdir
+from typing import List
+import importlib
 
+
+def _remove_suffix(input_string:str, suffix:str) -> str:
+  if suffix and input_string.endswith(suffix):
+      return input_string[:-len(suffix)]
+  return input_string
 
 def run():
   print("Running all SVG scripts...")
@@ -28,19 +15,40 @@ def run():
   args = Args()
   defaults = args.get_defaults(True, 0, (9, 12))
 
-  count = 0
-  for name, val in globals().items():
-    if isinstance(val, types.ModuleType):
-      if not name.startswith("svg_"):
-        continue
-      if not val.runner:
-        print(f"No Runner present in {name}")
-        continue
-      print(f"\nRunning {name}")
-      count += 1
-      val.runner.run(defaults)
+  scripts = listdir('.')
+  module_paths: List[str] = []
+  for script in scripts:
+    if not script.startswith("svg_"):
+      continue
+    if not script.endswith(".py"):
+      continue
+    script = _remove_suffix(script, ".py")
+    module_paths.append(script)
 
-  print(f"\nFinished running {count} script(s)")
+  module_paths = sorted(module_paths)
+
+  run: List[str] = []
+  skipped: List[str] = []
+  for path in module_paths:
+    module = importlib.import_module(path)
+    if not module:
+      print(f"Couldn't load module: {path}")
+      skipped.append(path)
+      continue
+    if not module.runner:
+      print(f"No Runner present in {path}")
+      skipped.append(path)
+      continue
+    print(f"\nRunning {path}")
+    run.append(path)
+    module.runner.run(defaults)
+
+  print(f"\nFinished running {len(run)} script(s)")
+  for val in run:
+    print(f"  {val}")
+  print(f"\nSkipped {len(skipped)} script(s)")
+  for val in skipped:
+    print(f"  {val}")
 
 
 if __name__ == "__main__":

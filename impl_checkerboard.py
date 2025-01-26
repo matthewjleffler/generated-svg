@@ -1,6 +1,4 @@
 from lib import *
-from math import *
-from lib_text import *
 
 
 ###
@@ -199,6 +197,8 @@ def _create_fill(
 
 
 def draw_checkerboard(params:CheckerboardParams, group:Group):
+  reload_libs(globals())
+
   # draw_border(group)
 
   # Pad safe space

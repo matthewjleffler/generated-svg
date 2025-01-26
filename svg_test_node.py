@@ -1,5 +1,4 @@
 from lib import *
-from lib_node import *
 
 
 class TestNodeRunner(Runner):
@@ -30,6 +29,7 @@ class TestNodeRunner(Runner):
     draw_circ_point(offset_transformed, 10, group)
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)
     return mainseed
 

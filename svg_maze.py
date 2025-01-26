@@ -1,4 +1,5 @@
-from impl_maze import *
+from lib import *
+import impl_maze as impl
 
 
 class MazeRunner(Runner):
@@ -6,11 +7,12 @@ class MazeRunner(Runner):
     super().__init__("maze")
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = MazeParams(defaults)
-    draw_maze(params, group)
+    params = impl.MazeParams(defaults)
+    impl.draw_maze(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop_main)
     return mainseed
 

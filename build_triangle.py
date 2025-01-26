@@ -1,5 +1,6 @@
 from lib import *
 
+
 class TriangleOptions:
   triangle_step_size: int
   triangle_angle: float
@@ -90,6 +91,8 @@ class TriangleResult:
 
 
 def create_triangle_lines(pad_rect: Rect, params: TriangleOptions) -> TriangleResult:
+  reload_libs(globals())
+
   center = pad_rect.center()
   rot_rad = try_get(params, 'triangle_rotate_range', RangeFloat(0, 180)).rand() * deg_to_rad
 

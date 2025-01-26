@@ -1,4 +1,5 @@
-from impl_checkerboard import *
+from lib import *
+import impl_checkerboard as impl
 
 
 class CheckerboardRunner(Runner):
@@ -6,47 +7,48 @@ class CheckerboardRunner(Runner):
     super().__init__("checkerboard")
 
   def loop_combined(self, defaults: Defaults, group: Group, seed: int):
-    params = CheckerboardParams(defaults)
-    draw_checkerboard(params, group)
+    params = impl.CheckerboardParams(defaults)
+    impl.draw_checkerboard(params, group)
     return params
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = CheckerboardParams(defaults)
+    params = impl.CheckerboardParams(defaults)
     params.draw_lines = True
     params.draw_aligned_vertical = False
     params.draw_aligned_horizontal = False
     params.draw_filled_checkers = False
-    draw_checkerboard(params, group)
+    impl.draw_checkerboard(params, group)
     return params
 
   def loop_vert(self, defaults: Defaults, group: Group, seed: int):
-    params = CheckerboardParams(defaults)
+    params = impl.CheckerboardParams(defaults)
     params.draw_lines = False
     params.draw_aligned_vertical = True
     params.draw_aligned_horizontal = False
     params.draw_filled_checkers = False
-    draw_checkerboard(params, group)
+    impl.draw_checkerboard(params, group)
     return params
 
   def loop_horiz(self, defaults: Defaults, group: Group, seed: int):
-    params = CheckerboardParams(defaults)
+    params = impl.CheckerboardParams(defaults)
     params.draw_lines = False
     params.draw_aligned_vertical = False
     params.draw_aligned_horizontal = True
     params.draw_filled_checkers = False
-    draw_checkerboard(params, group)
+    impl.draw_checkerboard(params, group)
     return params
 
   def loop_fill(self, defaults: Defaults, group: Group, seed: int):
-    params = CheckerboardParams(defaults)
+    params = impl.CheckerboardParams(defaults)
     params.draw_lines = False
     params.draw_aligned_vertical = False
     params.draw_aligned_horizontal = False
     params.draw_filled_checkers = True
-    draw_checkerboard(params, group)
+    impl.draw_checkerboard(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "combined", defaults, defaults.seed, self.loop_combined)
     main(self.dir, "main", defaults, mainseed, self.loop_main)
     main(self.dir, "vert", defaults, mainseed, self.loop_vert)

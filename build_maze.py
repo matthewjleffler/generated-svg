@@ -1,6 +1,5 @@
 from lib import *
-from lib_path import *
-from typing import List
+
 
 ###
 ### Space filling curve algorithm based on:
@@ -191,6 +190,8 @@ def _hamiltonian_from_spanning_tree(col: int, col2: int, total2: int, connect: L
 
 
 def make_maze_line(size: MazeSize, options: MazeOptions) -> List[Point]:
+  reload_libs(globals())
+
   edges = _spanning_tree(size.row, size.col, size.total, size.range_stamp, options.do_inset)
 
   connect: List[_Connect] = []
@@ -251,6 +252,8 @@ def push_line(line: List[Point], rect: Rect, params: PushOptions, group: Group) 
   return push_lines([line], rect, params, group)
 
 def push_lines(lines: List[List[Point]], rect: Rect, params: PushOptions, group: Group) -> Rect:
+  reload_libs(globals())
+
   # Do push randomization independent of draw
   pushers: List[_Pusher] = []
   pad_x = rect.w * params.push_pad_range_max

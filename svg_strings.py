@@ -1,4 +1,5 @@
-from impl_strings import *
+from lib import *
+import impl_strings as impl
 
 
 class StringsRunner(Runner):
@@ -6,13 +7,14 @@ class StringsRunner(Runner):
     super().__init__("strings")
 
   def loop(self, defaults: Defaults, group: Group, seed: int):
-    params = StringParams(defaults)
-    draw_strings(params, group)
+    params = impl.StringParams(defaults)
+    impl.draw_strings(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
-   mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)
-   return mainseed
+    reload_libs(globals())
+    mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)
+    return mainseed
 
 
 runner = StringsRunner()

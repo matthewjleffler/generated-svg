@@ -1,8 +1,5 @@
 from lib import *
-from lib_math import *
-from lib_path import *
-from lib_poly import *
-from typing import List
+
 
 ###
 ### Exploded Room Drawing
@@ -239,6 +236,8 @@ def _create_room(
 
 
 def draw_exploded_room(params: ExplodedRoomParams, group:Group):
+  reload_libs(globals())
+
   # draw_border(group)
 
   pad = svg_safe().copy()

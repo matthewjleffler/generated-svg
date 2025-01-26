@@ -1,6 +1,7 @@
-from lib import *
-from math import *
 from typing import List
+from lib_math import *
+from lib_group import *
+from lib_draw import *
 
 
 ###
@@ -8,6 +9,12 @@ from typing import List
 ###
 
 _round_digits = 2 # How many digits to round to
+
+def add_nondup_floats(x:float, y:float, points:List[Point]):
+  points.append(Point(x, y))
+
+def add_nondup_point(point:Point, points:List[Point]):
+  points.append(point.copy())
 
 class Position:
   def __init__(self, x, y, size) -> None:
@@ -175,7 +182,7 @@ def _add_points_along_curve(
   add_nondup_position(p1.x, p1.y, next_size, positions, deltaRange)
 
 
-def draw_point_circles(points:List[Point], group:Group):
+def draw_point_circles(points: List[Point], group: 'Group'):
   for point in points:
     draw_circ(point.x, point.y, 5, group)
 
@@ -204,7 +211,7 @@ class HatchState:
     else:
       self.current = params.off_range.rand()
 
-def draw_point_path_hatched(points:List[Point], params:HatchParams, group:Group):
+def draw_point_path_hatched(points:List[Point], params:HatchParams, group:'Group'):
   hatch = HatchState()
   hatch.set_on_state(True, params)
 
@@ -240,7 +247,7 @@ def draw_point_path_hatched(points:List[Point], params:HatchParams, group:Group)
     last = next
   draw_path(path, group)
 
-def draw_point_path(points:List[Point], group:Group):
+def draw_point_path(points: List[Point], group: 'Group'):
   last = points[0]
   path = "M{} {}".format(
     round(last.x, _round_digits),
@@ -255,7 +262,7 @@ def draw_point_path(points:List[Point], group:Group):
   draw_path(path, group)
 
 
-def draw_curved_path(points:List[Point], centers:List[Point], group:Group):
+def draw_curved_path(points: List[Point], centers: List[Point], group: 'Group'):
   point = centers[0]
   path = "M{} {} L{} {}".format(
     round(points[0].x, _round_digits),

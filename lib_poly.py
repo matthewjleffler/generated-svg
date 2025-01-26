@@ -2,6 +2,7 @@ from lib_math import *
 import shapely.geometry
 from typing import List
 
+
 def to_polygon(shell:List[Point], holes:List[List[Point]] = None) -> shapely.geometry.Polygon:
   shell_pos = []
   for point in shell:

@@ -1,7 +1,4 @@
 from lib import *
-from lib_path import *
-from math import *
-from typing import List
 
 
 ###
@@ -96,6 +93,8 @@ def _create_wave_patterns(pad_rect:Rect, rows:int, cols:int, params:VerticalWave
 
 
 def draw_wave(params:VerticalWaveParams, group:Group):
+  reload_libs(globals())
+
   # draw_border(group)
 
   # Create pad rect

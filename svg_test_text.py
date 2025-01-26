@@ -1,5 +1,4 @@
 from lib import *
-from lib_text import *
 
 
 class TestTextRunner(Runner):
@@ -21,6 +20,7 @@ class TestTextRunner(Runner):
     draw_text(0, 0, 10, "TEST ROTATED TEXT", group_rotated)
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)
     return mainseed
 

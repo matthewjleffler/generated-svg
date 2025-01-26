@@ -1,4 +1,5 @@
-from impl_worm import *
+from lib import *
+import impl_worm as impl
 
 
 class LongWormRunner(Runner):
@@ -6,23 +7,24 @@ class LongWormRunner(Runner):
     super().__init__("long-worm")
 
   def loop_combined(self, defaults: Defaults, group: Group, seed: int):
-    params = LongWormParams(defaults)
-    draw_long_worm(params, group)
+    params = impl.LongWormParams(defaults)
+    impl.draw_long_worm(params, group)
     return params
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = LongWormParams(defaults)
+    params = impl.LongWormParams(defaults)
     params.draw_highlight = False
-    draw_long_worm(params, group)
+    impl.draw_long_worm(params, group)
     return params
 
   def loop_highlight(self, defaults: Defaults, group: Group, seed: int):
-    params = LongWormParams(defaults)
+    params = impl.LongWormParams(defaults)
     params.draw_worm = False
-    draw_long_worm(params, group)
+    impl.draw_long_worm(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "combined", defaults, defaults.seed, self.loop_combined)
     main(self.dir, "main", defaults, mainseed, self.loop_main)
     main(self.dir, "highlight", defaults, mainseed, self.loop_highlight)

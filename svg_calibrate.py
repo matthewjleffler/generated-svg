@@ -1,8 +1,4 @@
 from lib import *
-from lib_path import *
-from lib_text import *
-from math import *
-from typing import List
 
 
 class CalibrateRunner(Runner):
@@ -50,6 +46,7 @@ class CalibrateRunner(Runner):
 
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)
     return mainseed
 

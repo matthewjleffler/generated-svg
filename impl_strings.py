@@ -1,7 +1,4 @@
 from lib import *
-from lib_text import *
-from os import listdir
-from typing import List
 
 
 ###
@@ -19,6 +16,8 @@ class StringParams(BaseParams):
 
 
 def draw_strings(params:StringParams, group:Group):
+  reload_libs(globals())
+
   # draw_border(group)
 
   text_file = params.text_file_override

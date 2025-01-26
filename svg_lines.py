@@ -1,4 +1,5 @@
-from impl_lines import *
+from lib import *
+import impl_lines as impl
 
 
 class LinesRunner(Runner):
@@ -6,11 +7,12 @@ class LinesRunner(Runner):
     super().__init__("lines")
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = LinesParams(defaults)
-    draw_lines(params, group)
+    params = impl.LinesParams(defaults)
+    impl.draw_lines(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop_main)
     return mainseed
 

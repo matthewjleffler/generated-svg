@@ -1,7 +1,7 @@
 from lib import *
-from lib_path import *
-from lib_maze import *
-from lib_triangle import *
+import build_triangle
+import build_maze
+
 
 ###
 ### Triangle Design
@@ -39,9 +39,11 @@ class TriangleParams(BaseParams):
 
 
 def draw_triangle(params:TriangleParams, group:Group):
+  reload_libs(globals())
+
   pad_rect = svg_safe().copy()
 
-  result = create_triangle_lines(pad_rect, params)
+  result = build_triangle.create_triangle_lines(pad_rect, params)
   triangle_points = result.triangle_points
   top = result.top
   right = result.right
@@ -91,7 +93,7 @@ def draw_triangle(params:TriangleParams, group:Group):
       triangle_lines[i] = subdivide_point_path(triangle_lines[i], subdivision_range)
     for i in range(0, len(background_lines)):
       background_lines[i] = subdivide_point_path(background_lines[i], subdivision_range)
-  push_rect = push_lines(triangle_lines + background_lines, pad_rect, params, group)
+  push_rect = build_maze.push_lines(triangle_lines + background_lines, pad_rect, params, group)
 
   # Re-encapsulate all the points and recaclulate scale
   expand.add_lists(triangle_lines)

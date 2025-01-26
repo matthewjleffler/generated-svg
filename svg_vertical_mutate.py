@@ -1,4 +1,5 @@
-from impl_vertical_lines import *
+from lib import *
+import impl_vertical_lines as impl
 
 
 class VerticalMutateRunner(Runner):
@@ -6,13 +7,14 @@ class VerticalMutateRunner(Runner):
     super().__init__("vertical-mutate")
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = VerticalLineParams(defaults)
+    params = impl.VerticalLineParams(defaults)
     params.mutate = True
     params.draw_highlights = False
-    draw_lines(params, group)
+    impl.draw_lines(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop_main)
     return mainseed
 

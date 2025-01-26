@@ -1,4 +1,5 @@
-from impl_vertical_lines import *
+from lib import *
+import impl_vertical_lines as impl
 
 
 class VerticalLineRunner(Runner):
@@ -6,23 +7,24 @@ class VerticalLineRunner(Runner):
     super().__init__("vertical-lines")
 
   def loop_combined(self, defaults: Defaults, group: Group, seed: int):
-    params = VerticalLineParams(defaults)
-    draw_lines(params, group)
+    params = impl.VerticalLineParams(defaults)
+    impl.draw_lines(params, group)
     return params
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = VerticalLineParams(defaults)
+    params = impl.VerticalLineParams(defaults)
     params.draw_highlights = False
-    draw_lines(params, group)
+    impl.draw_lines(params, group)
     return params
 
   def loop_highlight(self, defaults: Defaults, group: Group, seed: int):
-    params = VerticalLineParams(defaults)
+    params = impl.VerticalLineParams(defaults)
     params.draw_lines = False
-    draw_lines(params, group)
+    impl.draw_lines(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "combined", defaults, defaults.seed, self.loop_combined)
     main(self.dir, "main", defaults, mainseed, self.loop_main)
     main(self.dir, "highlight", defaults, mainseed, self.loop_highlight)

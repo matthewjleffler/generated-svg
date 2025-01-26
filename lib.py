@@ -3,12 +3,20 @@ import time
 from datetime import timedelta
 from sys import maxsize, argv
 import os
+from os import listdir
+from lib_group import *
 from re import compile
 from math import *
-from lib_math import *
-from enum import StrEnum
+from enum import StrEnum, Enum, IntEnum
 from typing import List
+from lib_draw import *
 from lib_rand import *
+from lib_math import *
+from lib_reload import *
+from lib_path import *
+from lib_text import *
+from lib_node import *
+from lib_poly import *
 
 
 ###
@@ -20,12 +28,6 @@ from lib_rand import *
 def test_type(obj: any, field: str, expected: str) -> bool:
   return type(getattr(obj, field)).__name__ == expected
 
-def add_nondup_floats(x:float, y:float, points:List[Point]):
-  points.append(Point(x, y))
-
-def add_nondup_point(point:Point, points:List[Point]):
-  points.append(point.copy())
-
 def clamp_point_list(clamp_val:int, points:List[Point]):
   for point in points:
     point.x = round(point.x / clamp_val, 0) * clamp_val
@@ -35,69 +37,6 @@ def try_get[T](self, field: str, default: T) -> T:
     if not hasattr(self, field):
       return default
     return getattr(self, field)
-
-class GroupColor(StrEnum):
-  black = 'black'
-  blue = 'blue'
-  red = 'red'
-  green = 'green'
-  none = 'none'
-
-
-class GroupSettings:
-  def __init__(
-      self,
-      stroke: str = None,
-      fill: str = None,
-      translate: tuple[float, float] = None,
-      translatePoint: Point = None,
-      scale: float = None,
-      scaleXY: tuple[float, float] = None,
-      scalePoint: Point = None,
-      rotate: float = None,
-      name: str = None
-  ):
-    self.name = name
-    settings: List[str] = []
-
-    if stroke is not None:
-      settings.append(f"stroke=\"{stroke}\"")
-
-    if fill is not None:
-      settings.append(f"fill=\"{fill}\"")
-
-    transforms: List[str] = []
-
-    if translate is not None:
-      transforms.append(f"translate({translate[0]}, {translate[1]})")
-    elif translatePoint is not None:
-      transforms.append(f"translate({translatePoint.x}, {translatePoint.y})")
-
-    if scale is not None:
-      transforms.append(f"scale({scale}, {scale})")
-    elif scaleXY is not None:
-      transforms.append(f"scale({scaleXY[0]}, {scaleXY[1]})")
-    elif scalePoint is not None:
-      transforms.append(f"scale({scalePoint.x}, {scalePoint.y})")
-
-    if rotate is not None:
-      transforms.append(f"rotate({rotate})")
-
-    if len(transforms) > 0:
-      settings.append(f"transform=\"{' '.join(transforms)}\"")
-
-    self.settings = ""
-    if len(settings) > 0:
-      self.settings = ' '.join(settings)
-
-
-class Group:
-  def __init__(self, parent: 'Group', settings: GroupSettings):
-    self.parent = parent
-    self.settings = settings.settings
-    self.groups = []
-    self.children = []
-    self.name = settings.name
 
 
 def clamp(val:float, min_val:float, max_val:float) -> float:
@@ -119,7 +58,6 @@ _root_group = Group(None, GroupSettings(name="root", stroke=GroupColor.black, fi
 _group_count = 0
 _groups: dict[str, Group] = dict()
 _pixel_per_inch = 95.8
-_round_digits = 2
 
 
 def init():
@@ -440,65 +378,11 @@ def print_overwrite(string: str):
 def print_finish_overwite():
   print("\r", end="")
 
-# Drawing
-
-def draw_rect(x:float, y:float, w:float, h:float, group:Group):
-  x = round(x, _round_digits)
-  y = round(y, _round_digits)
-  w = round(w, _round_digits)
-  h = round(h, _round_digits)
-  group.children.append(f"<rect x=\"{x}\" y=\"{y}\" width=\"{w}\" height=\"{h}\"/>")
-
-def draw_rect_rect(rect: Rect, group: Group):
-  draw_rect(rect.x, rect.y, rect.w, rect.h, group)
-
-def draw_circ(x:float, y:float, r:float, group:Group):
-  x = round(x, _round_digits)
-  y = round(y, _round_digits)
-  r = round(r, _round_digits)
-  group.children.append(f"<circle cx=\"{x}\" cy=\"{y}\" r=\"{r}\"/>")
-
-def draw_circ_point(point: Point, r:float, group:Group):
-  draw_circ(point.x, point.y, r, group)
-
-def draw_path(value:str, group:Group):
-  group.children.append(f"<path d=\"{value}\"/>")
-
 def draw_border(group:Group):
   debug = open_group(GroupSettings(name="debug"), _root_group)
   draw_rect_rect(_svg_full, debug)
   red = open_group(GroupSettings(name="debug_red", stroke=GroupColor.red), _root_group)
   draw_rect_rect(_svg_safe, red)
-
-def draw_sunburst(bursts:int, c_x:float, c_y:float, start_rad:float, ray_len:float, group:Group):
-  sunburst_points = bursts
-  for i in range(0, sunburst_points):
-    t = i / sunburst_points
-    rad = t * pi * 2
-
-    x = c_x + sin(rad) * (start_rad)
-    y = c_y + cos(rad) * (start_rad)
-
-    vec = Point(x, y)
-    vec = vec.subtract_copy(Point(c_x, c_y))
-    vec.normalize()
-    vec.multiply(ray_len)
-    draw_path("M{} {} L{} {}".format(
-      round(x, _round_digits),
-      round(y, _round_digits),
-      round(x + vec.x, _round_digits),
-      round(y + vec.y, _round_digits)),
-      group
-    )
-
-def draw_ring_of_circles(number:int, c_x:float, c_y:float, center_rad:float, circle_rad:float, group:Group):
-  for i in range(0, number):
-    t = i / number
-    rad = t * pi * 2
-
-    x = c_x + cos(rad) * center_rad
-    y = c_y + sin(rad) * center_rad
-    draw_circ(x, y, circle_rad, group)
 
 # Main
 
@@ -543,7 +427,7 @@ def main(dir:str, layer: str, defaults: Defaults, seed: int, loop:callable) -> i
     write_file(fullpath, layer, 0)
   else:
     # Write numbered content
-    existing = os.listdir(fullpath)
+    existing = listdir(fullpath)
     file_name_search = compile(r""".*?_(\d*).svg""")
 
     numbers: List[int] = []

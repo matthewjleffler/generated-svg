@@ -1,4 +1,5 @@
-from impl_snake import *
+from lib import *
+import impl_snake as impl
 
 
 class SnakeRunner(Runner):
@@ -6,23 +7,24 @@ class SnakeRunner(Runner):
     super().__init__("snake")
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = SnakeParams(defaults)
-    draw_snake(params, group, seed)
+    params = impl.SnakeParams(defaults)
+    impl.draw_snake(params, group, seed)
     return params
 
   def loop_spine(self, defaults: Defaults, group: Group, seed: int):
-    params = SnakeParams(defaults)
+    params = impl.SnakeParams(defaults)
     params.draw_ribs = False
-    draw_snake(params, group, seed)
+    impl.draw_snake(params, group, seed)
     return params
 
   def loop_ribs(self, defaults: Defaults, group: Group, seed: int):
-    params = SnakeParams(defaults)
+    params = impl.SnakeParams(defaults)
     params.draw_spine = False
-    draw_snake(params, group, seed)
+    impl.draw_snake(params, group, seed)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop_main)
     if not defaults.test:
       main(self.dir, "spine", defaults, mainseed, self.loop_spine)

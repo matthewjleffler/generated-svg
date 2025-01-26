@@ -1,4 +1,5 @@
-from impl_worm import *
+from lib import *
+import impl_worm as impl
 
 
 class SpiralWormRunner(Runner):
@@ -6,32 +7,33 @@ class SpiralWormRunner(Runner):
     super().__init__("spiral-worm")
 
   def loop_combined(self, defaults: Defaults, group: Group, seed: int):
-    params = SprialWormParams(defaults)
-    draw_spiral_worm(params, group)
+    params = impl.SprialWormParams(defaults)
+    impl.draw_spiral_worm(params, group)
     return params
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = SprialWormParams(defaults)
+    params = impl.SprialWormParams(defaults)
     params.draw_highlight = False
     params.draw_highlight2 = False
-    draw_spiral_worm(params, group)
+    impl.draw_spiral_worm(params, group)
     return params
 
   def loop_circle(self, defaults: Defaults, group: Group, seed: int):
-    params = SprialWormParams(defaults)
+    params = impl.SprialWormParams(defaults)
     params.draw_worm = False
     params.draw_highlight2 = False
-    draw_spiral_worm(params, group)
+    impl.draw_spiral_worm(params, group)
     return params
 
   def loop_lines(self, defaults: Defaults, group: Group, seed: int):
-    params = SprialWormParams(defaults)
+    params = impl.SprialWormParams(defaults)
     params.draw_worm = False
     params.draw_highlight = False
-    draw_spiral_worm(params, group)
+    impl.draw_spiral_worm(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "combined", defaults, defaults.seed, self.loop_combined)
     main(self.dir, "main", defaults, mainseed, self.loop_main)
     main(self.dir, "circle", defaults, mainseed, self.loop_circle)

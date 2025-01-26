@@ -1,4 +1,5 @@
-from impl_wave import *
+from lib import *
+import impl_wave as impl
 
 
 class VerticalWaveRunner(Runner):
@@ -6,11 +7,12 @@ class VerticalWaveRunner(Runner):
     super().__init__("vertical-wave")
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = VerticalWaveParams(defaults)
-    draw_wave(params, group)
+    params = impl.VerticalWaveParams(defaults)
+    impl.draw_wave(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop_main)
     return mainseed
 

@@ -1,4 +1,5 @@
-from impl_spiral_circle import *
+from lib import *
+import impl_spiral_circle as impl
 
 
 class SpiralCircleRunner(Runner):
@@ -6,11 +7,12 @@ class SpiralCircleRunner(Runner):
     super().__init__("spiral-circle")
 
   def loop(self, defaults: Defaults, group: Group, seed: int):
-    params = SpiralCircleParams(defaults)
-    draw_spiral_circle(params, group)
+    params = impl.SpiralCircleParams(defaults)
+    impl.draw_spiral_circle(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)
     return mainseed
 

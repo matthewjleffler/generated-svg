@@ -2,6 +2,7 @@ from math import *
 from lib_rand import *
 from typing import List
 
+
 ###
 ### Math Helpers
 ###

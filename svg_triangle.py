@@ -1,17 +1,19 @@
-from impl_triangle import *
+from lib import *
+import impl_triangle as impl
+
 
 class TriangleRunner(Runner):
   def __init__(self) -> None:
     super().__init__("triangle")
 
   def loop(self, defaults: Defaults, group: Group, seed: int):
-    params = TriangleParams(defaults)
-    draw_triangle(params, group)
+    params = impl.TriangleParams(defaults)
+    impl.draw_triangle(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)
-
     return mainseed
 
 

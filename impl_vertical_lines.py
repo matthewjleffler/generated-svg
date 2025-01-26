@@ -1,7 +1,4 @@
 from lib import *
-from lib_path import *
-from math import *
-from typing import List
 
 
 ###
@@ -197,6 +194,8 @@ def _create_lines(params:VerticalLineParams, group:Group):
 
 
 def draw_lines(params:VerticalLineParams, group:Group):
+  reload_libs(globals())
+
   # draw_border(group)
 
   result = _create_lines(params, group)

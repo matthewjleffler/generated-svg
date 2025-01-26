@@ -1,4 +1,5 @@
-from lib import draw_path, draw_circ, Group
+from lib_group import *
+from lib_draw import *
 
 
 ###
@@ -27,11 +28,11 @@ def text_line_height() -> float:
   return _line_height
 
 
-def _letter_cap_a(x:float, y:float, group:Group):
+def _letter_cap_a(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}l{} {}M{} {}h{}"
     .format(x, y, _let_h_quart, -_let_h, _let_h_quart, _let_h, x + _let_h_eight, y-_let_h_half, _let_h_quart), group)
 
-def _letter_cap_b(x:float, y:float, group:Group):
+def _letter_cap_b(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}h{}q{} {} {} {}q{} {} {} {}h{}m{} {}q{} {} {} {}q{} {} {} {}h{}"
     .format(x, y, -_let_h, _let_h_quart,
             _let_h_quart, 0, _let_h_quart, _let_h_quart,
@@ -41,7 +42,7 @@ def _letter_cap_b(x:float, y:float, group:Group):
             0, _let_h_quart, -_let_h_quart, _let_h_quart,
             -_let_h_quart), group)
 
-def _letter_cap_c(x:float, y:float, group:Group):
+def _letter_cap_c(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}h{}"
     .format(x + _let_h_half, y, -_let_h_quart,
             -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
@@ -49,7 +50,7 @@ def _letter_cap_c(x:float, y:float, group:Group):
             0, -_let_h_quart, _let_h_quart, -_let_h_quart,
             _let_h_quart), group)
 
-def _letter_cap_d(x:float, y:float, group:Group):
+def _letter_cap_d(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}h{}q{} {} {} {}v{}q{} {} {} {}h{}"
     .format(x, y, -_let_h, _let_h_quart,
             _let_h_quart, 0, _let_h_quart, _let_h_quart,
@@ -57,15 +58,15 @@ def _letter_cap_d(x:float, y:float, group:Group):
             0, _let_h_quart, -_let_h_quart, _let_h_quart,
             -_let_h_quart), group)
 
-def _letter_cap_e(x:float, y:float, group:Group):
+def _letter_cap_e(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}v{}h{}m{} {}h{}"
     .format(x + _let_h_half, y, -_let_h_half, -_let_h, _let_h_half, -_let_h_half, _let_h_half, _let_h_quart), group)
 
-def _letter_cap_f(x:float, y:float, group:Group):
+def _letter_cap_f(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}h{}m{} {}h{}"
     .format(x, y, -_let_h, _let_h_half, -_let_h_half, _let_h_half, _let_h_quart), group)
 
-def _letter_cap_g(x:float, y:float, group:Group):
+def _letter_cap_g(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}v{} q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}"
     .format(x + _let_h_quart, y - _let_h_half, _let_h_quart, _let_h_quart,
             0, _let_h_quart,  -_let_h_quart, _let_h_quart,
@@ -74,37 +75,37 @@ def _letter_cap_g(x:float, y:float, group:Group):
             0, -_let_h_quart, _let_h_quart, -_let_h_quart,
             _let_h_quart, 0, _let_h_quart, _let_h_quart), group)
 
-def _letter_cap_h(x:float, y:float, group:Group):
+def _letter_cap_h(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}v{}m{} {}h{}"
     .format(x, y, -_let_h, _let_h_half, 0, _let_h, 0, -_let_h_half, -_let_h_half), group)
 
-def _letter_cap_i(x:float, y:float, group:Group):
+def _letter_cap_i(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}m{} {}v{}m{} {}h{}"
     .format(x, y, _let_h_half, -_let_h_quart, 0, -_let_h, -_let_h_quart, 0, _let_h_half), group)
 
-def _letter_cap_j(x:float, y:float, group:Group):
+def _letter_cap_j(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}q{} {} {} {}q{} {} {} {}"
     .format(x + _let_h_half, y - _let_h, _let_h_half + _let_h_quart,
             0, _let_h_quart, -_let_h_quart, _let_h_quart,
             -_let_h_quart, 0, -_let_h_quart, -_let_h_quart), group)
 
-def _letter_cap_k(x:float, y:float, group:Group):
+def _letter_cap_k(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}l{} {}l{} {}"
     .format(x, y, -_let_h, _let_h_half, 0, -_let_h_half, _let_h_half, _let_h_half, _let_h_half), group)
 
-def _letter_cap_l(x:float, y:float, group:Group):
+def _letter_cap_l(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}h{}"
     .format(x, y - _let_h, _let_h, _let_h_half), group)
 
-def _letter_cap_m(x:float, y:float, group:Group):
+def _letter_cap_m(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}l{} {}l{} {}v{}"
     .format(x, y, -_let_h, _let_h_quart, _let_h, _let_h_quart, -_let_h, _let_h), group)
 
-def _letter_cap_n(x:float, y:float, group:Group):
+def _letter_cap_n(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}l{} {}v{}"
     .format(x, y, -_let_h, _let_h_half, _let_h, -_let_h), group)
 
-def _letter_cap_o(x:float, y:float, group:Group):
+def _letter_cap_o(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}"
     .format(x + _let_h_quart, y,
             -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
@@ -114,14 +115,14 @@ def _letter_cap_o(x:float, y:float, group:Group):
             _let_h_half,
             0, _let_h_quart, -_let_h_quart, _let_h_quart), group)
 
-def _letter_cap_p(x:float, y:float, group:Group):
+def _letter_cap_p(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}h{}q{} {} {} {}q{} {} {} {}h{}"
     .format(x, y, -_let_h, _let_h_quart,
             _let_h_quart, 0, _let_h_quart, _let_h_quart,
             0, _let_h_quart, -_let_h_quart, _let_h_quart,
             -_let_h_quart), group)
 
-def _letter_cap_q(x:float, y:float, group:Group):
+def _letter_cap_q(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}m{} {}l{} {}"
     .format(x + _let_h_quart, y,
             -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
@@ -132,14 +133,14 @@ def _letter_cap_q(x:float, y:float, group:Group):
             0, _let_h_quart, -_let_h_quart, _let_h_quart,
             0, -_let_h_quart, _let_h_quart, _let_h_quart), group)
 
-def _letter_cap_r(x:float, y:float, group:Group):
+def _letter_cap_r(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}h{}q{} {} {} {}q{} {} {} {}h{}l{} {}"
     .format(x, y, -_let_h, _let_h_quart,
             _let_h_quart, 0, _let_h_quart, _let_h_quart,
             0, _let_h_quart, -_let_h_quart, _let_h_quart,
             -_let_h_quart, _let_h_half, _let_h_half), group)
 
-def _letter_cap_s(x:float, y:float, group:Group):
+def _letter_cap_s(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}"
     .format(x, y, _let_h_quart,
             _let_h_quart, 0, _let_h_quart, -_let_h_quart,
@@ -147,22 +148,22 @@ def _letter_cap_s(x:float, y:float, group:Group):
             -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
             0, -_let_h_quart, _let_h_quart, -_let_h_quart, _let_h_quart), group)
 
-def _letter_cap_t(x:float, y:float, group:Group):
+def _letter_cap_t(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}h{}"
     .format(x + _let_h_quart, y, -_let_h, -_let_h_quart, 0, _let_h_half), group)
 
-def _letter_cap_u(x:float, y:float, group:Group):
+def _letter_cap_u(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}q{} {} {} {}q{} {} {} {}v{}"
     .format(x, y - _let_h, _let_h_half + _let_h_quart,
             0, _let_h_quart, _let_h_quart, _let_h_quart,
             _let_h_quart, 0, _let_h_quart, -_let_h_quart,
             -_let_h_half - _let_h_quart), group)
 
-def _letter_cap_v(x:float, y:float, group:Group):
+def _letter_cap_v(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}l{} {}"
     .format(x, y - _let_h, _let_h_quart, _let_h, _let_h_quart, -_let_h), group)
 
-def _letter_cap_w(x:float, y:float, group:Group):
+def _letter_cap_w(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}l{} {}l{} {}l{} {}"
     .format(x, y - _let_h,
             _let_h_eight, _let_h,
@@ -170,20 +171,20 @@ def _letter_cap_w(x:float, y:float, group:Group):
             _let_h_eight, _let_h_half,
             _let_h_eight, -_let_h), group)
 
-def _letter_cap_x(x:float, y:float, group:Group):
+def _letter_cap_x(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}m{} {}l{} {}"
     .format(x, y - _let_h, _let_h_half, _let_h, 0, -_let_h, -_let_h_half, _let_h), group)
 
-def _letter_cap_y(x:float, y:float, group:Group):
+def _letter_cap_y(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}l{} {}m{} {}v{}"
     .format(x, y - _let_h, _let_h_quart, _let_h_half, _let_h_quart, -_let_h_half,
             -_let_h_quart, _let_h_half, _let_h_half), group)
 
-def _letter_cap_z(x:float, y:float, group:Group):
+def _letter_cap_z(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}l{} {}h{}"
     .format(x + _let_h_half, y, -_let_h_half, _let_h_half, -_let_h, -_let_h_half), group)
 
-def _letter_low_a(x:float, y:float, group:Group):
+def _letter_low_a(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}v{}"
     .format(x + _let_h_half, y - _let_h_quart,
             0, _let_h_quart, -_let_h_quart, _let_h_quart,
@@ -192,7 +193,7 @@ def _letter_low_a(x:float, y:float, group:Group):
             _let_h_quart, 0, _let_h_quart, _let_h_quart,
             _let_h_quart), group)
 
-def _letter_low_b(x:float, y:float, group:Group):
+def _letter_low_b(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
     .format(x, y, -_let_h, x, y - _let_h_quart,
             0, -_let_h_quart, _let_h_quart, -_let_h_quart,
@@ -200,14 +201,14 @@ def _letter_low_b(x:float, y:float, group:Group):
             0, _let_h_quart, -_let_h_quart, _let_h_quart,
             -_let_h_quart, 0, -_let_h_quart, -_let_h_quart), group)
 
-def _letter_low_c(x:float, y:float, group:Group):
+def _letter_low_c(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}q{} {} {} {}q{} {} {} {}h{}"
     .format(x + _let_h_half, y, -_let_h_quart,
             -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
             0, -_let_h_quart, _let_h_quart, -_let_h_quart,
             _let_h_quart), group)
 
-def _letter_low_d(x:float, y:float, group:Group):
+def _letter_low_d(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
     .format(x + _let_h_half, y, -_let_h, x + _let_h_half, y - _let_h_quart,
             0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
@@ -215,7 +216,7 @@ def _letter_low_d(x:float, y:float, group:Group):
             0, _let_h_quart, _let_h_quart, _let_h_quart,
             _let_h_quart, 0, _let_h_quart, -_let_h_quart), group)
 
-def _letter_low_e(x:float, y:float, group:Group):
+def _letter_low_e(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}"
     .format(x, y - _let_h_quart, _let_h_half,
             0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
@@ -223,13 +224,13 @@ def _letter_low_e(x:float, y:float, group:Group):
             0, _let_h_quart, _let_h_quart, _let_h_quart,
             _let_h_quart), group)
 
-def _letter_low_f(x:float, y:float, group:Group):
+def _letter_low_f(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}q{} {} {} {}m{} {}h{}"
     .format(x + _let_h_quart, y, -_let_h_half - _let_h_quart,
             0, -_let_h_quart, _let_h_quart, -_let_h_quart,
             -_let_h_half, _let_h_half, _let_h_half), group)
 
-def _letter_low_g(x:float, y:float, group:Group):
+def _letter_low_g(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}m{} {}v{}q{} {} {} {}h{}"
     .format(x + _let_h_half, y - _let_h_quart,
             0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
@@ -241,32 +242,32 @@ def _letter_low_g(x:float, y:float, group:Group):
             0, _let_h_quart, -_let_h_quart, _let_h_quart,
             -_let_h_quart), group)
 
-def _letter_low_h(x:float, y:float, group:Group):
+def _letter_low_h(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}q{} {} {} {}q{} {} {} {}v{}"
     .format(x, y - _let_h, _let_h, 0, -_let_h_quart,
             0, -_let_h_quart, _let_h_quart, -_let_h_quart,
             _let_h_quart, 0, _let_h_quart, _let_h_quart,
             _let_h_quart), group)
 
-def _letter_low_i(x:float, y:float, group:Group):
+def _letter_low_i(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}v{}"
     .format(x + _let_h_quart, y, -_let_h_half, 0, -_let_h_quart, -_let_h_eight), group)
 
-def _letter_low_j(x:float, y:float, group:Group):
+def _letter_low_j(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}v{}q{} {} {} {}h{}"
     .format(x + _let_h_quart, y - _let_h_half - _let_h_quart - _let_h_eight, _let_h_eight, 0, _let_h_quart, _let_h_half,
             0, _let_h_quart, -_let_h_quart, _let_h_quart,
             -_let_h_eight), group)
 
-def _letter_low_k(x:float, y:float, group:Group):
+def _letter_low_k(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}l{} {}l{} {}"
     .format(x, y - _let_h, _let_h, _let_h_half, -_let_h_half,
             -_let_h_half, _let_h_quart, _let_h_half, _let_h_quart), group)
 
-def _letter_low_l(x:float, y:float, group:Group):
+def _letter_low_l(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}".format(x + _let_h_quart, y, -_let_h), group)
 
-def _letter_low_m(x:float, y:float, group:Group):
+def _letter_low_m(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}q{} {} {} {}q{} {} {} {}v{}m{} {}q{} {} {} {}q{} {} {} {}v{}"
     .format(x, y, -_let_h_half, 0, _let_h_eight,
             0, -_let_h_eight, _let_h_eight, -_let_h_eight,
@@ -276,14 +277,14 @@ def _letter_low_m(x:float, y:float, group:Group):
             _let_h_eight, 0, _let_h_eight, _let_h_eight,
             _let_h_quart + _let_h_eight), group)
 
-def _letter_low_n(x:float, y:float, group:Group):
+def _letter_low_n(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}q{} {} {} {}q{} {} {} {}v{}"
     .format(x, y, -_let_h_half, 0, _let_h_quart,
             0, -_let_h_quart, _let_h_quart, -_let_h_quart,
             _let_h_quart, 0, _let_h_quart, _let_h_quart,
             _let_h_quart), group)
 
-def _letter_low_o(x:float, y:float, group:Group):
+def _letter_low_o(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
     .format(x + _let_h_quart, y,
             -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
@@ -291,7 +292,7 @@ def _letter_low_o(x:float, y:float, group:Group):
             _let_h_quart, 0, _let_h_quart, _let_h_quart,
             0, _let_h_quart, -_let_h_quart, _let_h_quart), group)
 
-def _letter_low_p(x:float, y:float, group:Group):
+def _letter_low_p(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}m{} {}v{}"
     .format(x, y - _let_h_quart,
             0, -_let_h_quart, _let_h_quart, -_let_h_quart,
@@ -300,7 +301,7 @@ def _letter_low_p(x:float, y:float, group:Group):
             -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
             0, -_let_h_quart, _let_h_half + _let_h_quart), group)
 
-def _letter_low_q(x:float, y:float, group:Group):
+def _letter_low_q(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}m{} {}v{}"
     .format(x + _let_h_half, y - _let_h_quart,
             0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
@@ -309,13 +310,13 @@ def _letter_low_q(x:float, y:float, group:Group):
             _let_h_quart, 0, _let_h_quart, -_let_h_quart,
             0, -_let_h_quart, _let_h_half + _let_h_quart), group)
 
-def _letter_low_r(x:float, y:float, group:Group):
+def _letter_low_r(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}q{} {} {} {}q{} {} {} {}"
     .format(x, y, -_let_h_half, 0, _let_h_quart,
             0, -_let_h_quart, _let_h_quart, -_let_h_quart,
             _let_h_quart, 0, _let_h_quart, _let_h_quart), group)
 
-def _letter_low_s(x:float, y:float, group:Group):
+def _letter_low_s(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}q{} {} {} {}q{} {} {} {}h{}q{} {} {} {}q{} {} {} {}h{}"
     .format(x, y, _let_h_quart + _let_h_eight,
             _let_h_eight, 0, _let_h_eight, -_let_h_eight,
@@ -325,23 +326,23 @@ def _letter_low_s(x:float, y:float, group:Group):
             0, -_let_h_eight, _let_h_eight, -_let_h_eight,
             _let_h_quart + _let_h_eight), group)
 
-def _letter_low_t(x:float, y:float, group:Group):
+def _letter_low_t(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}h{}"
     .format(x + _let_h_quart, y, -_let_h_half - _let_h_quart,
             -_let_h_quart, _let_h_quart, _let_h_half), group)
 
-def _letter_low_u(x:float, y:float, group:Group):
+def _letter_low_u(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}q{} {} {} {}q{} {} {} {}m{} {}v{}"
     .format(x, y - _let_h_half, _let_h_quart,
             0, _let_h_quart, _let_h_quart, _let_h_quart,
             _let_h_quart, 0, _let_h_quart, -_let_h_quart,
             0, _let_h_quart, -_let_h_half), group)
 
-def _letter_low_v(x:float, y:float, group:Group):
+def _letter_low_v(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}l{} {}"
     .format(x, y - _let_h_half, _let_h_quart, _let_h_half, _let_h_quart, -_let_h_half), group)
 
-def _letter_low_w(x:float, y:float, group:Group):
+def _letter_low_w(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}q{} {} {} {}q{} {} {} {}v{}m{} {}q{} {} {} {}q{} {} {} {}m{} {}v{}"
     .format(x, y - _let_h_half, _let_h_quart + _let_h_eight,
             0, _let_h_eight, _let_h_eight, _let_h_eight,
@@ -351,19 +352,19 @@ def _letter_low_w(x:float, y:float, group:Group):
             _let_h_eight, 0, _let_h_eight, -_let_h_eight,
             0, -_let_h_quart - _let_h_eight, _let_h_half), group)
 
-def _letter_low_x(x:float, y:float, group:Group):
+def _letter_low_x(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}m{} {}l{} {}"
     .format(x, y-_let_h_half, _let_h_half, _let_h_half, 0, -_let_h_half, -_let_h_half, _let_h_half), group)
 
-def _letter_low_y(x:float, y:float, group:Group):
+def _letter_low_y(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}m{} {}l{} {}"
     .format(x, y - _let_h_half, _let_h_quart, _let_h_half, _let_h_quart, -_let_h_half, -_let_h_half + _let_h_eight, _let_h_half + _let_h_quart), group)
 
-def _letter_low_z(x:float, y:float, group:Group):
+def _letter_low_z(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}l{} {}h{}"
     .format(x + _let_h_half, y, -_let_h_half, _let_h_half, -_let_h_half, -_let_h_half), group)
 
-def _number_0(x:float, y:float, group:Group):
+def _number_0(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}m{} {}l{} {}"
     .format(x + _let_h_quart, y,
             -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
@@ -374,11 +375,11 @@ def _number_0(x:float, y:float, group:Group):
             0, _let_h_quart, -_let_h_quart, _let_h_quart,
             -_let_h_quart, -_let_h_quart, _let_h_half, -_let_h_half), group)
 
-def _number_1(x:float, y:float, group:Group):
+def _number_1(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}m{} {}v{}l{} {}"
     .format(x, y, _let_h_half, -_let_h_quart, 0, -_let_h, -_let_h_quart, _let_h_quart), group)
 
-def _number_2(x:float, y:float, group:Group):
+def _number_2(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}v{}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
     .format(x + _let_h_half, y, -_let_h_half, -_let_h_quart,
             0, -_let_h_quart, _let_h_quart, -_let_h_quart,
@@ -386,7 +387,7 @@ def _number_2(x:float, y:float, group:Group):
             0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
             -_let_h_quart, 0, -_let_h_quart, _let_h_quart), group)
 
-def _number_3(x:float, y:float, group:Group):
+def _number_3(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}q{} {} {} {}q{} {} {} {}h{}m{} {}q{} {} {} {}q{} {} {} {}h{}"
     .format(x, y, _let_h_quart,
             _let_h_quart, 0, _let_h_quart, -_let_h_quart,
@@ -396,18 +397,18 @@ def _number_3(x:float, y:float, group:Group):
             0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
             -_let_h_quart), group)
 
-def _number_4(x:float, y:float, group:Group):
+def _number_4(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}h{}m{} {}v{}"
     .format(x, y - _let_h, _let_h_half, _let_h_half, 0, _let_h_half, -_let_h), group)
 
-def _number_5(x:float, y:float, group:Group):
+def _number_5(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}v{}h{}q{} {} {} {}q{} {} {} {}h{}"
     .format(x + _let_h_half, y - _let_h, -_let_h_half, _let_h_half, _let_h_quart,
             _let_h_quart, 0, _let_h_quart, _let_h_quart,
             0, _let_h_quart, -_let_h_quart, _let_h_quart,
             -_let_h_quart), group)
 
-def _number_6(x:float, y:float, group:Group):
+def _number_6(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}"
     .format(x + _let_h_half, y - _let_h, -_let_h_quart,
             -_let_h_quart, 0, -_let_h_quart, _let_h_quart,
@@ -417,11 +418,11 @@ def _number_6(x:float, y:float, group:Group):
             0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
             -_let_h_quart), group)
 
-def _number_7(x:float, y:float, group:Group):
+def _number_7(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}l{} {}"
     .format(x, y - _let_h, _let_h_half, -_let_h_half, _let_h), group)
 
-def _number_8(x:float, y:float, group:Group):
+def _number_8(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
     .format(x + _let_h_quart, y - _let_h,
             _let_h_quart, 0, _let_h_quart, _let_h_quart,
@@ -433,7 +434,7 @@ def _number_8(x:float, y:float, group:Group):
             -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
             0, -_let_h_quart, _let_h_quart, -_let_h_quart), group)
 
-def _number_9(x:float, y:float, group:Group):
+def _number_9(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}"
     .format(x, y, _let_h_quart,
             _let_h_quart, 0, _let_h_quart, -_let_h_quart,
@@ -443,11 +444,11 @@ def _number_9(x:float, y:float, group:Group):
             0, _let_h_quart, _let_h_quart, _let_h_quart,
             _let_h_quart), group)
 
-def _punc_exclamation(x:float, y:float, group:Group):
+def _punc_exclamation(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}v{}"
     .format(x + _let_h_quart, y - _let_h, _let_h_half + _let_h_eight, 0, _let_h_quart, _let_h_eight), group)
 
-def _punc_at(x:float, y:float, group:Group):
+def _punc_at(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}"
     .format(x + _let_h_quart, y,
             -_let_h_quart, 0, -_let_h_quart, -_let_h_quart,
@@ -463,12 +464,12 @@ def _punc_at(x:float, y:float, group:Group):
             0, _let_h_eight, _let_h_eight, _let_h_eight,
             _let_h_eight, 0, _let_h_eight, -_let_h_eight), group)
 
-def _punc_pound(x:float, y:float, group:Group):
+def _punc_pound(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}v{}M{} {}h{}m{} {}h{}"
     .format(x + _let_h_eight, y, -_let_h, _let_h_quart, 0, _let_h,
             x, y - _let_h_quart, _let_h_half, 0, -_let_h_half, -_let_h_half), group)
 
-def _punc_dollar(x:float, y:float, group:Group):
+def _punc_dollar(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}M{} {}v{}"
     .format(x, y - (_let_h_fifth / 2), _let_h_quart,
             _let_h_quart, 0, _let_h_quart, -_let_h_fifth,
@@ -477,17 +478,17 @@ def _punc_dollar(x:float, y:float, group:Group):
             0, -_let_h_fifth, _let_h_quart, -_let_h_fifth,
             _let_h_quart, x + _let_h_quart, y, -_let_h), group)
 
-def _punc_percent(x:float, y:float, group:Group):
+def _punc_percent(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}"
     .format(x, y, _let_h_half, -_let_h), group)
   draw_circ(x + _let_h_eight, y - _let_h + _let_h_eight, _let_h_eight, group)
   draw_circ(x + _let_h_eight + _let_h_quart, y - _let_h_eight, _let_h_eight, group)
 
-def _punc_carrot(x:float, y:float, group:Group):
+def _punc_carrot(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}l{} {}"
     .format(x, y - _let_h + _let_h_quart, _let_h_quart, -_let_h_quart, _let_h_quart, _let_h_quart), group)
 
-def _punc_and(x:float, y:float, group:Group):
+def _punc_and(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}L{} {}"
     .format(x + _let_h_half, y - _let_h_half, _let_h_quart,
             0, _let_h_quart, -_let_h_quart, _let_h_quart,
@@ -501,35 +502,35 @@ def _punc_and(x:float, y:float, group:Group):
             _let_h_eight,
             x + _let_h_half, y), group)
 
-def _punc_star(x:float, y:float, group:Group):
+def _punc_star(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}l{} {}m{} {}l{} {}"
     .format(x + _let_h_quart, y - _let_h_quart + _let_h_eight, -_let_h_half -_let_h_quart,
             -_let_h_quart, _let_h_eight, _let_h_half, _let_h_half, 0,
             -_let_h_half, -_let_h_half, _let_h_half), group)
 
-def _punc_left_paren(x:float, y:float, group:Group):
+def _punc_left_paren(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}"
     .format(x + _let_h_half - _let_h_eight, y, -_let_h_half, -_let_h_half, 0, -_let_h), group)
 
-def _punc_right_paren(x:float, y:float, group:Group):
+def _punc_right_paren(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}"
     .format(x + _let_h_eight, y, _let_h_half, -_let_h_half, 0, -_let_h), group)
 
-def _punc_dash(x:float, y:float, group:Group):
+def _punc_dash(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}".format(x, y - _let_h_half, _let_h_half), group)
 
-def _punc_underscore(x:float, y:float, group:Group):
+def _punc_underscore(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}".format(x, y, _let_h_half), group)
 
-def _punc_plus(x:float, y:float, group:Group):
+def _punc_plus(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}m{} {}v{}"
     .format(x, y - _let_h_half, _let_h_half, -_let_h_quart, -_let_h_quart, _let_h_half), group)
 
-def _punc_equals(x:float, y:float, group:Group):
+def _punc_equals(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}m{} {}h{}"
     .format(x, y - _let_h_half + _let_h_eight, _let_h_half, 0, -_let_h_quart, -_let_h_half), group)
 
-def _punc_left_brace(x:float, y:float, group:Group):
+def _punc_left_brace(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}h{}"
     .format(x + _let_h_quart + _let_h_eight, y, -_let_h_eight,
             -_let_h_eight, 0, -_let_h_eight, -_let_h_eight,
@@ -540,7 +541,7 @@ def _punc_left_brace(x:float, y:float, group:Group):
             0, -_let_h_eight, _let_h_eight, -_let_h_eight,
             _let_h_eight), group)
 
-def _punc_right_brace(x:float, y:float, group:Group):
+def _punc_right_brace(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}q{} {} {} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}h{}"
     .format(x + _let_h_quart - _let_h_eight, y, _let_h_eight,
             _let_h_eight, 0, _let_h_eight, -_let_h_eight,
@@ -551,44 +552,44 @@ def _punc_right_brace(x:float, y:float, group:Group):
             0, -_let_h_eight, -_let_h_eight, -_let_h_eight,
             -_let_h_eight), group)
 
-def _punc_left_bracket(x:float, y:float, group:Group):
+def _punc_left_bracket(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}v{}h{}"
     .format(x + _let_h_quart + _let_h_eight, y, -_let_h_quart, -_let_h, _let_h_quart), group)
 
-def _punc_right_bracket(x:float, y:float, group:Group):
+def _punc_right_bracket(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}v{}h{}"
     .format(x + _let_h_quart - _let_h_eight, y, +_let_h_quart, -_let_h, -_let_h_quart), group)
 
-def _punc_backslash(x:float, y:float, group:Group):
+def _punc_backslash(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}"
     .format(x, y - _let_h, _let_h_half, _let_h), group)
 
-def _punc_line(x:float, y:float, group:Group):
+def _punc_line(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}"
     .format(x + _let_h_quart, y, -_let_h), group)
 
-def _punc_comma(x:float, y:float, group:Group):
+def _punc_comma(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}v{}"
     .format(x + _let_h_quart - _let_h_eight, y,
             _let_h_eight, 0, _let_h_eight, -_let_h_eight, -_let_h_eight), group)
 
-def _punc_period(x:float, y:float, group:Group):
+def _punc_period(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}".format(x + _let_h_quart, y, -_let_h_eight), group)
 
-def _punc_slash(x:float, y:float, group:Group):
+def _punc_slash(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}".format(x, y, _let_h_half, -_let_h), group)
 
-def _punc_left_arrow(x:float, y:float, group:Group):
+def _punc_left_arrow(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}l{} {}"
     .format(x + _let_h_quart + _let_h_eight, y - _let_h_half + _let_h_quart,
             -_let_h_quart, -_let_h_quart, _let_h_quart, -_let_h_quart), group)
 
-def _punc_right_arrow(x:float, y:float, group:Group):
+def _punc_right_arrow(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}l{} {}"
     .format(x + _let_h_quart - _let_h_eight, y - _let_h_half + _let_h_quart,
             _let_h_quart, -_let_h_quart, -_let_h_quart, -_let_h_quart), group)
 
-def _punc_question(x:float, y:float, group:Group):
+def _punc_question(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}v{}q{} {} {} {}q{} {} {} {}v{}q{} {} {} {}h{}q{} {} {} {}v{}"
     .format(x + _let_h_quart, y, -_let_h_eight, 0, -_let_h_quart, -_let_h_eight,
             0, -_let_h_eight, _let_h_eight, -_let_h_eight,
@@ -599,28 +600,28 @@ def _punc_question(x:float, y:float, group:Group):
             -_let_h_eight, 0, -_let_h_eight, _let_h_eight,
             _let_h_eight), group)
 
-def _punc_semicolon(x:float, y:float, group:Group):
+def _punc_semicolon(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}v{}m{} {}v{}"
     .format(x + _let_h_quart - _let_h_eight, y,
             _let_h_eight, 0, _let_h_eight, -_let_h_eight, -_let_h_eight,
             0, -_let_h_quart, -_let_h_eight), group)
 
-def _punc_colon(x:float, y:float, group:Group):
+def _punc_colon(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}v{}"
     .format(x + _let_h_quart, y - _let_h_quart, -_let_h_eight, 0, -_let_h_quart, -_let_h_eight), group)
 
-def _punc_single_quote(x:float, y:float, group:Group):
+def _punc_single_quote(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}".format(x + _let_h_quart, y - _let_h + _let_h_eight, _let_h_eight), group)
 
-def _punc_double_quote(x:float, y:float, group:Group):
+def _punc_double_quote(x:float, y:float, group:'Group'):
   draw_path("M{} {}v{}m{} {}v{}"
     .format(x + _let_h_quart - _let_h_sixt, y - _let_h + _let_h_eight, _let_h_eight, _let_h_eight, 0, -_let_h_eight), group)
 
-def _punc_back_tick(x:float, y:float, group:Group):
+def _punc_back_tick(x:float, y:float, group:'Group'):
   draw_path("M{} {}l{} {}"
     .format(x + _let_h_eight, y-_let_h, _let_h_quart, _let_h_quart), group)
 
-def _punc_tilde(x:float, y:float, group:Group):
+def _punc_tilde(x:float, y:float, group:'Group'):
   draw_path("M{} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}q{} {} {} {}"
     .format(x, y - _let_h_half,
             0, -_let_h_eight, _let_h_eight, -_let_h_eight,
@@ -628,7 +629,7 @@ def _punc_tilde(x:float, y:float, group:Group):
             0, _let_h_eight, _let_h_eight, _let_h_eight,
             _let_h_eight, 0, _let_h_eight, -_let_h_eight), group)
 
-def _letter_low_e_accent(x:float, y:float, group:Group):
+def _letter_low_e_accent(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}q{} {} {} {}q{} {} {} {}q{} {} {} {}h{}M{} {}l{} {}"
     .format(x, y - _let_h_quart, _let_h_half,
             0, -_let_h_quart, -_let_h_quart, -_let_h_quart,
@@ -637,14 +638,14 @@ def _letter_low_e_accent(x:float, y:float, group:Group):
             _let_h_quart - _let_h_eight, x + _let_h_eight, y - _let_h_half - _let_h_eight,
             _let_h_quart, -_let_h_quart), group)
 
-def _letter_cap_e_accent(x:float, y:float, group:Group):
+def _letter_cap_e_accent(x:float, y:float, group:'Group'):
   draw_path("M{} {}h{}v{}h{}m{} {}h{}M{} {}l{} {}"
     .format(x + _let_h_half, y, -_let_h_half, -_let_h,
             _let_h_half, -_let_h_half, _let_h_half, _let_h_quart,
             x + _let_h_eight, y - _let_h - _let_h_eight,
             _let_h_quart, -_let_h_quart), group)
 
-def draw_text(x:float, y:float, kern:float, value:str, group:Group):
+def draw_text(x:float, y:float, kern:float, value:str, group:'Group'):
   for char in value:
     # draw_rect(x, y - _let_h, _let_h_half, _let_h, group)
     # draw_path(f"M{x} {y - _let_h_half}h{_let_h_half}", group)

@@ -1,6 +1,5 @@
-from lib_math import *
-from lib_path import *
-from typing import List
+from lib import *
+
 
 class _SnakeNode:
   def __init__(self, point: Point, index: int, width: float) -> None:
@@ -79,6 +78,8 @@ def _pixels_in_range(x: int, y: int, min: int, max: int) -> List[tuple[int, int]
 
 
 def draw_snake_from_points(line: List[Point], params: SnakeOptions, inflate_step: float) -> List[List[Point]]:
+  reload_libs(globals())
+
   # Generate flowing lines
   ribs_subdivide_centers = generate_centerpoints(line)
   points = generate_final_points(line, ribs_subdivide_centers, params.step_dist)

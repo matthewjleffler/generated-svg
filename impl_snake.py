@@ -1,13 +1,8 @@
 from lib import *
-from lib_math import *
-from lib_path import *
-from lib_poly import *
-from lib_maze import *
-from lib_snake import *
-from lib_triangle import *
-from lib_node import *
-from typing import List
-from enum import Enum
+import build_triangle
+import build_maze
+import build_snake
+
 
 ###
 ### Snake Bones
@@ -26,7 +21,8 @@ class SnakeParams(BaseParams):
   def __init__(self, defaults: Defaults) -> None:
     self.draw: bool = True
     self.debug_draw_boundary: bool = True
-    self.cell_size = 90
+    self.debug_draw_points: bool = False
+    self.cell_size = 100
     self.do_shuffle: bool = True
     self.shuffle: RangeFloat = RangeFloat(0, .5)
     self.line_type: _SnakeType = _SnakeType.maze
@@ -35,19 +31,19 @@ class SnakeParams(BaseParams):
     self.cap_percent: RangeFloat = RangeFloat(.5, .99)
 
     # SnakeOptions
-    self.draw_spine: bool = True
+    self.draw_spine: bool = False
     self.draw_head: bool = False
     self.draw_ribs: bool = True
     # 3 for sharpie pens, 4 (3.5?) for 0.5 isograph
     self.step_dist: float = 2
     self.do_inflate: bool = False
-    self.inflate_factor: float = 1.2
-    self.end_falloff: float = .02
+    self.inflate_factor: float = 1.5
+    self.end_falloff: float = .05
     self.do_average: bool = True
     self.smoothing_range: int = 60
     self.smoothing_steps: int = 1
-    self.do_inflate_corners: bool = True
-    self.inflate_corner_factor: float = 1.1
+    self.do_inflate_corners: bool = False
+    self.inflate_corner_factor: float = 1
     self.do_final_average: bool = False
     self.final_average_weight: int = 2
     self.do_rib_shuffle: bool = True
@@ -55,7 +51,6 @@ class SnakeParams(BaseParams):
     self.break_count: int = 0
     self.original_ribs: bool = False
     self.rib_range: RangeInt = RangeInt(3, 10)
-
 
     # MazeOptions
     self.close_path: bool = False
@@ -79,24 +74,25 @@ class SnakeParams(BaseParams):
 
 
 def draw_snake(params: SnakeParams, group: Group, seed: int):
+  reload_libs(globals())
+
   pad = svg_safe().copy()
 
   # Draw safety border and page border
   if params.debug_draw_boundary:
     draw_border(group)
 
-
   if params.line_type == _SnakeType.maze:
-    maze_size = MazeSize(params.cell_size, pad)
+    maze_size = build_maze.MazeSize(params.cell_size, pad)
 
     # Make maze
-    line: List[Point] = make_maze_line(maze_size, params)
+    line: List[Point] = build_maze.make_maze_line(maze_size, params)
     if len(line) < 1:
       print('0 length maze')
       return
     inflate_step = max(int(min(maze_size.half_w / 2, maze_size.half_h / 2)), 5)
   elif params.line_type == _SnakeType.triangle:
-    triangle_result = create_triangle_lines(pad, params)
+    triangle_result = build_triangle.create_triangle_lines(pad, params)
     line = triangle_result.triangle_points
     inflate_step = max(int(params.triangle_step_size / 4), 5)
 
@@ -119,18 +115,19 @@ def draw_snake(params: SnakeParams, group: Group, seed: int):
       line[i].add_floats(params.shuffle.rand() * maze_size.half_w, params.shuffle.rand() * maze_size.half_h)
 
   # Debug draw the line
+  # draw_point_circles(line, group)
   # draw_point_path(line)
   # # centers = generate_centerpoints(line)
   # # draw_curved_path(line, centers, group)
   # return
 
   random.seed(seed)
-  snake_points = draw_snake_from_points(line, params, inflate_step)
+  snake_points = build_snake.draw_snake_from_points(line, params, inflate_step)
   random.seed(seed)
-  snake_points_spines = draw_snake_from_points(line, params, inflate_step * params.spine_factor)
+  snake_points_spines = build_snake.draw_snake_from_points(line, params, inflate_step * params.spine_factor)
 
   # Do push
-  push_rect = push_lines(snake_points, pad, params, group)
+  push_rect = build_maze.push_lines(snake_points, pad, params, group)
   if not params.debug_draw_boundary or not params.do_push:
     push_rect = None
 
@@ -149,6 +146,11 @@ def draw_snake(params: SnakeParams, group: Group, seed: int):
   scaled_transform = scaled_node.transformation()
   scaled_points = scaled_transform.apply_to_point_arrays(snake_points)
   scaled_spines = scaled_transform.apply_to_point_arrays(snake_points_spines)
+
+  # Debug draw original points
+  if params.debug_draw_points:
+    scaled_originals = scaled_transform.apply_to_point_array(line)
+    draw_point_circles(scaled_originals, group)
 
   draw_boundary = try_get(params, 'debug_draw_boundary', False)
   rib_group = group

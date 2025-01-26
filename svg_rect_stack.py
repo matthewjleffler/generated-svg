@@ -1,4 +1,5 @@
-from impl_stack import *
+from lib import *
+import impl_stack as impl
 
 
 class RectStackRunner(Runner):
@@ -6,11 +7,12 @@ class RectStackRunner(Runner):
     super().__init__("rect-stack")
 
   def loop(self, defaults: Defaults, group: Group, seed: int):
-    params = RectStackParams(defaults)
-    draw_rect_stack(params, group)
+    params = impl.RectStackParams(defaults)
+    impl.draw_rect_stack(params, group)
     return params
 
   def run(self, defaults: Defaults) -> int:
+    reload_libs(globals())
     mainseed = main(self.dir, "main", defaults, defaults.seed, self.loop)
     return mainseed
 
