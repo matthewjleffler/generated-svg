@@ -10,64 +10,83 @@ from enum import Enum
 ###
 
 _esc_code = 27
+_lock_seed = False
+_last_seed = 0
 
-class _Result(Enum):
+class __Input(Enum):
   Continue = 1
   Save = 2
   Quit = 3
+  LockSeed = 4
+
+
+class __Result:
+  def __init__(self, current: Defaults, quit: bool, run_next: bool):
+    self.current = current
+    self.quit = quit
+    self.run_next = run_next
+
 
 def _remove_suffix(input_string:str, suffix:str) -> str:
   if suffix and input_string.endswith(suffix):
       return input_string[:-len(suffix)]
   return input_string
 
-def _wait_on_input(key:KeyPoller) -> _Result:
-  print("Press [s] to save last output, [esc] to quit, or any other key to re-run...\n")
+def _wait_on_input(key:KeyPoller) -> __Input:
+  print("Press [s] to save last output, [esc] to quit, [l] to un/lock seed, or any other key to re-run...\n")
   while True:
     char = key.poll()
     if char is not None:
       char = char.lower()
       code = ord(char)
       if char == "s":
-        return _Result.Save
+        return __Input.Save
+      if char == "l":
+        return __Input.LockSeed
       elif code == _esc_code:
-        return _Result.Quit
+        return __Input.Quit
       else:
-        return _Result.Continue
+        return __Input.Continue
 
-def _poll_after_sleep(key:KeyPoller) -> _Result:
-  char = key.poll()
-  if char is not None:
-    char = char.lower()
-    code = ord(char)
-    if char == "s":
-      return _Result.Save
-    elif code == _esc_code:
-      return _Result.Quit
-  return _Result.Continue
 
 def _run_step(
-    runner:Runner,
-    wait:float,
-    key:KeyPoller,
-    current:Defaults,
-    defaults:Defaults
-  ) -> tuple[Defaults, bool]:
-  lastseed = runner.run(current)
-  if wait <= 0:
-    result = _wait_on_input(key)
-  else:
-    print("") # Empty line between runs
-    time.sleep(wait)
-    result = _poll_after_sleep(key)
+    runner: Runner,
+    key: KeyPoller,
+    current: Defaults,
+    defaults: Defaults,
+    run_next: bool
+  ) -> __Result:
+  global _lock_seed, _last_seed
 
-  if result == _Result.Save:
+  if run_next:
+    _last_seed = runner.run(current)
+
+  keypress = _wait_on_input(key)
+  if keypress == __Input.Save:
     print("Saving last output...")
-    return (Defaults(False, lastseed, current.size, current.params), False)
-  elif result == _Result.Quit:
-    return (defaults, True)
+    return __Result(Defaults(False, _last_seed, current.size, current.params), False, True)
+
+  elif keypress == __Input.Quit:
+    return __Result(None, True, False)
+
+  elif keypress == __Input.LockSeed:
+    if _lock_seed:
+      _lock_seed = False
+      print("Unlocked seed")
+    else:
+      _lock_seed = True
+      print(f"Locked seed: {_last_seed}")
+
+    next_defaults = defaults.copy()
+    if _lock_seed:
+      next_defaults.seed = _last_seed
+    return __Result(next_defaults, False, False)
+
   else:
-    return (defaults, False)
+    next_defaults = defaults.copy()
+    if _lock_seed:
+      next_defaults.seed = _last_seed
+    return __Result(next_defaults, False, True)
 
 def run():
   args = Args()
@@ -102,14 +121,16 @@ def run():
     return
 
   defaults = args.get_defaults(True, 0, (9, 12))
-  wait = args.get_float("wait", 0)
 
   with KeyPoller() as key:
     current = defaults
+    run_next = True
     while True:
       module = importlib.reload(module)
-      (current, quit) = _run_step(module.runner, wait, key, current, defaults)
-      if quit:
+      result = _run_step(module.runner, key, current, defaults, run_next)
+      current = result.current
+      run_next = result.run_next
+      if result.quit:
         print("Escape pressed.")
         return
 

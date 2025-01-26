@@ -100,6 +100,10 @@ class Defaults:
     self.size:tuple[float, float] = size
     self.params:dict[str] = params
 
+  def copy(self) -> 'Defaults':
+    return Defaults(self.test, self.seed, self.size, self.params)
+
+
 class BaseParams:
   def __init__(self, defaults: Defaults) -> None:
     self._apply_params(defaults)
