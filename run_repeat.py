@@ -1,4 +1,5 @@
 import importlib
+import os
 import time
 from lib import Args, Defaults, Runner
 from libraries.lib_input import *
@@ -13,6 +14,15 @@ _esc_code = 27
 _lock_seed = False
 _last_seed = 0
 
+# Auto run settings
+_last_modified_file = 0
+_run_auto = True
+_time_delta = .2 # Fractions of a second
+search_dirs = [
+  "impl",
+  "drawing",
+]
+
 class __Input(Enum):
   Continue = 1
   Save = 2
@@ -26,6 +36,22 @@ class __Result:
     self.quit = quit
     self.run_next = run_next
 
+def _get_last_modified_recursive(dir_path: str) -> int:
+  files = os.listdir(dir_path)
+  latest = 0
+  for file in files:
+    full_path = os.path.join(dir_path, file)
+    if os.path.isdir(file):
+      if not file in search_dirs:
+        continue
+      rec_latest = _get_last_modified_recursive(full_path)
+      latest = max(rec_latest, latest)
+      continue
+    if not file.endswith(".py"):
+      continue
+    file_latest = os.path.getmtime(full_path)
+    latest = max(latest, file_latest)
+  return latest
 
 def _remove_suffix(input_string:str, suffix:str) -> str:
   if suffix and input_string.endswith(suffix):
@@ -33,8 +59,21 @@ def _remove_suffix(input_string:str, suffix:str) -> str:
   return input_string
 
 def _wait_on_input(key:KeyPoller) -> __Input:
+  global _last_modified_file
+
+  last_check_time = time.time()
+
   print("Press [s] to save last output, [esc] to quit, [l] to un/lock seed, or any other key to re-run...\n")
   while True:
+    if _run_auto:
+      now = time.time()
+      if now - last_check_time > _time_delta:
+        last_check_time = now
+        new_modified = _get_last_modified_recursive('.')
+        if new_modified > _last_modified_file:
+          _last_modified_file = new_modified
+          return __Input.Continue
+
     char = key.poll()
     if char is not None:
       char = char.lower()
@@ -90,6 +129,7 @@ def _run_step(
 
 def run():
   args = Args()
+  global _last_modified_file, _run_auto
 
   if args.positional_count() < 1:
     print("Please supply a script")
@@ -101,6 +141,7 @@ def run():
     print('    size:       --size=[w]x[h]')
     print('    seed:       --seed=[seed]')
     print('    test:       --test=[true/t]')
+    print('    auto:       --auto=[true/t]')
     print('  Params:')
     print('    int/float:  ++[param name]=[val]')
     print('    bool:       ++[param name]=[t/true/f/false]')
@@ -109,6 +150,9 @@ def run():
     print('    weight:     ++[param name]=w:[val,weight]:[val,weight]:...')
     print('')
     return
+
+  if not args.get_bool('auto', True):
+    _run_auto = False
 
   module_path = args.positional_str(0)
   if module_path.endswith(".py"):
@@ -121,6 +165,7 @@ def run():
     return
 
   defaults = args.get_defaults(True, 0, (9, 12))
+  _last_modified_file = _get_last_modified_recursive('.')
 
   with KeyPoller() as key:
     current = defaults
