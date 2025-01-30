@@ -1,6 +1,7 @@
 from lib import *
 import drawing.build_triangle as build_triangle
 import drawing.build_maze as build_maze
+import drawing.build_push as build_push
 
 
 ###
@@ -38,7 +39,7 @@ class TriangleParams(BaseParams):
     super().__init__(defaults)
 
 
-def draw_triangle(params:TriangleParams, group:Group):
+def draw_triangle(params:TriangleParams, seed: int, group:Group):
   reload_libs(globals())
 
   pad_rect = svg_safe().copy()
@@ -93,7 +94,7 @@ def draw_triangle(params:TriangleParams, group:Group):
       triangle_lines[i] = subdivide_point_path(triangle_lines[i], subdivision_range)
     for i in range(0, len(background_lines)):
       background_lines[i] = subdivide_point_path(background_lines[i], subdivision_range)
-  push_rect = build_maze.push_lines(triangle_lines + background_lines, pad_rect, params, group)
+  push_rect = build_push.push_lines(triangle_lines + background_lines, pad_rect, params, seed, group)
 
   # Re-encapsulate all the points and recaclulate scale
   expand.add_lists(triangle_lines)

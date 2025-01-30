@@ -33,28 +33,6 @@ class MazeOptions:
   close_path: bool
   do_inset: bool
 
-
-# A 'type definition'
-class PushOptions:
-  debug_draw_boundary: bool
-  do_push: bool
-  random_push: bool
-  push_pad_range_max: float
-  push_pad_range_offset: float
-  push_num: RangeInt
-  push_line_cell_size: RangeFloat
-  push_line_step_size: float
-  push_range: RangeFloat
-  push_strength: RangeFloat
-
-
-class _Pusher:
-  def __init__(self, origin: Point, params: PushOptions):
-    self.origin = origin
-    self.range = params.push_range.rand()
-    self.strength = params.push_strength.rand()
-
-
 class _Connect:
   def __init__(self) -> None:
     self.right = False
@@ -247,65 +225,3 @@ def make_maze_line(size: MazeSize, options: MazeOptions) -> List[Point]:
     line.append(Point(x, y).multiply_point(size.node_scale).add(size.origin))
 
   return line
-
-def push_line(line: List[Point], rect: Rect, params: PushOptions, group: Group) -> Rect:
-  return push_lines([line], rect, params, group)
-
-def push_lines(lines: List[List[Point]], rect: Rect, params: PushOptions, group: Group) -> Rect:
-  reload_libs(globals())
-
-  # Do push randomization independent of draw
-  pushers: List[_Pusher] = []
-  pad_x = rect.w * params.push_pad_range_max
-  pad_y = rect.h * params.push_pad_range_max
-  pad_offset_x = rect.w * params.push_pad_range_offset
-  pad_offset_y = rect.h * params.push_pad_range_offset
-  push_pad_x = RangeFloat(-pad_x, pad_x)
-  push_pad_y = RangeFloat(-pad_y, pad_y)
-  push_pad_offset_x = RangeFloat(-pad_offset_x, pad_offset_x)
-  push_pad_offset_y = RangeFloat(-pad_offset_y, pad_offset_y)
-  push_rect = rect.shrink_xy_copy(push_pad_x.rand(), push_pad_y.rand())
-  push_rect.x += push_pad_offset_x.rand()
-  push_rect.y += push_pad_offset_y.rand()
-  if params.random_push:
-    num_pushers = params.push_num.rand()
-    for _ in range(0, num_pushers):
-      origin = Point(RangeFloat(push_rect.x, push_rect.right()).rand(), RangeFloat(push_rect.y, push_rect.bottom()).rand())
-      pushers.append(_Pusher(origin, params))
-  else:
-    push_cell = params.push_line_cell_size.rand()
-    push_size = MazeSize(push_cell, push_rect)
-    push_options = MazeOptions()
-    push_options.close_path = True
-    push_options.do_inset = False
-    push_line = make_maze_line(push_size, push_options)
-    push_center = generate_centerpoints(push_line)
-    push_divisions = generate_final_points(push_line, push_center, params.push_line_step_size)
-
-    # Draw debug
-    # new_group = open_group(GroupSettings(stroke=GroupColor.red), group)
-    # draw_point_circles(push_divisions, new_group)
-    # close_group()
-
-    for point in push_divisions:
-      pushers.append(_Pusher(point, params))
-
-  # Draw push
-  if params.do_push:
-    push_index = 0
-    print_overwrite('Pushing...')
-    for push in pushers:
-      push_index += 1
-      print_overwrite(f"Running push {pad_max(push_index, len(pushers))} ...")
-      for line in lines:
-        for point in line:
-          delta = point.subtract_copy(push.origin)
-          delta_len = delta.length()
-          if delta_len > push.range:
-            continue
-          t = 1 - (delta_len / push.range)
-          push_amount = ease_in_out_quad(t, 0, push.strength, 1)
-          point.add(delta.normalize().multiply(push_amount))
-    print_finish_overwite()
-
-  return push_rect

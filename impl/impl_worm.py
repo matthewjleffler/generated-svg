@@ -136,7 +136,7 @@ class LongWormParams(BaseParams):
 
     self._apply_params(defaults)
 
-class HighlightType(IntEnum):
+class HighlightType(ReloadIntEnum):
   Circle = 0
   DoubleRing = 1,
   SunRing = 2,
@@ -300,7 +300,7 @@ def draw_long_worm(params:LongWormParams, group:Group):
 
 # Spiral Worm Drawing
 
-class SpiralWormBorderType(Enum):
+class SpiralWormBorderType(ReloadEnum):
   Empty = 0
   Sunburst = 1
   Circles = 2

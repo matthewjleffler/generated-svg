@@ -1,5 +1,6 @@
 from lib import *
 import drawing.build_maze as build_maze
+import drawing.build_push as build_push
 
 
 ###
@@ -30,7 +31,7 @@ class LinesParams(BaseParams):
     super().__init__(defaults)
 
 
-def draw_lines(params: LinesParams, group: Group):
+def draw_lines(params: LinesParams, seed: int, group: Group):
   reload_libs(globals())
 
   pad = svg_safe().copy()
@@ -60,7 +61,7 @@ def draw_lines(params: LinesParams, group: Group):
     sub = subdivide_point_path(line, subdivision_range)
     subdivided.append(sub)
 
-  push_rect = build_maze.push_lines(subdivided, pad, params, group)
+  push_rect = build_push.push_lines(subdivided, pad, params, seed, group)
 
   # Encapsulate
   expand = ExpandingVolume()

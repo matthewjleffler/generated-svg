@@ -6,7 +6,7 @@ from lib import *
 ###
 
 
-class BorderType(IntEnum):
+class BorderType(ReloadIntEnum):
   Empty = 0
   Circles = 1
   Starburst = 2

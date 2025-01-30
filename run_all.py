@@ -14,6 +14,7 @@ def run():
 
   args = Args()
   defaults = args.get_defaults(True, 0, (9, 12))
+  defaults.throw_on_fail = True
 
   scripts = listdir('.')
   module_paths: List[str] = []

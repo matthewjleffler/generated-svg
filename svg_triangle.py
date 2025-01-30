@@ -8,7 +8,7 @@ class TriangleRunner(Runner):
 
   def loop(self, defaults: Defaults, group: Group, seed: int):
     params = impl.TriangleParams(defaults)
-    impl.draw_triangle(params, group)
+    impl.draw_triangle(params, seed, group)
     return params
 
   def run(self, defaults: Defaults) -> int:

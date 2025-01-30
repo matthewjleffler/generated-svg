@@ -7,7 +7,6 @@ from os import listdir
 from libraries.lib_group import *
 from re import compile
 from math import *
-from enum import StrEnum, Enum, IntEnum
 from typing import List
 from libraries.lib_draw import *
 from libraries.lib_rand import *
@@ -17,6 +16,7 @@ from libraries.lib_path import *
 from libraries.lib_text import *
 from libraries.lib_node import *
 from libraries.lib_poly import *
+from libraries.lib_enum import *
 
 
 ###
@@ -99,9 +99,12 @@ class Defaults:
     self.seed:int = seed
     self.size:tuple[float, float] = size
     self.params:dict[str] = params
+    self.throw_on_fail:bool = False
 
   def copy(self) -> 'Defaults':
-    return Defaults(self.test, self.seed, self.size, self.params)
+    result = Defaults(self.test, self.seed, self.size, self.params)
+    result.throw_on_fail = self.throw_on_fail
+    return result
 
 
 class BaseParams:
@@ -403,6 +406,8 @@ def main(dir:str, layer: str, defaults: Defaults, seed: int, loop:callable) -> i
   try:
     params = loop(defaults, _root_group, seed)
   except Exception as e:
+    if defaults.throw_on_fail:
+      raise
     print('An error occurred when running the script')
     print(e)
     return seed

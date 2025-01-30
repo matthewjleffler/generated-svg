@@ -8,7 +8,7 @@ class MazeRunner(Runner):
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
     params = impl.MazeParams(defaults)
-    impl.draw_maze(params, group)
+    impl.draw_maze(params, seed, group)
     return params
 
   def run(self, defaults: Defaults) -> int:

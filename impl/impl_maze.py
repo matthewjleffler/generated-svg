@@ -1,12 +1,13 @@
 from lib import *
 import drawing.build_maze as build_maze
+import drawing.build_push as build_push
 
 
 ###
 ### Infinite Maze
 ###
 
-class DrawType(Enum):
+class DrawType(ReloadEnum):
   straight = 0
   curved = 1
   hatched = 2
@@ -42,7 +43,7 @@ class MazeParams(BaseParams):
     super().__init__(defaults)
 
 
-def draw_maze(params: MazeParams, group: Group):
+def draw_maze(params: MazeParams, seed:int, group: Group):
   reload_libs(globals())
 
   pad = svg_safe().copy()
@@ -76,7 +77,7 @@ def draw_maze(params: MazeParams, group: Group):
       point.add_floats(offset_x, offset_y)
 
   # Do push
-  push_rect = build_maze.push_line(line, pad, params, params.draw)
+  push_rect = build_push.push_line(line, pad, params, seed, group)
 
   # Scale output to fit safe area
   expand = ExpandingVolume()

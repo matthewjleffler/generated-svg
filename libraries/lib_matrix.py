@@ -188,6 +188,11 @@ class Matrix:
       result.append(self.apply_to_point_array(list))
     return result
 
+  def apply_to_rect(self, rect: Rect) -> Rect:
+    (x, y) = self.apply_to_floats((rect.x, rect.y))
+    (r, b) = self.apply_to_floats((rect.right(), rect.bottom()))
+    return Rect(x, y, r - x, b - y)
+
   def is_equal(self, other: 'Matrix') -> bool:
     return (
       __is_equal(self._a, other._a) and
