@@ -36,7 +36,7 @@ class SnakeParams(BaseParams):
     self.draw_head: bool = False
     self.draw_ribs: bool = True
     # 3 for sharpie pens, 4 (3.5?) for 0.5 isograph
-    self.step_dist: float = 3
+    self.step_dist: float = 2
     self.do_inflate: bool = False
     self.inflate_factor: float = 1.1
     self.end_falloff: float = .15
@@ -58,12 +58,12 @@ class SnakeParams(BaseParams):
     self.do_inset: bool = False
 
     # PushOptions
-    self.do_push: bool = False
+    self.do_push: bool = True
     self.push_type = build_push.PushType.Perlin
     self.push_pad_range_max: float = .25
     self.push_num: RangeInt = RangeInt(800, 2000)
-    self.push_range: RangeFloat = RangeFloat(400, 800)
-    self.push_strength: RangeFloat = RangeFloat(0.5, 1.5)
+    self.push_range: RangeFloat = RangeFloat(200, 400)
+    self.push_strength: RangeFloat = RangeFloat(0.5, 2)
     self.push_line_cell_size: RangeFloat = RangeFloat(100, 200)
     self.push_line_step_size = 15
     self.perlin_cell_size: float = 20

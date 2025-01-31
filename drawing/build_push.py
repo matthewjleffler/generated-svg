@@ -31,9 +31,9 @@ class _Pusher:
     self.range = range
     self.strength = strength
 
-  def apply_params(self, params: PushOptions) -> '_Pusher':
-    self.range = try_get(params, 'push_range', RangeFloat(400, 800)).rand()
-    self.strength = try_get(params, 'push_strength', RangeFloat(0.5, 2.5)).rand()
+  def apply_params(self, range: RangeFloat, strength: RangeFloat) -> '_Pusher':
+    self.range = range.rand()
+    self.strength = strength.rand()
     return self
 
 
@@ -47,6 +47,8 @@ def push_lines(lines: List[List[Point]], rect: Rect, params: PushOptions, seed: 
   push_type = try_get(params, 'push_type', PushType.Random)
   do_push = try_get(params, 'do_push', True)
   push_pad_range_max = try_get(params, 'push_pad_range_max', 0)
+  push_range = try_get(params, 'push_range', RangeFloat(400, 800))
+  push_strength = try_get(params, 'push_strength', RangeFloat(0.5, 2.5))
 
   if do_push:
     print(push_type)
@@ -58,12 +60,13 @@ def push_lines(lines: List[List[Point]], rect: Rect, params: PushOptions, seed: 
   push_pad_x = RangeFloat(-pad_x, 0)
   push_pad_y = RangeFloat(-pad_y, 0)
   push_rect = rect.shrink_xy_copy(push_pad_x.rand(), push_pad_y.rand())
+  push_offset_index = 0
 
   if push_type == PushType.Random:
     num_pushers = params.push_num.rand()
     for _ in range(0, num_pushers):
       origin = Point(RangeFloat(push_rect.x, push_rect.right()).rand(), RangeFloat(push_rect.y, push_rect.bottom()).rand())
-      pushers.append(_Pusher(origin, 0, 0).apply_params(params))
+      pushers.append(_Pusher(origin, 0, 0).apply_params(push_range, push_strength))
       if debug_draw_boundary:
         draw_circ_point(origin, 5, group)
 
@@ -83,7 +86,7 @@ def push_lines(lines: List[List[Point]], rect: Rect, params: PushOptions, seed: 
     # close_group()
 
     for point in push_divisions:
-      pushers.append(_Pusher(point, 0, 0).apply_params(params))
+      pushers.append(_Pusher(point, 0, 0).apply_params(push_range, push_strength))
 
   if push_type == PushType.Perlin:
     perlin_cell_size = try_get(params, 'perlin_cell_size', 20)
@@ -108,26 +111,23 @@ def push_lines(lines: List[List[Point]], rect: Rect, params: PushOptions, seed: 
         max_sample = max(sample, max_sample)
 
     sample_delta = max_sample - min_sample
-    #TODOML these hard coded values are referenced twice
-    push_range = try_get(params, 'push_range', RangeFloat(400, 800)).rand()
-    push_strength = try_get(params, 'push_strength', RangeFloat(0.5, 2.5)).rand()
+    perlin_range = push_range.rand()
+    perlin_strength = push_strength.rand()
     for x in range(0, push_x + 1):
       for y in range(0, push_y + 1):
         sample = (-min_sample + samples[x * sample_w + y]) / sample_delta
         point = Point(push_rect.x + x * push_w, push_rect.y + y * push_h)
-        pushers.append(_Pusher(point, push_range, push_strength * sample))
-        # draw_circ(
-        #   push_rect.x + x * push_w,
-        #   push_rect.y + y * push_h,
-        #   5 * sample, group)
+        pushers.append(_Pusher(point, perlin_range, perlin_strength * sample))
+
+    push_offset_index = RangeInt(0, len(pushers) - 1).rand()
 
   # Draw push
   if do_push:
-    push_index = 0
     print_overwrite('Pushing...')
-    for push in pushers:
-      push_index += 1
-      print_overwrite(f"Running push {pad_max(push_index, len(pushers))} ...")
+    len_pushers = len(pushers)
+    for i in range(0, len_pushers):
+      push = pushers[(i + push_offset_index) % len_pushers]
+      print_overwrite(f"Running push {pad_max(i, len_pushers)} ...")
       for line in lines:
         for point in line:
           delta = point.subtract_copy(push.origin)
