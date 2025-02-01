@@ -23,7 +23,7 @@ class SnakeParams(BaseParams):
     self.draw: bool = True
     self.debug_draw_boundary: bool = True
     self.debug_draw_points: bool = False
-    self.cell_size = 95
+    self.cell_size = 65
     self.do_shuffle: bool = False
     self.shuffle: RangeFloat = RangeFloat(0, .5)
     self.line_type: _SnakeType = _SnakeType.maze
@@ -36,10 +36,10 @@ class SnakeParams(BaseParams):
     self.draw_head: bool = False
     self.draw_ribs: bool = True
     # 3 for sharpie pens, 4 (3.5?) for 0.5 isograph
-    self.step_dist: float = 2
+    self.step_dist: float = 5
     self.do_inflate: bool = False
     self.inflate_factor: float = 1.1
-    self.end_falloff: float = .15
+    self.end_falloff: float = .002
     self.do_average: bool = True
     self.smoothing_range: int = 20
     self.smoothing_steps: int = 1
@@ -48,26 +48,20 @@ class SnakeParams(BaseParams):
     self.do_final_average: bool = False
     self.final_average_weight: int = 2
     self.do_rib_shuffle: bool = True
-    self.raw_shuffle_amount: RangeFloat = RangeFloat(.05, .2)
+    self.raw_shuffle_amount: RangeFloat = RangeFloat(.05, .5)
     self.break_count: int = 100
     self.original_ribs: bool = False
     self.rib_range: RangeInt = RangeInt(3, 10)
 
     # MazeOptions
-    self.close_path: bool = True
+    self.close_path: bool = False
     self.do_inset: bool = False
 
     # PushOptions
     self.do_push: bool = True
-    self.push_type = build_push.PushType.Perlin
-    self.push_pad_range_max: float = .25
-    self.push_num: RangeInt = RangeInt(800, 2000)
-    self.push_range: RangeFloat = RangeFloat(200, 400)
-    self.push_strength: RangeFloat = RangeFloat(0.5, 2)
-    self.push_line_cell_size: RangeFloat = RangeFloat(100, 200)
-    self.push_line_step_size = 15
-    self.perlin_cell_size: float = 20
-    self.perlin_octave: float = 3
+    self.push_strength: float = 180
+    self.push_strength_octave: float = 4
+    self.push_rotation_octave: float = 2
 
     # TriangleOptions
     self.triangle_step_size = 100
@@ -129,15 +123,13 @@ def draw_snake(params: SnakeParams, group: Group, seed: int):
   snake_points_spines = build_snake.draw_snake_from_points(line, params, inflate_step * params.spine_factor)
 
   # Do push
-  push_rect = build_push.push_lines(snake_points, pad, params, seed, group)
-  if not params.debug_draw_boundary or not params.do_push:
-    push_rect = None
+  build_push.push_lines(snake_points, pad, params, seed, group)
 
   # Expand Boundary
   print_overwrite("Checking volume...")
   expand = ExpandingVolume()
   expand.add_lists(snake_points)
-  expand.add_lists(snake_points_spines)
+  # expand.add_lists(snake_points_spines)
 
   # Calculate scale
   (offset, final_scale) = scale_rect_to_fit(expand.to_rect(), pad)
@@ -161,12 +153,6 @@ def draw_snake(params: SnakeParams, group: Group, seed: int):
   if draw_boundary:
     group_red = open_group(GroupSettings(stroke=GroupColor.red, name="debug_red"), group)
     spine_group = open_group(GroupSettings(stroke=GroupColor.blue, name="debug_blue"), group)
-    if push_rect:
-      scaled_push_rect = scaled_transform.apply_to_rect(push_rect)
-      scaled_rect = scaled_transform.apply_to_rect(pad)
-      draw_rect_rect(scaled_push_rect, group)
-      draw_rect_rect(scaled_rect, group)
-      draw_circ(scaled_push_rect.x, scaled_push_rect.y, 5, group)
 
   # Draw Result
   if params.draw_head:

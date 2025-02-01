@@ -1,5 +1,4 @@
 from lib import *
-import drawing.build_maze as build_maze
 import drawing.build_push as build_push
 
 
@@ -18,15 +17,8 @@ class LinesParams(BaseParams):
     self.break_count = 50
 
     # Push params
-    self.do_push: bool = False
-    self.random_push: bool = False
-    self.push_pad_range_max: float = .25
-    self.push_pad_range_offset: float = 0
-    self.push_num: RangeInt = RangeInt(800, 2000)
-    self.push_range: RangeFloat = RangeFloat(400, 800)
-    self.push_strength: RangeFloat = RangeFloat(0.5, 2.5) # TODOML scale?
-    self.push_line_cell_size: RangeFloat = RangeFloat(100, 200)
-    self.push_line_step_size = 10
+    self.do_push: bool = True
+    self.push_strength: float = 100
 
     super().__init__(defaults)
 
@@ -61,7 +53,7 @@ def draw_lines(params: LinesParams, seed: int, group: Group):
     sub = subdivide_point_path(line, subdivision_range)
     subdivided.append(sub)
 
-  push_rect = build_push.push_lines(subdivided, pad, params, seed, group)
+  build_push.push_lines(subdivided, pad, params, seed, group)
 
   # Encapsulate
   expand = ExpandingVolume()

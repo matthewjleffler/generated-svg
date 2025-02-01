@@ -23,19 +23,14 @@ class MazeParams(BaseParams):
     self.cell_size: int = 7
     self.do_cap: bool = False
     self.cap_percent: RangeFloat = RangeFloat(.8, .99)
-    self.do_push: bool = False
-    self.random_push: bool = False
-    self.push_pad_range_max: float = .25
-    self.push_pad_range_offset: float = .15
-    self.push_num: RangeInt = RangeInt(800, 2000)
-    self.push_range: RangeFloat = RangeFloat(400, 800)
-    self.push_strength: RangeFloat = RangeFloat(0.5, 2.5) # TODOML scale?
-    self.push_line_cell_size: RangeFloat = RangeFloat(100, 200)
-    self.push_line_step_size = 10
     self.cutout_range = 0
     self.do_inset = False
     self.draw_cutout = False
     self.circle_inset = 15
+
+    # Push
+    self.do_push: bool = True
+    self.push_strength: float = 100
 
     self.do_shuffle = True
     self.shuffle_range = RangeFloat(0, .75)
@@ -77,7 +72,7 @@ def draw_maze(params: MazeParams, seed:int, group: Group):
       point.add_floats(offset_x, offset_y)
 
   # Do push
-  push_rect = build_push.push_line(line, pad, params, seed, group)
+  build_push.push_line(line, pad, params, seed, group)
 
   # Scale output to fit safe area
   expand = ExpandingVolume()
@@ -88,9 +83,6 @@ def draw_maze(params: MazeParams, seed:int, group: Group):
   # Draw the line
   group_scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
   if params.debug_draw_boundary:
-    if params.do_push:
-      draw_rect_rect(push_rect, group_scaled)
-      draw_circ(push_rect.x, push_rect.y, 10, group_scaled)
     draw_rect_rect(pad, group_scaled)
   if params.draw:
     if params.draw_type == DrawType.curved:

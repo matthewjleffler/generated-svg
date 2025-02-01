@@ -26,15 +26,8 @@ class TriangleParams(BaseParams):
     self.triangle_angle = 30
 
     # Push params
-    self.do_push: bool = False
-    self.random_push: bool = False
-    self.push_pad_range_max: float = .25
-    self.push_pad_range_offset: float = 0
-    self.push_num: RangeInt = RangeInt(800, 2000)
-    self.push_range: RangeFloat = RangeFloat(400, 800)
-    self.push_strength: RangeFloat = RangeFloat(0.5, 2.5) # TODOML scale?
-    self.push_line_cell_size: RangeFloat = RangeFloat(100, 200)
-    self.push_line_step_size = 10
+    self.do_push: bool = True
+    self.push_strength: float = 100
 
     super().__init__(defaults)
 
@@ -94,7 +87,7 @@ def draw_triangle(params:TriangleParams, seed: int, group:Group):
       triangle_lines[i] = subdivide_point_path(triangle_lines[i], subdivision_range)
     for i in range(0, len(background_lines)):
       background_lines[i] = subdivide_point_path(background_lines[i], subdivision_range)
-  push_rect = build_push.push_lines(triangle_lines + background_lines, pad_rect, params, seed, group)
+  build_push.push_lines(triangle_lines + background_lines, pad_rect, params, seed, group)
 
   # Re-encapsulate all the points and recaclulate scale
   expand.add_lists(triangle_lines)
@@ -109,9 +102,6 @@ def draw_triangle(params:TriangleParams, seed: int, group:Group):
       draw_point_path([Point(pad_rect.center_x(), pad_rect.y), Point(pad_rect.center_x(), pad_rect.bottom())], group_scaled)
       draw_border(group)
       draw_rect_rect(pad_rect, group_scaled)
-      if params.do_push:
-        draw_rect_rect(push_rect, group_scaled)
-        draw_circ(push_rect.x, push_rect.y, 5, group_scaled)
 
     hatch_params = HatchParams(RangeInt(20, 50), RangeInt(3, 5))
 

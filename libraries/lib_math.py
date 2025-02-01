@@ -132,6 +132,9 @@ class Point:
   def to_int(self) -> tuple[int, int]:
     return (floor(self.x), floor(self.y))
 
+  def manhattan_distance(self, other: 'Point') -> float:
+    return abs(self.x - other.x) + abs(self.y - other.y)
+
 
 class Line:
   def __init__(self, p0:Point, p1:Point) -> None:
