@@ -392,6 +392,38 @@ def draw_border(group:Group):
   red = open_group(GroupSettings(name="debug_red", stroke=GroupColor.red), _root_group)
   draw_rect_rect(_svg_safe, red)
 
+
+# Common log for repeat output
+class RunningLog:
+  def __init__(self, label: str, max_val: int, count: bool = True, freq: int = 1):
+    self.__label = label
+    self.__max_val = max_val
+    self.__start = self.__last = time.time()
+    self.__count = count
+    self.__freq = freq
+    self.__time_deltas = []
+    self.__time_total_count = 1000
+
+  def log(self, current: int) -> None:
+    time_remaining_estimate = ""
+    if self.__count:
+      now = time.time()
+      total_time = now - self.__start
+      self.__time_deltas.append(now - self.__last)
+      self.__last = now
+      avg_time = 0
+      len_avg = len(self.__time_deltas)
+      for delta in self.__time_deltas:
+        avg_time += delta
+      avg_time /= len_avg
+      if len_avg == self.__time_total_count:
+        self.__time_deltas.pop(0)
+      total_estimate = max((avg_time * self.__max_val) - total_time, 0)
+      time_remaining_estimate = str(datetime.timedelta(seconds=floor(total_estimate)))
+    if current % self.__freq == 0:
+      print_overwrite(f"{self.__label}: {pad_max(current, self.__max_val)} {time_remaining_estimate}")
+
+
 # Main
 
 def main(dir:str, layer: str, defaults: Defaults, seed: int, loop:callable) -> int:

@@ -38,10 +38,11 @@ def push_lines(lines: List[List[Point]], rect: Rect, params: PushOptions, seed: 
     total_points += len(line)
 
   current_point = 0
+  push_log = RunningLog("Pushing point", total_points)
   for line in lines:
     for point in line:
       current_point += 1
-      print_overwrite(f"Pushing point: {pad_max(current_point, total_points)}")
+      push_log.log(current_point)
       norm_x = (point.x - rect.x) / rect.w
       norm_y = (point.y - rect.y) / rect.h
       sample_strength = noise_strength((norm_x, norm_y))

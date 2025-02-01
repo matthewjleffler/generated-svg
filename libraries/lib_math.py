@@ -1,4 +1,5 @@
 from math import *
+from sys import maxsize
 from .lib_rand import *
 from typing import List
 
@@ -9,6 +10,20 @@ from typing import List
 
 ### Constants
 deg_to_rad = pi / 180
+
+### Counts the min and max values of a range
+class CountRange:
+  def __init__(self, name: str):
+    self.name = name
+    self.val_min: float = maxsize
+    self.val_max: float = -maxsize
+
+  def record(self, val: float):
+    self.val_min = min(val, self.val_min)
+    self.val_max = max(val, self.val_max)
+
+  def print(self):
+    print(self.name, self.val_max, self.val_max)
 
 
 class Point:
