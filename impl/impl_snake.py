@@ -23,9 +23,7 @@ class SnakeParams(BaseParams):
     self.draw: bool = True
     self.debug_draw_boundary: bool = True
     self.debug_draw_points: bool = False
-    self.cell_size = 65
-    self.do_shuffle: bool = False
-    self.shuffle: RangeFloat = RangeFloat(0, .5)
+    self.cell_size = 170
     self.line_type: _SnakeType = _SnakeType.maze
     self.spine_factor: float = .15
     self.do_cap: bool = False
@@ -36,32 +34,32 @@ class SnakeParams(BaseParams):
     self.draw_head: bool = False
     self.draw_ribs: bool = True
     # 3 for sharpie pens, 4 (3.5?) for 0.5 isograph
-    self.step_dist: float = 5
+    self.step_dist: float = 1
     self.do_inflate: bool = False
-    self.inflate_factor: float = 1.1
-    self.end_falloff: float = .002
+    self.inflate_factor: float = 1.2
+    self.end_falloff: float = .05
     self.do_average: bool = True
-    self.smoothing_range: int = 20
+    self.smoothing_range: int = 120
     self.smoothing_steps: int = 1
     self.do_inflate_corners: bool = True
-    self.inflate_corner_factor: float = 1.5
+    self.inflate_corner_factor: float = .8
     self.do_final_average: bool = False
     self.final_average_weight: int = 2
     self.do_rib_shuffle: bool = True
     self.raw_shuffle_amount: RangeFloat = RangeFloat(.05, .5)
-    self.break_count: int = 100
+    self.break_count: int = 200
     self.original_ribs: bool = False
     self.rib_range: RangeInt = RangeInt(3, 10)
 
     # MazeOptions
-    self.close_path: bool = False
+    self.close_path: bool = True
     self.do_inset: bool = False
 
     # PushOptions
     self.do_push: bool = True
-    self.push_strength: float = 180
-    self.push_strength_octave: float = 4
-    self.push_rotation_octave: float = 2
+    self.push_strength: float = 100
+    self.push_strength_octave: float = 3
+    self.push_rotation_octave: float = 1
 
     # TriangleOptions
     self.triangle_step_size = 100
@@ -100,15 +98,6 @@ def draw_snake(params: SnakeParams, group: Group, seed: int):
   cap_index = floor(len(line) * cap_percent)
   if params.do_cap:
     del line[cap_index: len(line)]
-
-  # Shuffle points
-  if params.do_shuffle:
-    line_len = len(line)
-    for i in range(0, line_len):
-      # Shuffle the individual points
-      if params.close_path and (i <= 1 or i >= line_len - 2):
-        continue
-      line[i].add_floats(params.shuffle.rand() * maze_size.half_w, params.shuffle.rand() * maze_size.half_h)
 
   # Debug draw the line
   # draw_point_circles(line, group)

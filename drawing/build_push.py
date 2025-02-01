@@ -44,7 +44,7 @@ def push_lines(lines: List[List[Point]], rect: Rect, params: PushOptions, seed: 
       current_point += 1
       push_log.log(current_point)
       norm_x = (point.x - rect.x) / rect.w
-      norm_y = (point.y - rect.y) / rect.h
+      norm_y = (point.y - rect.y) / rect.w
       sample_strength = noise_strength((norm_x, norm_y))
       sample_strength = (sample_strength + perlin_max) / perlin_delta
       sample_rotation = noise_rotation((norm_x, norm_y))
