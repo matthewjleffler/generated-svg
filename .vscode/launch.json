@@ -8,7 +8,7 @@
       "name": "Python Debugger: Test Repeat Run",
       "type": "debugpy",
       "request": "launch",
-      "program": "./test_repeat_run.py",
+      "program": "./run_repeat.py",
       "console": "integratedTerminal",
       "args": [
         "svg_snake.py"

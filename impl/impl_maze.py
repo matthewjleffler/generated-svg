@@ -30,7 +30,9 @@ class MazeParams(BaseParams):
 
     # Push
     self.do_push: bool = True
-    self.push_strength: float = 100
+    self.push_settings = [
+      create({ 'strength': 100 }),
+    ]
 
     self.do_shuffle = True
     self.shuffle_range = RangeFloat(0, .75)
@@ -72,7 +74,7 @@ def draw_maze(params: MazeParams, seed:int, group: Group):
       point.add_floats(offset_x, offset_y)
 
   # Do push
-  build_push.push_line(line, pad, params, seed, group)
+  build_push.push_line(line, params, seed, group)
 
   # Scale output to fit safe area
   expand = ExpandingVolume()

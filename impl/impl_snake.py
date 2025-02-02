@@ -23,7 +23,7 @@ class SnakeParams(BaseParams):
     self.draw: bool = True
     self.debug_draw_boundary: bool = True
     self.debug_draw_points: bool = False
-    self.cell_size = 170
+    self.cell_size = 280
     self.line_type: _SnakeType = _SnakeType.maze
     self.spine_factor: float = .15
     self.do_cap: bool = False
@@ -36,13 +36,13 @@ class SnakeParams(BaseParams):
     # 3 for sharpie pens, 4 (3.5?) for 0.5 isograph
     self.step_dist: float = 1
     self.do_inflate: bool = False
-    self.inflate_factor: float = 1.2
-    self.end_falloff: float = .05
+    self.inflate_factor: float = 1
+    self.end_falloff: float = .15
     self.do_average: bool = True
     self.smoothing_range: int = 120
-    self.smoothing_steps: int = 1
+    self.smoothing_steps: int = 3
     self.do_inflate_corners: bool = True
-    self.inflate_corner_factor: float = .8
+    self.inflate_corner_factor: float = 2
     self.do_final_average: bool = False
     self.final_average_weight: int = 2
     self.do_rib_shuffle: bool = True
@@ -52,14 +52,15 @@ class SnakeParams(BaseParams):
     self.rib_range: RangeInt = RangeInt(3, 10)
 
     # MazeOptions
-    self.close_path: bool = True
+    self.close_path: bool = False
     self.do_inset: bool = False
 
     # PushOptions
     self.do_push: bool = True
-    self.push_strength: float = 100
-    self.push_strength_octave: float = 3
-    self.push_rotation_octave: float = 1
+    self.push_settings = [
+      create({ 'strength': 10, 'strength_octave': 70, 'rotation_octave': 5 }),
+      create({ 'strength': 300, 'strength_octave': 2.5 })
+    ]
 
     # TriangleOptions
     self.triangle_step_size = 100
@@ -112,7 +113,7 @@ def draw_snake(params: SnakeParams, group: Group, seed: int):
   snake_points_spines = build_snake.draw_snake_from_points(line, params, inflate_step * params.spine_factor)
 
   # Do push
-  build_push.push_lines(snake_points, pad, params, seed, group)
+  build_push.push_lines(snake_points, params, seed, group)
 
   # Expand Boundary
   print_overwrite("Checking volume...")

@@ -18,7 +18,9 @@ class LinesParams(BaseParams):
 
     # Push params
     self.do_push: bool = True
-    self.push_strength: float = 100
+    self.push_settings = [
+      create({ 'strength': 100 }),
+    ]
 
     super().__init__(defaults)
 
@@ -53,7 +55,7 @@ def draw_lines(params: LinesParams, seed: int, group: Group):
     sub = subdivide_point_path(line, subdivision_range)
     subdivided.append(sub)
 
-  build_push.push_lines(subdivided, pad, params, seed, group)
+  build_push.push_lines(subdivided, params, seed, group)
 
   # Encapsulate
   expand = ExpandingVolume()

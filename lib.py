@@ -39,6 +39,9 @@ def try_get[T](self, field: str, default: T) -> T:
       return default
     return getattr(self, field)
 
+def create(dict: dict) -> any:
+  return type('', (), dict)
+
 
 def clamp(val:float, min_val:float, max_val:float) -> float:
   return min(max(val, min_val), max_val)

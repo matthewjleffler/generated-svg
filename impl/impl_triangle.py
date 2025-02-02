@@ -27,7 +27,9 @@ class TriangleParams(BaseParams):
 
     # Push params
     self.do_push: bool = True
-    self.push_strength: float = 100
+    self.push_settings = [
+      create({ 'strength': 100 }),
+    ]
 
     super().__init__(defaults)
 
@@ -87,7 +89,7 @@ def draw_triangle(params:TriangleParams, seed: int, group:Group):
       triangle_lines[i] = subdivide_point_path(triangle_lines[i], subdivision_range)
     for i in range(0, len(background_lines)):
       background_lines[i] = subdivide_point_path(background_lines[i], subdivision_range)
-  build_push.push_lines(triangle_lines + background_lines, pad_rect, params, seed, group)
+  build_push.push_lines(triangle_lines + background_lines, params, seed, group)
 
   # Re-encapsulate all the points and recaclulate scale
   expand.add_lists(triangle_lines)
