@@ -6,13 +6,19 @@ from lib import *
 ###
 
 
-class StringParams(BaseParams):
-  def __init__(self, defaults: Defaults) -> None:
-    self.draw = True
-    self.text_file_override = "" # Specific override text file
-    self.line_count = RangeInt(5, 15)
+class StringParams(TypedDict):
+  draw: bool
+  text_file_override: str
+  line_count: RangeInt
 
-    super().__init__(defaults)
+  @classmethod
+  def create(cls, defaults: Defaults) -> 'StringParams':
+    result: StringParams = {
+      'draw': True,
+      'text_file_override': '',
+      'line_count': RangeInt(5, 15),
+    }
+    return apply_defaults(result, defaults)
 
 
 def draw_strings(params:StringParams, group:Group):
@@ -20,7 +26,7 @@ def draw_strings(params:StringParams, group:Group):
 
   # draw_border(group)
 
-  text_file = params.text_file_override
+  text_file = params['text_file_override']
 
   # Find text file if we don't have one assigned
   if text_file == "":
@@ -63,7 +69,7 @@ def draw_strings(params:StringParams, group:Group):
     return
 
   # Setup variables
-  num_lines = params.line_count.rand()
+  num_lines = params['line_count'].rand()
   num_lines = min(num_lines, text_len)
 
   # Pick lines
@@ -93,7 +99,7 @@ def draw_strings(params:StringParams, group:Group):
   # Draw text
   group_text = open_group(GroupSettings(translate=(svg_safe().x, svg_safe().center_y() - height / 2), scale=scale), group)
 
-  if params.draw:
+  if params['draw']:
     for i in range(0, line_num):
       line = render_lines[i]
       draw_text(0, text_line_height() * (i + 1), 10, line, group_text)

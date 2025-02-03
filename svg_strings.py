@@ -7,7 +7,7 @@ class StringsRunner(Runner):
     super().__init__("strings")
 
   def loop(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.StringParams(defaults)
+    params = impl.StringParams.create(defaults)
     impl.draw_strings(params, group)
     return params
 

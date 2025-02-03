@@ -7,19 +7,19 @@ class VerticalLineRunner(Runner):
     super().__init__("vertical-lines")
 
   def loop_combined(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.VerticalLineParams(defaults)
+    params = impl.VerticalLineParams.create(defaults)
     impl.draw_lines(params, group)
     return params
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.VerticalLineParams(defaults)
-    params.draw_highlights = False
+    params = impl.VerticalLineParams.create(defaults)
+    params['draw_highlights'] = False
     impl.draw_lines(params, group)
     return params
 
   def loop_highlight(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.VerticalLineParams(defaults)
-    params.draw_lines = False
+    params = impl.VerticalLineParams.create(defaults)
+    params['draw_lines'] = False
     impl.draw_lines(params, group)
     return params
 

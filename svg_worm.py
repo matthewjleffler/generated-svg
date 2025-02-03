@@ -7,19 +7,19 @@ class WormRunner(Runner):
     super().__init__("worm")
 
   def loop_combined(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.WormParams(defaults)
+    params = impl.WormParams.create(defaults)
     impl.draw_worm(params, group)
     return params
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.WormParams(defaults)
-    params.draw_innards = False
+    params = impl.WormParams.create(defaults)
+    params['draw_innards'] = False
     impl.draw_worm(params, group)
     return params
 
   def loop_innards(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.WormParams(defaults)
-    params.draw_worm = False
+    params = impl.WormParams.create(defaults)
+    params['draw_worm'] = False
     impl.draw_worm(params, group)
     return params
 

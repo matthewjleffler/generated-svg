@@ -6,32 +6,45 @@ from lib import *
 ###
 
 
-class VerticalLineParams(BaseParams):
-  def __init__(self, defaults: Defaults) -> None:
-    self.draw_highlights = True
-    self.draw_lines = True
+class VerticalLineParams(TypedDict):
+  draw_highlights: bool
+  draw_lines: bool
+  mutate: bool
+  draw_curves: bool # Curves or straight lines
+  pad_x: float
+  pad_y: float
+  subdivide_range: RangeInt
+  line_spacing: float
+  rate_default: float
+  shuffle_range_max_x: float
+  shuffle_range_max_y: float
+  strike_range: RangeInt
+  circle_range: RangeInt
+  mutate_range_x: float
+  mutate_range_y: float
+  mutate_max_range: float
 
-    self.mutate = False
-
-    self.draw_curves = True # Curves or straight lines
-
-    self.pad_x = 100
-    self.pad_y = 50
-    self.subdivide_range = RangeInt(50, 70)
-    self.line_spacing = 5
-    self.rate_default = 5
-
-    self.shuffle_range_max_x = 40
-    self.shuffle_range_max_y = 5
-
-    self.strike_range = RangeInt(0, 10)
-    self.circle_range = RangeInt(0, 5)
-
-    self.mutate_range_x = 3
-    self.mutate_range_y = 3
-    self.mutate_max_range = 30
-
-    super().__init__(defaults)
+  @classmethod
+  def create(cls, defaults: Defaults) -> 'VerticalLineParams':
+    result: VerticalLineParams = {
+      'draw_highlights': True,
+      'draw_lines': True,
+      'mutate': False,
+      'draw_curves': True,
+      'pad_x': 100,
+      'pad_y': 50,
+      'subdivide_range': RangeInt(50, 70),
+      'line_spacing': 5,
+      'rate_default': 5,
+      'shuffle_range_max_x': 40,
+      'shuffle_range_max_y': 5,
+      'strike_range': RangeInt(0, 10),
+      'circle_range': RangeInt(0, 5),
+      'mutate_range_x': 3,
+      'mutate_range_y': 3,
+      'mutate_max_range': 30,
+    }
+    return apply_defaults(result, defaults)
 
 
 def _create_highlight(line:List[Point], left:float, final:float, params:VerticalLineParams, group:Group):
@@ -41,8 +54,8 @@ def _create_highlight(line:List[Point], left:float, final:float, params:Vertical
   group_blue = open_group(GroupSettings(stroke=GroupColor.blue), group)
 
   # Variables
-  strike = params.strike_range.rand()
-  circles = params.circle_range.rand()
+  strike = params['strike_range'].rand()
+  circles = params['circle_range'].rand()
 
   # Collect available indexes
   for i in range(1, len(line) - 1):
@@ -56,7 +69,7 @@ def _create_highlight(line:List[Point], left:float, final:float, params:Vertical
 
     claimed.append(index)
     point = line[index]
-    if params.draw_highlights:
+    if params['draw_highlights']:
       draw_path(f"M{svg_safe().x} {round(point.y, 2)}h{svg_safe().w}", group_blue)
 
   # Collect available indexes
@@ -80,7 +93,7 @@ def _create_highlight(line:List[Point], left:float, final:float, params:Vertical
 
     claimed.append(index)
     point = line[index]
-    if params.draw_highlights:
+    if params['draw_highlights']:
       draw_circ(left - 20, point.y, 10, group_blue)
 
   # Create starbursts
@@ -103,19 +116,19 @@ def _create_highlight(line:List[Point], left:float, final:float, params:Vertical
 
     claimed.append(index)
     point = line[index]
-    if params.draw_highlights:
+    if params['draw_highlights']:
       draw_sunburst(10, final + 20, point.y, 10, 5, group)
 
 def _create_lines(params:VerticalLineParams, group:Group):
-  pad_rect = svg_safe().shrink_xy_copy(params.pad_x, params.pad_y)
+  pad_rect = svg_safe().shrink_xy_copy(params['pad_x'], params['pad_y'])
 
   # Pick subdivisions, make sure it's an even number
-  subdivide = params.subdivide_range.rand()
+  subdivide = params['subdivide_range'].rand()
   if subdivide % 2 == 1:
     subdivide += 1
 
-  space = params.line_spacing
-  rate = space / params.rate_default
+  space = params['line_spacing']
+  rate = space / params['rate_default']
   line_count = floor(pad_rect.w / space)
 
   # Create first line
@@ -129,13 +142,13 @@ def _create_lines(params:VerticalLineParams, group:Group):
   # Shuffle odd points
   for i in range(1, len(fine), 2):
     fine_point = fine[i]
-    fine_point.x += rand_float(-params.shuffle_range_max_x, params.shuffle_range_max_x)
-    fine_point.y += rand_float(-params.shuffle_range_max_y, params.shuffle_range_max_y)
+    fine_point.x += rand_float(-params['shuffle_range_max_x'], params['shuffle_range_max_x'])
+    fine_point.y += rand_float(-params['shuffle_range_max_y'], params['shuffle_range_max_y'])
 
   # Duplicate line
-  mutate_range_x = params.mutate_range_x * rate
-  mutate_range_y = params.mutate_range_y * rate
-  max_range = params.mutate_max_range
+  mutate_range_x = params['mutate_range_x'] * rate
+  mutate_range_y = params['mutate_range_y'] * rate
+  max_range = params['mutate_max_range']
 
   space = pad_rect.w / line_count
   lines: List[List[Point]] = []
@@ -147,7 +160,7 @@ def _create_lines(params:VerticalLineParams, group:Group):
       point = Point(round(pad_rect.x + fine_point.x + space * i, 2), round(fine_point.y, 2))
       line.append(point)
 
-      if params.mutate:
+      if params['mutate']:
         if j % 2 == 1:
           mutate_amt_x = rand_float(-mutate_range_x, mutate_range_x)
           fine_point.x = clamp(fine_point.x + mutate_amt_x, -max_range, max_range)
@@ -163,7 +176,7 @@ def _create_lines(params:VerticalLineParams, group:Group):
       point = line[0]
       path_val = f"M{point.x} {point.y}"
 
-      if params.draw_curves:
+      if params['draw_curves']:
         for i in range(1, len(line) - 1, 2):
           control = line[i]
           point = line[i + 1]
@@ -177,7 +190,7 @@ def _create_lines(params:VerticalLineParams, group:Group):
       point = line[-1]
       path_val = f"M{point.x} {point.y}"
 
-      if params.draw_curves:
+      if params['draw_curves']:
         for i in range(len(line) - 2, 0, -2):
           control = line[i]
           point = line[i - 1]
@@ -187,7 +200,7 @@ def _create_lines(params:VerticalLineParams, group:Group):
           point = line[i]
           path_val += f"L{point.x} {point.y}"
 
-    if params.draw_lines:
+    if params['draw_lines']:
       draw_path(path_val, group)
 
   return (fine, lines[0][0].x, lines[-1][0].x)

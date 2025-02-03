@@ -1,6 +1,7 @@
 import random
-from typing import List
-
+from typing import List, TypeVar
+T = TypeVar('T')
+Weights = List[tuple[T, float]]
 
 ###
 ### Random Lib
@@ -45,7 +46,7 @@ def rand_float(min:float, max:float) -> float:
 def rand_int(min:int, max:int) -> int:
   return random.randint(min, max)
 
-def rand_weight(array: List[tuple[any, float]]) -> any:
+def rand_weight[T](array: Weights[T]) -> T:
   if len(array) < 1:
     return None
   sum = 0

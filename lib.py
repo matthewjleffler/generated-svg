@@ -7,7 +7,7 @@ from os import listdir
 from libraries.lib_group import *
 from re import compile
 from math import *
-from typing import List
+from typing import List, TypedDict
 import datetime
 from libraries.lib_draw import *
 from libraries.lib_rand import *
@@ -26,22 +26,26 @@ from libraries.lib_enum import *
 
 # Helper functions
 
-def test_type(obj: any, field: str, expected: str) -> bool:
-  return type(getattr(obj, field)).__name__ == expected
-
 def clamp_point_list(clamp_val:int, points:List[Point]):
   for point in points:
     point.x = round(point.x / clamp_val, 0) * clamp_val
     point.y = round(point.y / clamp_val, 0) * clamp_val
 
-def try_get[T](self, field: str, default: T) -> T:
-    if not hasattr(self, field):
-      return default
-    return getattr(self, field)
-
 def create(dict: dict) -> any:
   return type('', (), dict)
 
+def test_type(obj: any, expected: str) -> bool:
+  return type(obj).__name__ == expected
+
+def apply_defaults[T](params: dict[str, any], defaults: 'Defaults') -> T:
+  if defaults.test:
+    # Nothing to apply
+    return params
+  print("Disabling debug params")
+  for k, v in params.items():
+    if k.startswith("debug_") and test_type(v, "bool"):
+      params[k] = False
+  return params
 
 def clamp(val:float, min_val:float, max_val:float) -> float:
   return min(max(val, min_val), max_val)
@@ -98,94 +102,16 @@ def svg_full() -> Rect:
 
 # Running
 class Defaults:
-  def __init__(self, test:bool, seed:int, size:tuple[float, float], params:dict[str] = dict()) -> None:
+  def __init__(self, test:bool, seed:int, size:tuple[float, float]) -> None:
     self.test:bool = test
     self.seed:int = seed
     self.size:tuple[float, float] = size
-    self.params:dict[str] = params
     self.throw_on_fail:bool = False
 
   def copy(self) -> 'Defaults':
-    result = Defaults(self.test, self.seed, self.size, self.params)
+    result = Defaults(self.test, self.seed, self.size)
     result.throw_on_fail = self.throw_on_fail
     return result
-
-
-class BaseParams:
-  def __init__(self, defaults: Defaults) -> None:
-    self._apply_params(defaults)
-
-  def _apply_params(self, defaults: Defaults) -> None:
-    for k, v in defaults.params.items():
-      val = self.__parse(v)
-      if val is not None:
-        setattr(self, k, val)
-        print('Applied:', k, val)
-      else:
-        print('Invalid param:', k, v)
-    if defaults.test:
-      # All params allowed
-      return
-    print('Disabling Debug')
-    attrs = dir(self)
-    for attr in attrs:
-      if not attr.startswith('debug_'):
-        continue
-      if not test_type(self, attr, 'bool'):
-        continue
-      setattr(self, attr, False)
-
-  def __parse_number(self, v: str):
-    try:
-      # Float
-      float_res = float(v.strip())
-      if float_res.is_integer():
-        # Int
-        return int(float_res)
-      return float_res
-    except ValueError:
-      return None
-
-  def __parse(self, v: str):
-    lower = v.lower().strip()
-    split = lower.split(":")
-    if split[0] == 'w' and len(split) > 1:
-      # Weights
-      result: List[tuple[int, float]] = []
-      for i in range(1, len(split)):
-        str_weight = split[i].split(',')
-        if len(str_weight) != 2:
-          return None
-        [str_val, str_weight] = str_weight
-        val = self.__parse_number(str_val)
-        weight = self.__parse_number(str_weight)
-        if val is None or weight is None:
-          return None
-        result.append([int(val), weight])
-      return result
-    elif len(split) == 1:
-      # Bools
-      if lower == "true" or lower == "t":
-        return True
-      if lower == "false" or lower == "f":
-        return False
-      # Number
-      return self.__parse_number(v)
-    elif len(split) == 3:
-      [r_type, r_min, r_max] = split
-      if r_type == 'ri':
-        ri_min = self.__parse_number(r_min)
-        ri_max = self.__parse_number(r_max)
-        if ri_min is None or ri_max is None:
-          return None
-        return RangeInt(int(ri_min), int(ri_max))
-      elif r_type == 'rf':
-        rf_min = self.__parse_number(r_min)
-        rf_max = self.__parse_number(r_max)
-        if rf_min is None or rf_max is None:
-          return None
-        return RangeFloat(rf_min, rf_max)
-    return None
 
 
 class Runner:
@@ -200,20 +126,15 @@ class Args:
   def __init__(self) -> None:
     self.__positional = []
     self.__args: dict[str] = dict()
-    self.__params: dict[str] = dict()
 
     parse = compile(r"""--(.*?)=(.*)""")
-    param_parse = compile(r"""\+\+(.*?)=(.*)""")
     for i in range(1, len(argv)):
       arg = argv[i]
       parsed = parse.match(arg)
-      params = param_parse.match(arg)
-      if parsed is None and params is None:
+      if parsed is None:
         self.__positional.append(arg)
       elif parsed is not None:
         self.__args[parsed.group(1)] = parsed.group(2)
-      elif params is not None:
-        self.__params[params.group(1)] = params.group(2)
 
   def _get_bool(self, val:str) -> bool:
     return val == "True" or val == "true" or val == "t"
@@ -274,7 +195,7 @@ class Args:
     test = self.get_bool("test", test)
     seed = self.get_int("seed", seed)
     size = self.get_svg_size("size", size)
-    return Defaults(test, seed, size, self.__params)
+    return Defaults(test, seed, size)
 
 
 # Text Writing
@@ -312,7 +233,7 @@ def write_file(path:str, name:str, number:int):
 
 # SVG Management
 
-def commit(seed:int, size:tuple[float, float], params:any):
+def commit(seed:int, size:tuple[float, float], params:dict):
   global _text_content
   (x, y) = size
   print_overwrite("Starting commit...")
@@ -321,10 +242,9 @@ def commit(seed:int, size:tuple[float, float], params:any):
   _add_text_line(f"<!-- Size: {x}x{y} -->")
   print_overwrite("Writing params...")
   if params is not None:
-    list_params = vars(params)
     _open_text_indent("<!-- Params:")
-    for item in list_params:
-      _add_text_line(f"{item}: {list_params[item]}")
+    for k, v in params.items():
+      _add_text_line(f"{k}: {v}")
     _close_text_indent("-->")
   else:
     _add_text_line("<!-- No params -->")

@@ -29,9 +29,10 @@ class MazeSize:
     self.range_stamp = floor(min(self.col * cutout_range, self.row * cutout_range))
 
 
-class MazeOptions:
+class MazeOptions(TypedDict):
   close_path: bool
   do_inset: bool
+
 
 class _Connect:
   def __init__(self) -> None:
@@ -170,7 +171,7 @@ def _hamiltonian_from_spanning_tree(col: int, col2: int, total2: int, connect: L
 def make_maze_line(size: MazeSize, options: MazeOptions) -> List[Point]:
   reload_libs(globals())
 
-  edges = _spanning_tree(size.row, size.col, size.total, size.range_stamp, options.do_inset)
+  edges = _spanning_tree(size.row, size.col, size.total, size.range_stamp, options.get('do_inset', False))
 
   connect: List[_Connect] = []
   for i in range(0, size.total):
@@ -213,7 +214,7 @@ def make_maze_line(size: MazeSize, options: MazeOptions) -> List[Point]:
   for i in range(0, pathlen):
     index = (offset + i) % pathlen
     offsetPath.append(path[index])
-  if options.close_path:
+  if options.get('close_path', True):
     offsetPath.append(path[offset])
 
   # Scale and shuffle the points

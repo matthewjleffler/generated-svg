@@ -1,6 +1,5 @@
 from lib import *
 import drawing.build_triangle as build_triangle
-import drawing.build_maze as build_maze
 import drawing.build_push as build_push
 
 
@@ -8,30 +7,42 @@ import drawing.build_push as build_push
 ### Triangle Design
 ###
 
-class TriangleParams(BaseParams):
-  def __init__(self, defaults: Defaults) -> None:
-    self.debug_draw_boundary = True
+class TriangleParams(
+  TypedDict,
+  build_triangle.TriangleOptions,
+  build_push.PushOptions
+):
+  debug_draw_boundary: bool
+  draw_triangles: bool
+  draw_background: bool
+  hatch_triangle: bool
+  hatch_background: bool
 
-    self.draw_triangles = True
-    self.draw_background = False
-    self.hatch_triangle = False
-    self.hatch_background = False
+  @classmethod
+  def create(cls, defaults: Defaults) -> 'TriangleParams':
+    result: TriangleParams = {
+      'debug_draw_boundary': True,
 
-    # Triangle options
-    self.triangle_step_size = 50
-    self.triangle_rotate = False
-    self.triangle_rotate_range = RangeFloat(0, 180)
-    self.triangle_do_shuffle = False
-    self.triangle_shuffle_Range = 100
-    self.triangle_angle = 30
+      'draw_triangles': True,
+      'draw_background': False,
+      'hatch_triangle': False,
+      'hatch_background': False,
 
-    # Push params
-    self.do_push: bool = True
-    self.push_settings = [
-      create({ 'strength': 100 }),
-    ]
+      # Triangle options
+      'triangle_step_size': 50,
+      'triangle_rotate': False,
+      'triangle_rotate_range': RangeFloat(0, 180),
+      'triangle_do_shuffle': False,
+      'triangle_shuffle_range': 100,
+      'triangle_angle': 30,
 
-    super().__init__(defaults)
+      # Push options
+      'do_push': True,
+      'push_settings': [
+        { 'strength': 100 },
+      ],
+    }
+    return apply_defaults(result, defaults)
 
 
 def draw_triangle(params:TriangleParams, seed: int, group:Group):
@@ -64,7 +75,7 @@ def draw_triangle(params:TriangleParams, seed: int, group:Group):
 
   # Draw background lines
   background_lines: List[List[Point]] = []
-  bg_count = floor(bg_width / (params.triangle_step_size / 2))
+  bg_count = floor(bg_width / (params['triangle_step_size'] / 2))
   bg_sep = bg_width / bg_count
   line_left = Line(top, left)
   line_right = Line(top, right)
@@ -74,7 +85,7 @@ def draw_triangle(params:TriangleParams, seed: int, group:Group):
     intersect_left = line_intersection(line_current, line_left)
     intersect_right = line_intersection(line_current, line_right)
     intersect_max = max(intersect_left.y, intersect_right.y)
-    intersect_bottom = min(intersect_max - (params.triangle_step_size), left.y)
+    intersect_bottom = min(intersect_max - (params['triangle_step_size']), left.y)
     if intersect_bottom < top.y:
       continue
     line_current.p1.y = intersect_bottom
@@ -84,7 +95,7 @@ def draw_triangle(params:TriangleParams, seed: int, group:Group):
 
   # Subdivide all lines and collect them
   subdivision_range = RangeInt(100, 100)
-  if params.do_push:
+  if params['do_push']:
     for i in range(0, len(triangle_lines)):
       triangle_lines[i] = subdivide_point_path(triangle_lines[i], subdivision_range)
     for i in range(0, len(background_lines)):
@@ -97,17 +108,17 @@ def draw_triangle(params:TriangleParams, seed: int, group:Group):
   (offset, final_scale) = scale_rect_to_fit(expand.to_rect(), pad_rect)
 
   # Draw points
-  if params.draw_triangles:
+  if params['draw_triangles']:
     group_scaled = open_group(GroupSettings(translatePoint=offset, scale=final_scale), group)
 
-    if params.debug_draw_boundary:
+    if params['debug_draw_boundary']:
       draw_point_path([Point(pad_rect.center_x(), pad_rect.y), Point(pad_rect.center_x(), pad_rect.bottom())], group_scaled)
       draw_border(group)
       draw_rect_rect(pad_rect, group_scaled)
 
     hatch_params = HatchParams(RangeInt(20, 50), RangeInt(3, 5))
 
-    if params.hatch_triangle:
+    if params['hatch_triangle']:
       # TODOML support for split versions?
       draw_point_path_hatched(triangle_points, hatch_params, group_scaled)
     else:
@@ -115,9 +126,9 @@ def draw_triangle(params:TriangleParams, seed: int, group:Group):
         centers = generate_centerpoints(line)
         draw_curved_path(line, centers, group_scaled)
 
-    if params.draw_background:
+    if params['draw_background']:
       for line in background_lines:
-        if params.hatch_background:
+        if params['hatch_background']:
           draw_point_path_hatched(line, hatch_params, group_scaled)
         else:
           # draw_point_path(line, scaled)

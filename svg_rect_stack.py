@@ -7,7 +7,7 @@ class RectStackRunner(Runner):
     super().__init__("rect-stack")
 
   def loop(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.RectStackParams(defaults)
+    params = impl.RectStackParams.create(defaults)
     impl.draw_rect_stack(params, group)
     return params
 

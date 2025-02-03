@@ -5,21 +5,36 @@ from lib import *
 ### Checkerboard Design
 ###
 
-class CheckerboardParams(BaseParams):
-  def __init__(self, defaults: Defaults) -> None:
-    self.draw_lines = True
-    self.draw_aligned_vertical = True
-    self.draw_aligned_horizontal = True
-    self.draw_filled_checkers = True
-    self.pad = 0
-    self.size = RangeInt(10, 150)
-    self.skew_vert_degs = RangeFloat(0, 45)
-    self.skew_horiz_degs = RangeFloat(0, 45)
-    self.interior_space_aligned = 5
-    self.interior_space_filled = 5
-    self.mutate_checkers = True
+class CheckerboardParams(TypedDict):
+  draw_lines: bool
+  draw_aligned_vertical: bool
+  draw_aligned_horizontal: bool
+  draw_filled_checkers: bool
+  pad: int
+  size: RangeInt
+  skew_vert_degs: RangeFloat
+  skew_horiz_degs: RangeFloat
+  interior_space_aligned: float
+  interior_space_filled: float
+  mutate_checkers: bool
 
-    super().__init__(defaults)
+  @classmethod
+  def create(cls, defaults: Defaults) -> 'CheckerboardParams':
+    result: CheckerboardParams = {
+      'draw_lines': True,
+      'draw_aligned_vertical': True,
+      'draw_aligned_horizontal': True,
+      'draw_filled_checkers': True,
+      'pad': 0,
+      'size': RangeInt(10, 150),
+      'skew_vert_degs': RangeFloat(0, 45),
+      'skew_horiz_degs': RangeFloat(0, 45),
+      'interior_space_aligned': 5,
+      'interior_space_filled': 5,
+      'mutate_checkers': True,
+    }
+    return apply_defaults(result, defaults)
+
 
 class Checker:
   def __init__(self, left:Line, right:Line, top:Line, bottom:Line) -> None:
@@ -151,7 +166,7 @@ def _create_fill(
 
   space_x = max_x - min_x
   space_y = max_y - min_y
-  count = floor(space_x / params.interior_space_filled)
+  count = floor(space_x / params['interior_space_filled'])
   real_dist = space_x / count
   valid_rect = Rect(min_x, min_y, space_x, space_y)
 
@@ -202,11 +217,11 @@ def draw_checkerboard(params:CheckerboardParams, group:Group):
   # draw_border(group)
 
   # Pad safe space
-  pad_rect = svg_safe().shrink_copy(params.pad)
+  pad_rect = svg_safe().shrink_copy(params['pad'])
 
   # Split the available space, pad excessively to ensure coverage
   # We throw away useless results
-  size = params.size.rand()
+  size = params['size'].rand()
   count_horiz = floor(svg_safe().w / size) * 2
   count_vert = floor(svg_safe().h / size) * 2
   count = max(count_horiz, count_vert)
@@ -252,9 +267,9 @@ def draw_checkerboard(params:CheckerboardParams, group:Group):
   line_left = Line(corner_tl, corner_tl.add_copy(edge_vec_vert))
 
   # Skew Rads
-  vert_degs = params.skew_vert_degs.rand()
+  vert_degs = params['skew_vert_degs'].rand()
   vert_rads = vert_degs * deg_to_rad
-  horiz_degs = params.skew_horiz_degs.rand()
+  horiz_degs = params['skew_horiz_degs'].rand()
   horiz_rads = horiz_degs * deg_to_rad
 
   # Checkerboard vectors
@@ -310,13 +325,13 @@ def draw_checkerboard(params:CheckerboardParams, group:Group):
       horiz.append(points[1])
 
   # Draw primary lines
-  if params.draw_lines:
+  if params['draw_lines']:
     path = _create_point_path_alternating(vert)
     path += _create_point_path_alternating(horiz)
     draw_path(path, group)
 
   # Interior fill
-  fill_count_per = floor(size / params.interior_space_aligned)
+  fill_count_per = floor(size / params['interior_space_aligned'])
   offset_space = size / fill_count_per
   fill_vert: List[Point] = []
   fill_horiz: List[Point] = []
@@ -343,12 +358,12 @@ def draw_checkerboard(params:CheckerboardParams, group:Group):
         fill_horiz.append(points[1])
 
   # Draw interior aligned lines
-  if params.draw_aligned_vertical:
+  if params['draw_aligned_vertical']:
     group_red = open_group(GroupSettings(stroke=GroupColor.red), group)
     path = _create_point_path_alternating(fill_vert)
     draw_path(path, group_red)
 
-  if params.draw_aligned_horizontal:
+  if params['draw_aligned_horizontal']:
     group_blue = open_group(GroupSettings(stroke=GroupColor.blue), group)
     path = _create_point_path_alternating(fill_horiz)
     draw_path(path, group_blue)
@@ -391,9 +406,8 @@ def draw_checkerboard(params:CheckerboardParams, group:Group):
   #   center = checker.center
   #   draw_circ(center.x, center.y, 5, group)
   #   scale = 0.3
-  #   open_group(GroupSettings(translatePoint=center, scale=scale))
-  #   draw_text(0, 0, 5, str(i))
-  #   close_group()
+  #   text_group = open_group(GroupSettings(translatePoint=center, scale=scale))
+  #   draw_text(0, 0, 5, str(i), text_group)
 
   # Create checker fill points
   top_bottom = [line_top, line_bottom]
@@ -401,7 +415,7 @@ def draw_checkerboard(params:CheckerboardParams, group:Group):
     checker = checkers[i]
     _create_fill(fill_vec, pad_rect, checker, top_bottom, checker_fill, params)
 
-  if params.draw_filled_checkers:
+  if params['draw_filled_checkers']:
     group_green = open_group(GroupSettings(stroke=GroupColor.green), group)
     path = _create_point_path_alternating(checker_fill)
     draw_path(path, group_green)
@@ -422,5 +436,4 @@ def draw_checkerboard(params:CheckerboardParams, group:Group):
     draw_circ(corner.x, corner.y, 5, group)
     scale = 0.3
     open_group(GroupSettings(translate=(corner.x, corner.y), scale=scale), group)
-    draw_text(0, 0, 5, str(i))
-    close_group()
+    draw_text(0, 0, 5, str(i), group)

@@ -11,7 +11,7 @@ class TestTextRunner(Runner):
     draw_text(100, 200, 10, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", group)
     draw_text(100, 300, 10, "abcdefghijklmnopqrstuvwxyz", group)
     draw_text(100, 400, 10, "0123456789 ;:'\"éÉ`~", group)
-    draw_text(100, 500, 10, "!@#$%^&*()-_+={}[]\|,./<>?", group)
+    draw_text(100, 500, 10, "!@#$%^&*()-_+={}[]\\|,./<>?", group)
 
     group_scaled = open_group(GroupSettings(translate=(100, 600), scale=0.5), group)
     draw_text(0, 0, 10, "Test Small Text too", group_scaled)

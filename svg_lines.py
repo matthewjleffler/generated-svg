@@ -7,7 +7,7 @@ class LinesRunner(Runner):
     super().__init__("lines")
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.LinesParams(defaults)
+    params = impl.LinesParams.create(defaults)
     impl.draw_lines(params, seed, group)
     return params
 

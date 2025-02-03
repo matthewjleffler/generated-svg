@@ -7,19 +7,19 @@ class SnakeRunner(Runner):
     super().__init__("snake")
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.SnakeParams(defaults)
+    params = impl.SnakeParams.create(defaults)
     impl.draw_snake(params, group, seed)
     return params
 
   def loop_spine(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.SnakeParams(defaults)
-    params.draw_ribs = False
+    params = impl.SnakeParams.create(defaults)
+    params['draw_ribs'] = False
     impl.draw_snake(params, group, seed)
     return params
 
   def loop_ribs(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.SnakeParams(defaults)
-    params.draw_spine = False
+    params = impl.SnakeParams.create(defaults)
+    params['draw_spine'] = False
     impl.draw_snake(params, group, seed)
     return params
 

@@ -5,27 +5,44 @@ from lib import *
 ### Exploded Room Drawing
 ###
 
-class ExplodedRoomParams(BaseParams):
-  def __init__(self, defaults: Defaults) -> None:
-    self.draw: bool = True
-    self.slope: int = 100
-    self.skew_height: RangeFloat = RangeFloat(0.1, 0.3)
-    self.perspective_skew: RangeFloat = RangeFloat(0.2, 0.5)
-    self.wall_width: RangeFloat = RangeFloat(0.1, 0.8)
-    self.wall_inset_left: RangeFloat = RangeFloat(0.01, 0.1)
-    self.wall_inset_right: RangeFloat = RangeFloat(0.01, 0.2)
-    self.wall_bottom_inset: RangeFloat = RangeFloat(0.01, 0.4)
-    self.row: RangeInt = RangeInt(1, 20)
-    self.col: RangeInt = RangeInt(1, 30)
-    self.height_adjust: RangeFloat = RangeFloat(-.2, .1)
-    self.split_pad_x: RangeFloat = RangeFloat(-.05, .2)
-    self.split_pad_y: RangeFloat = RangeInt(-10, 10)
+class ExplodedRoomParams(TypedDict):
+  draw: bool
+  slope: int
+  skew_height: RangeFloat
+  perspective_skew: RangeFloat
+  wall_width: RangeFloat
+  wall_inset_left: RangeFloat
+  wall_inset_right: RangeFloat
+  wall_bottom_inset: RangeFloat
+  row: RangeInt
+  col: RangeInt
+  height_adjust: RangeFloat
+  split_pad_x: RangeFloat
+  split_pad_y: RangeFloat
 
-    super().__init__(defaults)
+  @classmethod
+  def create(cls, defaults: Defaults) -> 'ExplodedRoomParams':
+    result: ExplodedRoomParams = {
+      'draw': True,
+      'slope': 100,
+      'skew_height': RangeFloat(0.1, 0.3),
+      'perspective_skew': RangeFloat(0.2, 0.5),
+      'wall_width': RangeFloat(0.1, 0.8),
+      'wall_inset_left': RangeFloat(0.01, 0.1),
+      'wall_inset_right': RangeFloat(0.01, 0.2),
+      'wall_bottom_inset': RangeFloat(0.01, 0.4),
+      'row': RangeInt(1, 20),
+      'col': RangeInt(1, 30),
+      'height_adjust': RangeFloat(-.2, .1),
+      'split_pad_x': RangeFloat(-.05, .2),
+      'split_pad_y': RangeInt(-10, 10),
+    }
+    return apply_defaults(result, defaults)
 
 
 def _offset_skew(skew:int, offset:Point, params: ExplodedRoomParams) -> Line:
-  return Line(Point(offset.x, offset.y), Point(offset.x + skew, offset.y + params.slope))
+  slope = params['slope']
+  return Line(Point(offset.x, offset.y), Point(offset.x + skew, offset.y + slope))
 
 def _skew_intersect(skew:int, offset:Point, target: Line, params: ExplodedRoomParams) -> Point:
   return line_intersection(_offset_skew(skew, offset, params), target)
@@ -75,7 +92,7 @@ def _create_room(
   bot_out_tr_point = _skew_intersect(skew, bot_out_br_point, bot_back_line, params)
 
   height = bot_out_tl_point.subtract_copy(Point(rect.x, rect.y)).length()
-  wall_bottom_inset = params.wall_bottom_inset.rand() * height
+  wall_bottom_inset = params['wall_bottom_inset'].rand() * height
 
   # Collect rings in point lines
   bot_out_path = [bot_out_tl_point, bot_out_tr_point, bot_out_br_point, bot_out_bl_point, bot_out_tl_point]
@@ -88,7 +105,7 @@ def _create_room(
   bot_center = Point(bot_center_x, bot_center_y)
 
   bot_in_tl_point = bot_center.subtract_copy(bot_out_tl_point)
-  wall_width = params.wall_width.rand() * bot_in_tl_point.length()
+  wall_width = params['wall_width'].rand() * bot_in_tl_point.length()
   bot_in_tl_point.normalize()
   bot_in_tl_point.multiply(wall_width)
   bot_in_tl_point.add(bot_out_tl_point)
@@ -109,8 +126,8 @@ def _create_room(
   # Create inset points
   wall_left_len = bot_out_bl_point.subtract_copy(bot_out_tl_point).length()
   wall_right_len = bot_out_bl_point.subtract_copy(bot_out_br_point).length()
-  wall_inset_left = wall_left_len * params.wall_inset_left.rand()
-  wall_inset_right = wall_right_len * params.wall_inset_right.rand()
+  wall_inset_left = wall_left_len * params['wall_inset_left'].rand()
+  wall_inset_right = wall_right_len * params['wall_inset_right'].rand()
   top_left_inset_line = _horizontal_line(top_in_path[0].y + wall_inset_left)
   top_left_inset_in = _skew_intersect(skew, top_in_path[0], top_left_inset_line, params)
   top_left_inset_out = _skew_intersect(skew, top_out_path[0], top_left_inset_line, params)
@@ -167,7 +184,7 @@ def _create_room(
       affected_all.append(poly)
 
   # Draw result
-  if params.draw:
+  if params['draw']:
 
     # Outer rim
     _draw_clip_path([
@@ -241,25 +258,25 @@ def draw_exploded_room(params: ExplodedRoomParams, group:Group):
   # draw_border(group)
 
   pad = svg_safe().copy()
-  row = params.row.rand()
-  col = params.col.rand()
+  row = params['row'].rand()
+  col = params['col'].rand()
 
   orig_width = pad.w / col
 
-  split_pad_x = orig_width * params.split_pad_x.rand()
+  split_pad_x = orig_width * params['split_pad_x'].rand()
   if split_pad_x > 0:
     split_pad_x = max(split_pad_x, 10)
-  split_pad_y = params.split_pad_y.rand()
+  split_pad_y = params['split_pad_y'].rand()
   width = (pad.w - (col - 1) * split_pad_x) / col
   height = (pad.h - (row - 1) * split_pad_y) / row
-  skew = params.perspective_skew.rand() * width
-  skew_height = params.skew_height.rand() * height
+  skew = params['perspective_skew'].rand() * width
+  skew_height = params['skew_height'].rand() * height
 
   clip_list: List[shapely.geometry.Polygon] = []
   row_list = reversed(list(range(0, row)))
   for r in row_list:
     for c in range(0, col):
-      extra_height = height * params.height_adjust.rand()
+      extra_height = height * params['height_adjust'].rand()
       top = pad.y + (height + split_pad_y) * r - extra_height
       clamped_top = max(pad.y, top)
       diff = clamped_top - top

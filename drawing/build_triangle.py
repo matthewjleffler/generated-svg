@@ -1,7 +1,7 @@
 from lib import *
 
 
-class TriangleOptions:
+class TriangleOptions(TypedDict):
   triangle_step_size: int
   triangle_angle: float
   triangle_rotate: bool
@@ -12,9 +12,9 @@ class TriangleOptions:
 
 def _create_adjusted_point(
   default:Point,
-  params: TriangleOptions
+  options: TriangleOptions
 ) -> Point:
-  shuffle_range = try_get(params, 'triangle_shuffle_range', 0)
+  shuffle_range = options.get('triangle_shuffle_range', 0)
   if shuffle_range <= 0:
     return default
   x_range = RangeInt(-shuffle_range, shuffle_range)
@@ -90,14 +90,14 @@ class TriangleResult:
     self.center = center
 
 
-def create_triangle_lines(pad_rect: Rect, params: TriangleOptions) -> TriangleResult:
+def create_triangle_lines(pad_rect: Rect, options: TriangleOptions) -> TriangleResult:
   reload_libs(globals())
 
   center = pad_rect.center()
-  rot_rad = try_get(params, 'triangle_rotate_range', RangeFloat(0, 180)).rand() * deg_to_rad
+  rot_rad = options.get('triangle_rotate_range', RangeFloat(0, 180)).rand() * deg_to_rad
 
   bottom_line = Line(Point(pad_rect.x, pad_rect.bottom()), Point(pad_rect.right(), pad_rect.bottom()))
-  rot_angle = try_get(params, 'triangle_angle', 30)
+  rot_angle = options.get('triangle_angle', 30)
 
   # Create base points
   top = Point(center.x, pad_rect.y)
@@ -107,7 +107,7 @@ def create_triangle_lines(pad_rect: Rect, params: TriangleOptions) -> TriangleRe
   right = line_intersection(right_line, bottom_line)
 
   # Rotate points
-  if try_get(params, 'triangle_rotate', False):
+  if options.get('triangle_rotate', False):
     top_delta = top.subtract_copy(center)
     top_delta = top_delta.rotate_copy(rot_rad)
     top = center.add_copy(top_delta)
@@ -119,10 +119,11 @@ def create_triangle_lines(pad_rect: Rect, params: TriangleOptions) -> TriangleRe
     right = center.add_copy(right_delta)
 
   # Adjust points
-  if try_get(params, 'triangle_do_shuffle', False):
-    top = _create_adjusted_point(top, params)
-    left = _create_adjusted_point(left, params)
-    right = _create_adjusted_point(right, params)
+  # TODOML perlin push lines
+  if options.get('triangle_do_shuffle', False):
+    top = _create_adjusted_point(top, options)
+    left = _create_adjusted_point(left, options)
+    right = _create_adjusted_point(right, options)
 
   # Collect final corners, find center
   corners = [top, right, left]
@@ -136,7 +137,7 @@ def create_triangle_lines(pad_rect: Rect, params: TriangleOptions) -> TriangleRe
     min_dist = min(dist, min_dist)
 
   # Separate into steps
-  count = floor(min_dist / params.triangle_step_size)
+  count = floor(min_dist / options.get('triangle_step_size', 50))
   dist_per = min_dist / count
 
   # Create point arrays

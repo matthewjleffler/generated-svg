@@ -7,19 +7,19 @@ class LongWormRunner(Runner):
     super().__init__("long-worm")
 
   def loop_combined(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.LongWormParams(defaults)
+    params = impl.LongWormParams.create(defaults)
     impl.draw_long_worm(params, group)
     return params
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.LongWormParams(defaults)
-    params.draw_highlight = False
+    params = impl.LongWormParams.create(defaults)
+    params['draw_highlight'] = False
     impl.draw_long_worm(params, group)
     return params
 
   def loop_highlight(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.LongWormParams(defaults)
-    params.draw_worm = False
+    params = impl.LongWormParams.create(defaults)
+    params['draw_worm'] = False
     impl.draw_long_worm(params, group)
     return params
 

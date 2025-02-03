@@ -7,7 +7,7 @@ class CircleStackRunner(Runner):
     super().__init__("circle-stack")
 
   def loop(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.CircleStackParams(defaults)
+    params = impl.CircleStackParams.create(defaults)
     impl.draw_circle_stack(params, group)
     return params
 

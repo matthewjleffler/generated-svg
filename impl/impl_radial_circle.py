@@ -11,24 +11,37 @@ class BorderType(ReloadIntEnum):
   Circles = 1
   Starburst = 2
 
-class RadialParams(BaseParams):
-  def __init__(self, defaults: Defaults) -> None:
-    self.draw_circles = True
-    self.draw_border = True
-    self.rotate_range = pi / 10
-    self.ring_pad = 5
-    self.ring_weights: List[tuple[int, float]] = [
-      (0, 5), (1, 2), (2, 1), (3, 0.5)
-    ]
-    self.border_weights: List[tuple[BorderType, float]] = [
-      (BorderType.Empty, 5), (BorderType.Circles, 1), (BorderType.Starburst, 2)
-    ]
-    self.padding = 0
-    self.size_range = RangeInt(20, 350)
-    self.size_pad = 20
-    self.origin_shuffle_range = 0
+class RadialParams(TypedDict):
+  draw_circles: bool
+  draw_border: bool
+  rotate_range: float
+  ring_pad: float
+  ring_weights: Weights[int]
+  border_weights: Weights[BorderType]
+  padding: int
+  size_range: RangeInt
+  size_pad: float
+  origin_shuffle_range: float
 
-    super().__init__(defaults)
+  @classmethod
+  def create(cls, defaults: Defaults) -> 'RadialParams':
+    result: RadialParams = {
+      'draw_circles': True,
+      'draw_border': True,
+      'rotate_range': pi / 10,
+      'ring_pad': 5,
+      'ring_weights': [
+        (0, 5), (1, 2), (2, 1), (3, 0.5)
+      ],
+      'border_weights': [
+        (BorderType.Empty, 5), (BorderType.Circles, 1), (BorderType.Starburst, 2)
+      ],
+      'padding': 0,
+      'size_range': RangeInt(20, 350),
+      'size_pad': 20,
+      'origin_shuffle_range': 0,
+    }
+    return apply_defaults(result, defaults)
 
 
 def _point(center_x:float, center_y:float, rad:float, dist:float) -> Point:
@@ -68,7 +81,7 @@ def _draw_circle(
   # Adjust control points
   for i in range(1, len(subdivided), 2):
     sub = subdivided[i].subtract_floats_copy(x, y)
-    rot = rand_float(-params.rotate_range, params.rotate_range)
+    rot = rand_float(-params['rotate_range'], params['rotate_range'])
     fine = sub.rotate_copy(rot)
     subdivided[i] = Point(x + fine.x, y + fine.y)
 
@@ -90,16 +103,16 @@ def _draw_circle(
     points.append(final)
 
 def _add_border(x:float, y:float, size_h:float, params:RadialParams, group: Group):
-  ring_count = rand_weight(params.ring_weights)
+  ring_count = rand_weight(params['ring_weights'])
 
-  if params.draw_border:
+  if params['draw_border']:
     for i in range(0, ring_count):
-      draw_circ(x, y, size_h + params.ring_pad + params.ring_pad * i, group)
+      draw_circ(x, y, size_h + params['ring_pad'] + params['ring_pad'] * i, group)
 
-  ring_buffer = params.ring_pad + params.ring_pad * (ring_count + 1)
+  ring_buffer = params['ring_pad'] + params['ring_pad'] * (ring_count + 1)
 
-  border = BorderType(rand_weight(params.border_weights))
-  if border == BorderType.Empty or not params.draw_border:
+  border = rand_weight(params['border_weights'])
+  if border == BorderType.Empty or not params['draw_border']:
     return
   elif border == BorderType.Circles:
     draw_ring_of_circles(floor(size_h / 3), x, y, size_h + ring_buffer, 5, group)
@@ -112,13 +125,13 @@ def draw_radial_circles(params:RadialParams, group:Group):
   # draw_border(group)
 
   # Rough path
-  pad_rect = svg_safe().shrink_copy(params.padding)
+  pad_rect = svg_safe().shrink_copy(params['padding'])
 
   # Generate points and control points
   points: List[List[Point]] = []
 
-  size_h = params.size_range.rand()
-  size = size_h + params.size_pad
+  size_h = params['size_range'].rand()
+  size = size_h + params['size_pad']
   size_d = size * 2
 
   col_max = floor(pad_rect.w / size_d)
@@ -137,8 +150,8 @@ def draw_radial_circles(params:RadialParams, group:Group):
         if col == col_max - 1:
           continue
         x += size
-      change_x = rand_float(-params.origin_shuffle_range, params.origin_shuffle_range)
-      change_y = rand_float(-params.origin_shuffle_range, params.origin_shuffle_range)
+      change_x = rand_float(-params['origin_shuffle_range'], params['origin_shuffle_range'])
+      change_y = rand_float(-params['origin_shuffle_range'], params['origin_shuffle_range'])
       x += change_x
       y += change_y
       _draw_circle(x, y, floor(size_h / 2), 10, size_h, points, params)
@@ -156,6 +169,6 @@ def draw_radial_circles(params:RadialParams, group:Group):
       end = point_array[i + 1]
       path += "Q{} {} {} {}".format(control.x, control.y, end.x, end.y)
 
-    if params.draw_circles:
+    if params['draw_circles']:
       draw_path(path, group)
 

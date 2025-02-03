@@ -7,9 +7,9 @@ class VerticalMutateRunner(Runner):
     super().__init__("vertical-mutate")
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.VerticalLineParams(defaults)
-    params.mutate = True
-    params.draw_highlights = False
+    params = impl.VerticalLineParams.create(defaults)
+    params['mutate'] = True
+    params['draw_highlights'] = False
     impl.draw_lines(params, group)
     return params
 

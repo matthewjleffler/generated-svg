@@ -2,36 +2,24 @@ from lib import *
 from perlin_noise import PerlinNoise
 
 
-class PushSettings:
+class PushSettings(TypedDict):
   strength: float
   start_rotation: RangeFloat
   strength_octave: float
   rotation_octave: float
   perlin_range: float
 
-class PushOptions:
+
+class PushOptions(TypedDict):
   debug_draw_boundary: bool
   do_push: bool
   push_settings: List[PushSettings]
 
-def __apply_options_defaults(params: PushOptions) -> PushOptions:
-  params.do_push = try_get(params, 'do_push', True)
-  params.push_settings = try_get(params, 'push_settings', [])
-  return params
 
-def __apply_setting_defaults(params: PushSettings) -> PushSettings:
-  params.strength = try_get(params, 'strength', 50)
-  params.start_rotation = try_get(params, 'start_rotation', RangeFloat(0, 360))
-  params.strength_octave = try_get(params, 'strength_octave', 1)
-  params.rotation_octave = try_get(params, 'strength_octave', 1)
-  params.perlin_range = try_get(params, 'perlin_range', 0.7)
-  return params
+def push_line(line: List[Point], options: PushOptions, seed: int, group: Group):
+  push_lines([line], options, seed, group)
 
-
-def push_line(line: List[Point], params: PushOptions, seed: int, group: Group):
-  push_lines([line], params, seed, group)
-
-def push_lines(lines: List[List[Point]], params: PushOptions, seed: int, group: Group):
+def push_lines(lines: List[List[Point]], options: PushOptions, seed: int, group: Group):
   reload_libs(globals())
 
   # Count total points just once, they're going to move not change
@@ -39,19 +27,19 @@ def push_lines(lines: List[List[Point]], params: PushOptions, seed: int, group: 
   for line in lines:
     total_points += len(line)
 
-  params = __apply_options_defaults(params)
-  len_pushers = len(params.push_settings)
+  push_settings = options.get('push_settings', [])
+  len_pushers = len(push_settings)
   for i in range(0, len_pushers):
-    pusher = params.push_settings[i]
-    pusher = __apply_setting_defaults(pusher)
-    perlin_delta = pusher.perlin_range * 2
-    start_rotation = pusher.start_rotation.rand()
+    pusher = push_settings[i]
+    perlin_range = pusher.get('perlin_range', 0.7)
+    perlin_delta = perlin_range * 2
+    start_rotation = pusher.get('start_rotation', RangeFloat(0, 360)).rand()
 
-    if not params.do_push:
+    if not options.get('do_push', True):
       continue
 
-    noise_strength = PerlinNoise(pusher.strength_octave, seed + i)
-    noise_rotation = PerlinNoise(pusher.rotation_octave, seed + i)
+    noise_strength = PerlinNoise(pusher.get('strength_octave', 1), seed + i)
+    noise_rotation = PerlinNoise(pusher.get('rotation_octave', 1), seed + i)
 
     # Recalculate bounds
     volume = ExpandingVolume()
@@ -69,11 +57,11 @@ def push_lines(lines: List[List[Point]], params: PushOptions, seed: int, group: 
         norm_x = (point.x - rect.x) / rect_max
         norm_y = (point.y - rect.y) / rect_max
         sample_strength = noise_strength((norm_x, norm_y))
-        sample_strength = (sample_strength + pusher.perlin_range) / perlin_delta
+        sample_strength = (sample_strength + perlin_range) / perlin_delta
         sample_rotation = noise_rotation((norm_x, norm_y))
-        sample_rotation = (sample_rotation + pusher.perlin_range) / perlin_delta
+        sample_rotation = (sample_rotation + perlin_range) / perlin_delta
 
-        push_amount = sample_strength * pusher.strength
+        push_amount = sample_strength * pusher.get('strength', 50)
         angle_change = sample_rotation * 180
         point.add(Point(1, 0).rotate(start_rotation + angle_change * deg_to_rad).multiply(push_amount))
 

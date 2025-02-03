@@ -5,21 +5,35 @@ from lib import *
 ### Vertical Wave Drawing
 ###
 
-class VerticalWaveParams(BaseParams):
-  def __init__(self, defaults: Defaults) -> None:
-    self.draw: bool = True
-    self.pad_x: int = 50
-    self.pad_y: int = 0
-    self.row_range: RangeInt = RangeInt(3, 10)
-    self.col_range: RangeInt = RangeInt(5, 10)
-    self.wave_range: float = 100
-    self.wave_y_range: float = 30
-    self.step_size: int = 2
-    self.hatch: bool = True
-    self.hatch_range_on: RangeInt = RangeInt(5, 25)
-    self.hatch_range_off: RangeInt = RangeInt(1, 2)
+class VerticalWaveParams(TypedDict):
+  draw: bool
+  pad_x: int
+  pad_y: int
+  row_range: RangeInt
+  col_range: RangeInt
+  wave_range: float
+  wave_y_range: float
+  step_size: int
+  hatch: bool
+  hatch_range_on: RangeInt
+  hatch_range_off: RangeInt
 
-    super().__init__(defaults)
+  @classmethod
+  def create(cls, defaults: Defaults) -> 'VerticalWaveParams':
+    result: VerticalWaveParams = {
+      'draw': True,
+      'pad_x': 50,
+      'pad_y': 0,
+      'row_range': RangeInt(3, 10),
+      'col_range': RangeInt(5, 10),
+      'wave_range': 100,
+      'wave_y_range': 30,
+      'step_size': 2,
+      'hatch': True,
+      'hatch_range_on': RangeInt(5, 25),
+      'hatch_range_off': RangeInt(1, 2),
+    }
+    return apply_defaults(result, defaults)
 
 
 class _Wave:
@@ -43,7 +57,7 @@ def _create_wave_columns(pad_rect:Rect, rows:int, cols:int, params:VerticalWaveP
       col_y = pad_rect.y + row_delta * row
       # Shuffle Y position
       if row != 0 and row != rows - 1:
-        col_y += rand_float(-params.wave_y_range, params.wave_y_range)
+        col_y += rand_float(-params['wave_y_range'], params['wave_y_range'])
       col_list.append(Point(col_x, col_y))
     # Debug Draw Points
     # draw_point_circles(col_list, group)
@@ -64,7 +78,7 @@ def _create_wave_patterns(pad_rect:Rect, rows:int, cols:int, params:VerticalWave
     result.append(wave_list)
     for col in range(0, cols):
       x = pad_rect.x + col_delta * col
-      val = rand_float(-params.wave_range, params.wave_range)
+      val = rand_float(-params['wave_range'], params['wave_range'])
       wave_list.append(_Wave(Point(x, row_y), val))
 
   # Normalize start and end rows
@@ -98,13 +112,13 @@ def draw_wave(params:VerticalWaveParams, group:Group):
   # draw_border(group)
 
   # Create pad rect
-  pad_rect = svg_safe().shrink_xy_copy(params.pad_x, params.pad_y)
+  pad_rect = svg_safe().shrink_xy_copy(params['pad_x'], params['pad_y'])
   # Debug draw pad rect
   # draw_rect(pad_rect.x, pad_rect.y, pad_rect.w, pad_rect.h, group)
 
   # Create row and column counts
-  rows = params.row_range.rand()
-  cols = params.col_range.rand()
+  rows = params['row_range'].rand()
+  cols = params['col_range'].rand()
 
   # Create Points and Waves
   column_lists = _create_wave_columns(pad_rect, rows, cols, params, group)
@@ -112,7 +126,7 @@ def draw_wave(params:VerticalWaveParams, group:Group):
 
   # Calculate delta between steps
   col_delta = wave_lists[0][1].point.x - wave_lists[0][0].point.x
-  col_steps = floor(col_delta / params.step_size)
+  col_steps = floor(col_delta / params['step_size'])
 
   # Create Final Points
   total_step = 0
@@ -124,7 +138,7 @@ def draw_wave(params:VerticalWaveParams, group:Group):
     for step in range(0, col_steps):
       # Start Path
       first_wave = wave_lists[0][col]
-      x = round(first_x + params.step_size * total_step, 2)
+      x = round(first_x + params['step_size'] * total_step, 2)
       total_step += 1
       percent = step / (col_steps - 1)
 
@@ -157,11 +171,11 @@ def draw_wave(params:VerticalWaveParams, group:Group):
         points.reverse()
 
   # Draw points
-  if params.draw:
+  if params['draw']:
     for col in range(0, len(final_points)):
       column = final_points[col]
 
-      if not params.hatch:
+      if not params['hatch']:
         first = column[0]
         path = f"M{first.x} {first.y}"
         for row in range(1, len(column) - 1, 2):
@@ -170,7 +184,7 @@ def draw_wave(params:VerticalWaveParams, group:Group):
           path += f"Q{control.x} {control.y} {point.x} {point.y}"
         draw_path(path, group)
       else:
-        hatch_params = HatchParams(params.hatch_range_on, params.hatch_range_off)
+        hatch_params = HatchParams(params['hatch_range_on'], params['hatch_range_off'])
 
         all_points: List[Point] = []
         # Collect all the subdivided curves into a single point array

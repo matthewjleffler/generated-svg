@@ -103,7 +103,7 @@ def _run_step(
   keypress = _wait_on_input(key)
   if keypress == __Input.Save:
     print("Saving last output...")
-    return __Result(Defaults(False, _last_seed, current.size, current.params), False, True)
+    return __Result(Defaults(False, _last_seed, current.size), False, True)
 
   elif keypress == __Input.Quit:
     return __Result(None, True, False)
@@ -142,13 +142,6 @@ def run():
     print('    seed:       --seed=[seed]')
     print('    test:       --test=[true/t]')
     print('    auto:       --auto=[true/t]')
-    print('  Params:')
-    print('    int/float:  ++[param name]=[val]')
-    print('    bool:       ++[param name]=[t/true/f/false]')
-    print('    RangeInt:   ++[param name]=ri:[min]:[max]')
-    print('    RangeFloat: ++[param name]=rf:[min]:[max]')
-    print('    weight:     ++[param name]=w:[val,weight]:[val,weight]:...')
-    print('')
     return
 
   if not args.get_bool('auto', True):

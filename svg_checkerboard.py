@@ -7,43 +7,43 @@ class CheckerboardRunner(Runner):
     super().__init__("checkerboard")
 
   def loop_combined(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.CheckerboardParams(defaults)
+    params = impl.CheckerboardParams.create(defaults)
     impl.draw_checkerboard(params, group)
     return params
 
   def loop_main(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.CheckerboardParams(defaults)
-    params.draw_lines = True
-    params.draw_aligned_vertical = False
-    params.draw_aligned_horizontal = False
-    params.draw_filled_checkers = False
+    params = impl.CheckerboardParams.create(defaults)
+    params['draw_lines'] = True
+    params['draw_aligned_vertical'] = False
+    params['draw_aligned_horizontal'] = False
+    params['draw_filled_checkers'] = False
     impl.draw_checkerboard(params, group)
     return params
 
   def loop_vert(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.CheckerboardParams(defaults)
-    params.draw_lines = False
-    params.draw_aligned_vertical = True
-    params.draw_aligned_horizontal = False
-    params.draw_filled_checkers = False
+    params = impl.CheckerboardParams.create(defaults)
+    params['draw_lines'] = False
+    params['draw_aligned_vertical'] = True
+    params['draw_aligned_horizontal'] = False
+    params['draw_filled_checkers'] = False
     impl.draw_checkerboard(params, group)
     return params
 
   def loop_horiz(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.CheckerboardParams(defaults)
-    params.draw_lines = False
-    params.draw_aligned_vertical = False
-    params.draw_aligned_horizontal = True
-    params.draw_filled_checkers = False
+    params = impl.CheckerboardParams.create(defaults)
+    params['draw_lines'] = False
+    params['draw_aligned_vertical'] = False
+    params['draw_aligned_horizontal'] = True
+    params['draw_filled_checkers'] = False
     impl.draw_checkerboard(params, group)
     return params
 
   def loop_fill(self, defaults: Defaults, group: Group, seed: int):
-    params = impl.CheckerboardParams(defaults)
-    params.draw_lines = False
-    params.draw_aligned_vertical = False
-    params.draw_aligned_horizontal = False
-    params.draw_filled_checkers = True
+    params = impl.CheckerboardParams.create(defaults)
+    params['draw_lines'] = False
+    params['draw_aligned_vertical'] = False
+    params['draw_aligned_horizontal'] = False
+    params['draw_filled_checkers'] = True
     impl.draw_checkerboard(params, group)
     return params
 
