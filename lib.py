@@ -37,7 +37,7 @@ def create(dict: dict) -> any:
 def test_type(obj: any, expected: str) -> bool:
   return type(obj).__name__ == expected
 
-def apply_defaults[T](params: dict[str, any], defaults: 'Defaults') -> T:
+def apply_defaults[T](params: TypedDict, defaults: 'Defaults') -> T:
   if defaults.test:
     # Nothing to apply
     return params

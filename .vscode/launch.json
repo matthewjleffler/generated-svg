@@ -11,7 +11,7 @@
       "program": "./run_repeat.py",
       "console": "integratedTerminal",
       "args": [
-        "svg_snake.py"
+        "svg_photo.py"
       ]
     }
   ]

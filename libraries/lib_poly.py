@@ -39,3 +39,20 @@ def poly_diff(p0:Point, p1:Point, poly:shapely.geometry.Polygon) -> List[List[Po
   for linestring in difference.geoms:
     result.append(line_string_to_points(linestring))
   return result
+
+def poly_intersect(p0: Point, p1: Point, poly: shapely.geometry.Polygon) -> List[List[Point]]:
+  if poly is None:
+    return [[p0, p1]]
+  line = to_line(p0, p1)
+  intersection = line.intersection(poly)
+  result: List[List[Point]] = []
+  if intersection.geom_type == "MultiLineString" or intersection.geom_type == "GeometryCollection":
+    for line in intersection.geoms:
+      if line.geom_type == "LineString":
+        result.append(line_string_to_points(line))
+      else:
+        continue
+  elif intersection.geom_type == "LineString":
+    result.append(line_string_to_points(intersection))
+
+  return result
